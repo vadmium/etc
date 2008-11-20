@@ -80,7 +80,7 @@
 ### Set enable-auto-props to 'yes' to enable automatic properties
 ### for 'svn add' and 'svn import', it defaults to 'no'.
 ### Automatic properties are defined in the section 'auto-props'.
-# enable-auto-props = yes
+enable-auto-props = yes
 
 ### Section for configuring automatic properties.
 [auto-props]
@@ -97,7 +97,12 @@
 # *.dsw = svn:eol-style=CRLF
 # *.sh = svn:eol-style=native;svn:executable
 # *.txt = svn:eol-style=native
-# *.png = svn:mime-type=image/png
-# *.jpg = svn:mime-type=image/jpeg
+*.png = svn:mime-type=image/png
+*.jpg = svn:mime-type=image/jpeg
+*.jpeg = svn:mime-type=image/jpeg
+*.ico = svn:mime-type=image/vnd.microsoft.icon
+*.xbm = svn:mime-type=image/x-xbitmap
+*.xpm = svn:mime-type=image/x-xpixmap
+*.html = svn:mime-type=text/html
+*.htm = svn:mime-type=text/html
 # Makefile = svn:eol-style=native
-
