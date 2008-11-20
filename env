@@ -1,0 +1,4 @@
+export PATH="$HOME"/bin:"$PATH"
+export EDITOR=vim
+#export EDITOR=winvi32
+#export SVN_SSH="plink -ssh -l svn"
