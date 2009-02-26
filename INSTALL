@@ -1,0 +1,1 @@
+cp SciTEUser.properties "$USERPROFILE/"
