@@ -6,6 +6,7 @@ cp SciTEUser.properties "$HOME/.SciTEUser.properties"
 ==== updating
 
 cp "$USERPROFILE/SciTEUser.properties" .
+cp "$HOME/.SciTEUser.properties" SciTEUser.properties
 
 ==== gconf
 
