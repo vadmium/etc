@@ -1,1 +1,7 @@
+==== installing
+
+cp SciTEUser.properties "$USERPROFILE/"
+
+==== updating
+
 cp "$USERPROFILE/SciTEUser.properties" .
