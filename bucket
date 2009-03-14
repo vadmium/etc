@@ -1,7 +1,15 @@
 ==== installing
 
 cp SciTEUser.properties "$USERPROFILE/"
+cp SciTEUser.properties "$HOME/.SciTEUser.properties"
 
 ==== updating
 
 cp "$USERPROFILE/SciTEUser.properties" .
+
+==== gconf
+
+DPI: delete from
+~/.gconf/desktop/gnome/font_rendering/%gconf.xml
+/var/lib/gconf/debian.defaults/%gconf-tree.xml
+/usr/share/gconf/defaults/10_libgnome2-common
