@@ -2,6 +2,7 @@
 
 cp SciTEUser.properties "$USERPROFILE/"
 cp SciTEUser.properties "$HOME/.SciTEUser.properties"
+#uncomment the appropriate path to vhdl properties
 
 ==== updating
 
