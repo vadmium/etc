@@ -4,10 +4,14 @@ cp SciTEUser.properties "$USERPROFILE/"
 cp SciTEUser.properties "$HOME/.SciTEUser.properties"
 #uncomment the appropriate path to vhdl properties
 
+cp subversion/config "$APPDATA/Subversion/"
+
 ==== updating
 
 cp "$USERPROFILE/SciTEUser.properties" .
 cp "$HOME/.SciTEUser.properties" SciTEUser.properties
+
+cp "$APPDATA/Subversion/config" subversion/
 
 ==== gconf
 
