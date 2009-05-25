@@ -13,9 +13,23 @@ cp "$HOME/.SciTEUser.properties" SciTEUser.properties
 
 cp "$APPDATA/Subversion/config" subversion/
 
-==== gconf
+==== Things
+
+=== gconf
 
 DPI: delete from
 ~/.gconf/desktop/gnome/font_rendering/%gconf.xml
 /var/lib/gconf/debian.defaults/%gconf-tree.xml
 /usr/share/gconf/defaults/10_libgnome2-common
+
+=== IPADDR
+
+export IPADDR="`ip addr show dev eth0 | sed -n 's/^ *inet \([0-9.]*\).*$/\1/p'`"
+
+=== Bash
+
+set +H
+
+=== Linux
+
+sysctl -w net.ipv4.conf.all.arp_ignore=1
