@@ -8,6 +8,8 @@ cp subversion/config "$APPDATA/Subversion/"
 
 regedit k-meleon-user.reg 
 
+regedit win-unicode.reg
+
 ==== updating
 
 cp "$USERPROFILE/SciTEUser.properties" .
@@ -35,3 +37,29 @@ set +H
 === Linux
 
 sysctl -w net.ipv4.conf.all.arp_ignore=1
+
+=== K-meleon
+
+== $APPDATA/K-Meleon/profiles.ini
+
+[General]
+StartWithLastProfile=1
+
+== $PROFILE/prefs.js
+
+user_pref("kmeleon.toolband.Menu.size", 32767);
+user_pref("kmeleon.toolband.&Main Bar.index", 1);
+user_pref("kmeleon.toolband.&Main Bar.break", 0);
+user_pref("kmeleon.toolband.&Zoom Buttons.index", 2);
+user_pref("kmeleon.toolband.&Zoom Buttons.break", 1);
+user_pref("kmeleon.toolband.&Search Buttons.index", 3);
+user_pref("kmeleon.toolband.Mail/&News Buttons.visibility", false);
+user_pref("kmeleon.toolband.URL Bar.index", 5);
+user_pref("kmeleon.toolband.URL Bar.size", 32767);
+user_pref("kmeleon.toolband.&Go Buttons.index", 6);
+user_pref("kmeleon.toolband.Tab/&Window Buttons.index", 7);
+user_pref("kmeleon.toolband.&Privacy Bar.break", 1);
+user_pref("kmeleon.toolband.&Privacy Bar.visibility", true);
+
+user_pref("kmeleon.plugins.bookmarks.openurl", "ID_OPEN_LINK_IN_NEW_TAB");
+user_pref("kmeleon.plugins.macros.selected.openurl", "ID_OPEN_LINK_IN_NEW_TAB");
