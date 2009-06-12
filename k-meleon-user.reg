@@ -1,0 +1,34 @@
+REGEDIT4
+
+#~ [HKEY_CURRENT_USER\Software\Classes\http]
+
+#~ [HKEY_CURRENT_USER\Software\Classes\http\DefaultIcon]
+#~ @="%HOME%/opt/k-meleon/K-Meleon.exe,1"
+
+#~ [HKEY_LOCAL_MACHINE\SOFTWARE\Classes\http\shell]
+#~ @=""
+
+#~ [HKEY_LOCAL_MACHINE\SOFTWARE\Classes\http\shell\open]
+
+[HKEY_CURRENT_USER\Software\Classes\http\shell\open\command]
+@="\"c:\\marty/opt/k-meleon/K-Meleon.exe\" \"%1\""
+
+[-HKEY_CURRENT_USER\Software\Classes\http\shell\open\ddeexec]
+[HKEY_CURRENT_USER\Software\Classes\http\shell\open\ddeexec\Application]
+@="K-Meleon"
+
+[HKEY_CURRENT_USER\Software\Classes\https\shell\open\command]
+@="\"c:\\marty/opt/k-meleon/K-Meleon.exe\" \"%1\""
+
+[-HKEY_CURRENT_USER\Software\Classes\https\shell\open\ddeexec]
+[HKEY_CURRENT_USER\Software\Classes\https\shell\open\ddeexec\Application]
+@="K-Meleon"
+
+[HKEY_CURRENT_USER\Software\Classes\.html]
+@="K-Meleon.HTML"
+
+[HKEY_CURRENT_USER\Software\Classes\.htm]
+@="K-Meleon.HTML"
+
+[HKEY_CURRENT_USER\Software\Classes\.xhtml]
+@="K-Meleon.HTML"
