@@ -90,3 +90,314 @@ cvs -d :pserver:anoncvs@cvs.andrew.cmu.edu:/cvs login
 # check out tag (-r), specifying working copy dir name (-d)
 cvs -d :pserver:anoncvs@cvs.andrew.cmu.edu:/cvs \
     co -r sasl-2_1_22 -d sasl-2_1_22 src/sasl
+
+==== packages
+
+=== Subversion
+== 1.5.5
+
+Open SSL 0.9.8h
+Expat 1.95.8
+EXPAT="$SYSTEMDRIVE/Expat-1.95.8"
+
+Neon 0.28.3
+patch -p0 < autotools-lib-order.diff
+./autogen.sh
+./configure \
+    CPPFLAGS="-I $PREFIX/include -I $EXPAT/Source/lib" \
+    LDFLAGS="-L $PREFIX/lib -L $EXPAT/Libs" LIBS="-lgdi32" \
+    --enable-webdav \
+    --with-zlib --with-ssl=openssl --with-expat
+make
+make install-headers prefix="$PREFIX"
+install -D src/.libs/libneon.a "$PREFIX/lib"
+strip "$PREFIX/lib/libneon.a"
+
+Berkeley DB 4.4.20
+# Cannot specify "Program Files" because it contains spaces. Cannot specify
+# in terms of DOS 8.3 file names because the Autotools scripts use the tilde
+# (~) character as a command separator.
+#DBROOTDIR="$PROGRAMFILES/Sleepycat Software/Berkeley DB 4.4.20"
+#DBROOTDIR="$SYSTEMDRIVE/progra~1/sleepy~1/berkel~1.20"
+DBROOTDIR="$OPT/db-4.4"
+patch -p0 -d "$DBROOTDIR/include" << DIFF
+--- db.h
++++ db.h
+@@ -74,11 +74,6 @@
+ typedef unsigned int u_int;
+ typedef unsigned long u_long;
+ #endif
+-#ifdef _WIN64
+-typedef int64_t ssize_t;
+-#else
+-typedef int32_t ssize_t;
+-#endif
+ 
+ /*
+  * uintmax_t --
+DIFF
+
+Cyrus SASL 2.1.22
+patch -p1 < cyrus-sasl-2.1.22-mingw.diff
+./configure \
+    --disable-gssapi \
+    LIBS="-lgdi32 -lws2_32" \
+    --with-dblib=berkeley --with-bdb-libdir="$DBROOTDIR/bin" \
+    --with-bdb-incdir="$DBROOTDIR/include" \
+    --without-pam \
+    --without-saslauthd --without-authdaemond \
+    --with-openssl="$PREFIX" \
+    --without-opie
+make
+mkdir -p "$PREFIX/include/sasl" "$BIN"
+cp include/{hmac-md5,md5{,global},prop,sasl{,plug,util}}.h \
+    "$PREFIX/include/sasl"
+cp lib/.libs/libsasl2.dll "$BIN"
+strip "$BIN/libsasl2.dll"
+
+APR 0.9.17
+# Gave up getting configure to run.
+# Use dzonatas.configure.in.mingw.patch from
+# https://issues.apache.org/bugzilla/show_bug.cgi?id=39814#c15 . Try ignoring
+# the failure of the third hunk.
+wget --no-check-certificate "https://issues.apache.org/bugzilla/attachment.cgi?id=19735" -O - |
+patch -p0
+wget --no-check-certificate --content-disposition \
+    "https://issues.apache.org/bugzilla/attachment.cgi?id=19735"
+svn diff http://svn.apache.org/repos/asf/apr/apr/trunk -c421013 > \
+    r421013.configure-mingw.diff
+./buildconf
+./configure
+
+APR 1.3.3
+wget http://apache.mirror.aussiehq.net.au/apr/apr-1.3.3.tar.gz -O - |
+tar xz
+cd apr-1.3.3
+
+svn co http://svn.apache.org/repos/asf/apr/apr/tags/1.3.3
+cd 1.3.3
+PATH="$PATH:$(cd "$PYTHONDIR" && pwd)" ./buildconf
+dos2unix config.layout
+
+patch -p0 < ../include-tlhelp32.diff
+./configure --without-libtool
+make TARGET_LIB=apr-1.dll LINK='$(CC) $(LDFLAGS) -shared -o $@ $^'
+mkdir -p "$BIN" "$PREFIX/include/apr-1"
+cp include/apr{,_*}.h "$PREFIX/include/apr-1"
+cp apr-1.dll "$BIN"
+strip "$BIN/apr-1.dll"
+
+APR-util 0.9.15
+# Gave up (depends on APR 0.9.17)
+./configure --with-berkeley-db="$DBROOTDIR" --with-expat="$EXPAT"
+
+APR 1.2.12, APR-util 1.2.12 prebuilt
+# Don't use these because they don't include Berkeley DB.
+# Source:
+# http://apache.mirror.aussiehq.net.au/apr/binaries/win32/apr-all-1.2.12-win32-x86-msvcrt60.zip
+# With $(NAME) = (apr, aprutil)-1, extract bin/lib$(NAME).dll to $BIN, lib/
+# (lib, "")$(NAME).lib to $PREFIX/lib, include/(apr, apu)*.h to $PREFIX/
+# include
+
+# Depends on APR, APR-util
+patch -p0 < autotools-python.diff
+patch -p0 < autotools-lenient.diff
+PYTHON="$PYTHONDIR/python" ./autogen.sh
+./configure \
+    CPPFLAGS="-I $PREFIX/include" \
+    --without-apache --without-apxs \
+    --with-neon --with-serf --with-berkeley-db \
+    --with-sasl --with-ssl --with-zlib
+
+=== Wget
+== 1.11.4
+
+PREFIX=k:
+cat autotools-lib-order.patch windows.patch set-stdout-binary.merge.patch |
+patch -p1
+rm -f autom4te.cache/traces.0 # otherwise things don't get regenerated!
+./autogen.sh
+# Wget should check the more standard "_WIN32" macro rather than "WINDOWS"?
+# Autotools wants to link directly to the static Open SSL library files
+# rather than simply specifying the library names (which should automatically
+# prefer the DLLs).
+./configure \
+    CPPFLAGS="-D WINDOWS" LIBS="-lws2_32 -lgdi32" \
+    --disable-nls \
+    --with-ssl --with-libssl-prefix="$PREFIX"
+make WINDOWS=yes
+cp src/wget.exe "$BIN"
+strip "$BIN/wget.exe"
+
+=== Patch
+
+== patch 2.5 msys
+
+Version 2.5 in M sys release
+
+msysCORE-1.0.11-2007.01.19-1.tar.bz2
+
+seems to work reasonably well with "binary" option. Without the "binary"
+option, it always seems to convert the entire file to LF line endings,
+despite being run on Windows.
+
+== patch 2.5.4 msys
+
+At least version 2.5.4 in M sys release
+
+msysCORE-1.0.11-20080826.tar.gz
+
+says
+
+(Stripping trailing CRs from patch.)
+
+but fails to patch any file with CRLF line endings:
+
++ despite being run on Windows
++ no matter whether the diff file has CRLFs or not
++ with or without the "binary" option
+
+== 2.5.9 gnuwin32 7
+
+Without the "binary" option, CRLF diffs produce CRLF output, but LF diffs
+fail an assert. With the "binary" option, it says
+
+(Stripping trailing CRs from patch.)
+
+and converts the output to LF line endings.
+
+== 2.5.9-109-g70df4e4
+
+wget ftp://alpha.gnu.org/gnu/patch/patch-2.5.9-109-g70df4e4.tar.gz -O - |
+tar xz
+cd patch-2.5.9-109-g70df4e4
+wget --content-disposition -P gl/lib \
+    "http://git.savannah.gnu.org/gitweb/?p=gnulib.git;a=blob_plain;f=lib/getopt_int.h;hb=9d17a13747f2286970948f17d8e22a81326ae023"
+patch -p0 <<DIFF
+--- gl/lib/xstrndup.c	2009-05-16 10:14:26 +0000
++++ gl/lib/xstrndup.c	2009-05-16 10:14:24 +0000
+@@ -29,8 +29,9 @@
+ char *
+ xstrndup (const char *string, size_t n)
+ {
+-  char *s = strndup (string, n);
++  char *s = strdup (string);
+   if (! s)
+     xalloc_die ();
++  s[n] = 0;
+   return s;
+ }
+--- src/patch.c	2009-05-16 09:44:46 +0000
++++ src/patch.c	2009-05-16 09:44:44 +0000
+@@ -1348,7 +1348,6 @@
+   else
+     {
+       outstate->ofp = stdout;
+-      stdout = stderr;
+     }
+ 
+   outstate->after_newline = true;
+--- src/util.c	2009-05-16 12:53:22 +0000
++++ src/util.c	2009-05-16 12:53:18 +0000
+@@ -232,6 +232,8 @@
+ 	  if (debug & 4)
+ 	    say ("Renaming file %s to %s\n",
+ 		 quotearg_n (0, to), quotearg_n (1, bakname));
++	  
++	  remove (bakname);
+ 	  while (rename (to, bakname) != 0)
+ 	    {
+ 	      if (errno == try_makedirs_errno)
+@@ -282,6 +284,7 @@
+ 	say ("Renaming file %s to %s\n",
+ 	     quotearg_n (0, from), quotearg_n (1, to));
+ 
++      remove (to);
+       if (rename (from, to) != 0)
+ 	{
+ 	  bool to_dir_known_to_exist = false;
+DIFF
+patch -p1 < ../patch-seekable.diff
+./configure
+make GETOPT_H=gl/lib/getopt.h
+cp src/patch.exe "$BIN"
+strip "$BIN/patch.exe"
+
+== 2.5.9-117-g6d9e60f
+
+cache_cat "$PUB/software/text/diff" \
+    ftp://alpha.gnu.org/gnu/patch/patch-2.5.9-117-g6d9e60f.tar.gz |
+tar xz
+# There are missing files compared to the git repository
+
+== 6d9e60f59a055921a6fb161588fe204e2d359349
+
+gnulib_import () {
+    wget -O "gl/$1" \
+        "http://git.savannah.gnu.org/gitweb/?p=gnulib.git;a=blob_plain;f=$1;hb=f4b65cf4d3c0db3a822ace20e00bb8971234fbbf"
+}
+
+cache_cat "$PUB/software/text/diff" \
+    http://git.savannah.gnu.org/cgit/patch.git/snapshot/patch-6d9e60f59a055921a6fb161588fe204e2d359349.tar.gz |
+tar xz
+cd patch-6d9e60f59a055921a6fb161588fe204e2d359349
+echo 2.5.9-117-g6d9e60f > VERSION
+patch -p1 < ../patch-seekable.diff
+gnulib_import m4/string_h.m4
+gnulib_import m4/strnlen.m4
+gnulib_import lib/strnlen.c
+patch -p1 < ../patch-gnulib.diff
+./autogen.sh
+./configure
+make
+cp src/patch.exe "$BIN"
+strip "$BIN/patch.exe"
+
+=== rtmpdump 1.6
+
+wget http://lkcl.net/rtmp/rtmpdump-v1.6.tar.gz -O - |
+tar xz
+cd rtmpdump
+patch Makefile <<'DIFF'
+--- Makefile	2009-05-27 09:48:04 +0000
++++ Makefile.new	2009-05-29 12:18:38 +0000
+@@ -5,6 +5,7 @@
+ CFLAGS=-Wall
+ CXXFLAGS=-Wall
+ LDFLAGS=-Wall
++LDLIBS=-lssl -lcrypto
+ 
+ all: rtmpdump
+ 
+@@ -12,10 +13,10 @@
+ 	rm -f *.o
+ 
+ streams: bytes.o log.o rtmp.o AMFObject.o rtmppacket.o streams.o parseurl.o dh.o handshake.o
+-	$(CXX) $(LDFLAGS) $^ -o $@_x86 -lpthread -lssl -lcrypto
++	$(CXX) $(LDFLAGS) $^ -o $@_x86 -lpthread $(LDLIBS)
+ 
+ rtmpdump: bytes.o log.o rtmp.o AMFObject.o rtmppacket.o rtmpdump.o parseurl.o dh.o handshake.o
+-	$(CXX) $(LDFLAGS) $^ -o $@_x86 -lssl -lcrypto
++	$(CXX) $(LDFLAGS) $^ -o $@_x86 $(LDLIBS)
+ 
+ bytes.o: bytes.cpp bytes.h Makefile
+ log.o: log.cpp log.h Makefile
+DIFF
+make \
+    CXXFLAGS="-Wall -I $PREFIX/include" \
+    LDLIBS="-lwinmm $PREFIX/programs/libeay32.dll -lws2_32"
+cp rtmpdump_x86.exe "$BIN/rtmpdump.exe"
+strip "$BIN/rtmpdump.exe"
+
+=== G lib 2.20.3
+
+=== libmms 0.4
+
+Requires G lib
+extract libmms-0.4.tar.gz from Launchpad download
+cd libmms-0.4
+
+=== mimms 2.3.1
+
+Requires libmms
+mimms-3.2.1.tar.bz2 from a savannah.nongnu.org mirror (nongnu.org was down)
