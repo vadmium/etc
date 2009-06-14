@@ -1,1 +1,2 @@
 QUILT_PATCH_OPTS="--binary"
+QUILT_DIFF_ARGS="--color=auto"

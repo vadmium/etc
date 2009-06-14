@@ -10,12 +10,16 @@ regedit k-meleon-user.reg
 
 regedit content-types-mach.reg
 
+cp quiltrc ~/.quiltrc
+
 ==== updating
 
 cp "$USERPROFILE/SciTEUser.properties" .
 cp "$HOME/.SciTEUser.properties" SciTEUser.properties
 
 cp "$APPDATA/Subversion/config" subversion/
+
+cp ~/.quiltrc quiltrc
 
 ==== Things
 
