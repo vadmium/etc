@@ -6,9 +6,9 @@ cp SciTEUser.properties "$HOME/.SciTEUser.properties"
 
 cp subversion/config "$APPDATA/Subversion/"
 
-regedit k-meleon-user.reg 
+regedit k-meleon-user.reg
 
-regedit content-types-mach.reg 
+regedit content-types-mach.reg
 
 ==== updating
 
