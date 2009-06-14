@@ -30,9 +30,26 @@ DPI: delete from
 
 export IPADDR="`ip addr show dev eth0 | sed -n 's/^ *inet \([0-9.]*\).*$/\1/p'`"
 
-=== Bash
+=== Environment
 
 set +H
+set -u
+PREFIX=k:
+BIN="$PREFIX/bin"
+OPT="$PREFIX/opt"
+PYTHONDIR="$SYSTEMDRIVE/Python25"
+PUB=k:/home/pub
+STORE=~/store
+
+cache_cat () {
+    local cache="$1/$(basename "$2")"
+    if test -e "$cache"; then
+        cat "$cache"
+    else
+        wget "$2" -O - |
+        tee "$cache"
+    fi
+}
 
 === Linux
 
