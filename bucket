@@ -8,7 +8,7 @@ cp subversion/config "$APPDATA/Subversion/"
 
 regedit k-meleon-user.reg 
 
-regedit win-unicode.reg
+regedit content-types-mach.reg 
 
 ==== updating
 
