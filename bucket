@@ -80,3 +80,13 @@ user_pref("kmeleon.toolband.&Privacy Bar.visibility", true);
 
 user_pref("kmeleon.plugins.bookmarks.openurl", "ID_OPEN_LINK_IN_NEW_TAB");
 user_pref("kmeleon.plugins.macros.selected.openurl", "ID_OPEN_LINK_IN_NEW_TAB");
+
+==== howto
+=== CVS
+
+# this must save the password in some global cache
+cvs -d :pserver:anoncvs@cvs.andrew.cmu.edu:/cvs login
+
+# check out tag (-r), specifying working copy dir name (-d)
+cvs -d :pserver:anoncvs@cvs.andrew.cmu.edu:/cvs \
+    co -r sasl-2_1_22 -d sasl-2_1_22 src/sasl
