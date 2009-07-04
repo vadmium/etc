@@ -405,3 +405,28 @@ cd libmms-0.4
 
 Requires libmms
 mimms-3.2.1.tar.bz2 from a savannah.nongnu.org mirror (nongnu.org was down)
+
+=== Quilt 0.48
+
+cache_cat "$STORE/sw" \
+cache_cat "$PUB/software/storage/version" \
+    http://mirror.dknss.com/nongnu/quilt/quilt-0.48.tar.gz |
+tar xz
+cd quilt-0.48
+export QUILT_PATCHES=../patches
+quilt push -a
+autoconf
+# Has to hard-code abolute file names for programs
+alias w=which
+./configure \
+    --with-bash="$(w bash)" --with-cp="$(w cp)" --with-date="$(w date)" \
+    --with-perl="$(w perl)" --with-grep="$(w grep)" --with-tail="$(w tail)" \
+    --with-tr="$(w tr)" --with-sed="$(w sed)" --with-awk="$(w gawk)" \
+    --without-pod2man --without-column --without-getopt --without-mktemp \
+    --with-diff="$(w diff)" --with-patch="$(w patch)" \
+    --with-find="$(w find)" \
+    --without-diffstat \
+    --without-sendmail --without-rpmbuild
+# compat_leftover needs executable permissions to work
+make compat_leftover=""
+make install
