@@ -39,11 +39,25 @@ export IPADDR="`ip addr show dev eth0 | sed -n 's/^ *inet \([0-9.]*\).*$/\1/p'`"
 set +H
 set -u
 PREFIX=k:
+#BIN="$PREFIX/programs"
+#OPT="$PREFIX/programs"
 BIN="$PREFIX/bin"
 OPT="$PREFIX/opt"
-PYTHONDIR="$SYSTEMDRIVE/Python25"
 PUB=k:/home/pub
 STORE=~/store
+
+PYTHONDIR="$SYSTEMDRIVE/Python25"
+export PYTHON="$PYTHONDIR/python"
+
+# Cannot specify "Program Files" because it contains spaces. Cannot specify
+# in terms of DOS 8.3 file names because the Autotools scripts use the tilde
+# (~) character as a command separator.
+#DBROOTDIR="$PROGRAMFILES/Sleepycat Software/Berkeley DB 4.4.20"
+#DBROOTDIR="$SYSTEMDRIVE/progra~1/sleepy~1/berkel~1.20"
+DBROOTDIR="$PREFIX/programs/db-4.4"
+#DBROOTDIR="$OPT/db-4.4"
+
+EXPAT="$SYSTEMDRIVE/Expat-1.95.8"
 
 cache_cat () {
     local cache="$1/$(basename "$2")"
@@ -110,7 +124,7 @@ Requires:
 # Depends on APR, APR-util
 patch -p0 < autotools-python.diff
 patch -p0 < autotools-lenient.diff
-PYTHON="$PYTHONDIR/python" ./autogen.sh
+./autogen.sh
 ./configure \
     CPPFLAGS="-I $PREFIX/include" \
     --without-apache --without-apxs \
@@ -118,7 +132,6 @@ PYTHON="$PYTHONDIR/python" ./autogen.sh
     --with-sasl --with-ssl --with-zlib
 
 === Expat 1.95.8
-EXPAT="$SYSTEMDRIVE/Expat-1.95.8"
 
 === Neon 0.28.3
 patch -p0 < autotools-lib-order.diff
@@ -134,12 +147,6 @@ install -D src/.libs/libneon.a "$PREFIX/lib"
 strip "$PREFIX/lib/libneon.a"
 
 === Berkeley DB 4.4.20
-# Cannot specify "Program Files" because it contains spaces. Cannot specify
-# in terms of DOS 8.3 file names because the Autotools scripts use the tilde
-# (~) character as a command separator.
-#DBROOTDIR="$PROGRAMFILES/Sleepycat Software/Berkeley DB 4.4.20"
-#DBROOTDIR="$SYSTEMDRIVE/progra~1/sleepy~1/berkel~1.20"
-DBROOTDIR="$OPT/db-4.4"
 patch -p0 -d "$DBROOTDIR/include" << DIFF
 --- db.h
 +++ db.h
