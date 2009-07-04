@@ -472,3 +472,13 @@ alias w=which
 # compat_leftover needs executable permissions to work
 make compat_leftover=""
 make install
+
+=== Libtool 1.5.26 (including ltdl library)
+
+http://gnuwin32.sourceforge.net/packages/libtool.htm
+
+The bin file also includes library and include files:
+http://gnuwin32.sourceforge.net/downlinks/libtool-bin-zip.php
+
+The lib file only has library and include files (not the DLL):
+http://gnuwin32.sourceforge.net/downlinks/libtool-lib-zip.php
