@@ -120,16 +120,28 @@ Requires:
 + Berkeley DB 4.4.20
 + Cyrus SASL 2.1.22
 + APR 1.3.3
-
 # Depends on APR, APR-util
-patch -p0 < autotools-python.diff
-patch -p0 < autotools-lenient.diff
+
+export QUILT_PATCHES=../patches
+quilt push -a
 ./autogen.sh
 ./configure \
-    CPPFLAGS="-I $PREFIX/include" \
+    CPPFLAGS="-I $PREFIX/include -I $PREFIX/include/apr-1 \
+        -I $DBROOTDIR/include -I $EXPAT/Source/lib -I $PREFIX/include/sasl \
+        -I $PREFIX/include/neon \
+        -D _WIN32_IE=0x0500 \
+        -D SVN_LOCALE_RELATIVE_PATH"='\"../share/locale\"' \
+    LDFLAGS="-L $BIN -L $PREFIX/lib" \
+    LIBS="$DBROOTDIR/bin/libdb44.dll" \
+    --disable-keychain \
+    --disable-nls \
     --without-apache --without-apxs \
-    --with-neon --with-serf --with-berkeley-db \
-    --with-sasl --with-ssl --with-zlib
+    --with-neon --with-serf \
+    --without-trang \
+    --with-berkeley-db \
+    --with-sasl --with-ssl \
+    --without-jdk --without-swig
+make
 
 === Expat 1.95.8
 
@@ -209,8 +221,11 @@ dos2unix config.layout
 patch -p0 < ../include-tlhelp32.diff
 ./configure --without-libtool
 make TARGET_LIB=apr-1.dll LINK='$(CC) $(LDFLAGS) -shared -o $@ $^'
-mkdir -p "$BIN" "$PREFIX/include/apr-1"
+mkdir -p "$BIN" "$PREFIX/include/apr-1" "$PREFIX/include/apr-1/arch/win32"
 cp include/apr{,_*}.h "$PREFIX/include/apr-1"
+# Subversion seems to require this header, even though the makefile does not
+# install it and it says it is internal.
+cp include/arch/win32/apr_arch_utf8.h "$PREFIX/include/apr-1/arch/win32"
 cp apr-1.dll "$BIN"
 strip "$BIN/apr-1.dll"
 cp build/apr_rules.out "$PREFIX/share/apr-1/build/apr_rules.mk"
