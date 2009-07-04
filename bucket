@@ -97,14 +97,30 @@ cvs -d :pserver:anoncvs@cvs.andrew.cmu.edu:/cvs \
 
 ==== packages
 
-=== Subversion
-== 1.5.5
+=== Subversion 1.5.5
 
-Open SSL 0.9.8h
-Expat 1.95.8
+Requires:
++ Open SSL 0.9.8h
++ Expat 1.95.8
++ Neon 0.28.3
++ Berkeley DB 4.4.20
++ Cyrus SASL 2.1.22
++ APR 1.3.3
+
+# Depends on APR, APR-util
+patch -p0 < autotools-python.diff
+patch -p0 < autotools-lenient.diff
+PYTHON="$PYTHONDIR/python" ./autogen.sh
+./configure \
+    CPPFLAGS="-I $PREFIX/include" \
+    --without-apache --without-apxs \
+    --with-neon --with-serf --with-berkeley-db \
+    --with-sasl --with-ssl --with-zlib
+
+=== Expat 1.95.8
 EXPAT="$SYSTEMDRIVE/Expat-1.95.8"
 
-Neon 0.28.3
+=== Neon 0.28.3
 patch -p0 < autotools-lib-order.diff
 ./autogen.sh
 ./configure \
@@ -117,7 +133,7 @@ make install-headers prefix="$PREFIX"
 install -D src/.libs/libneon.a "$PREFIX/lib"
 strip "$PREFIX/lib/libneon.a"
 
-Berkeley DB 4.4.20
+=== Berkeley DB 4.4.20
 # Cannot specify "Program Files" because it contains spaces. Cannot specify
 # in terms of DOS 8.3 file names because the Autotools scripts use the tilde
 # (~) character as a command separator.
@@ -141,7 +157,7 @@ patch -p0 -d "$DBROOTDIR/include" << DIFF
   * uintmax_t --
 DIFF
 
-Cyrus SASL 2.1.22
+=== Cyrus SASL 2.1.22
 patch -p1 < cyrus-sasl-2.1.22-mingw.diff
 ./configure \
     --disable-gssapi \
@@ -159,7 +175,7 @@ cp include/{hmac-md5,md5{,global},prop,sasl{,plug,util}}.h \
 cp lib/.libs/libsasl2.dll "$BIN"
 strip "$BIN/libsasl2.dll"
 
-APR 0.9.17
+=== APR 0.9.17
 # Gave up getting configure to run.
 # Use dzonatas.configure.in.mingw.patch from
 # https://issues.apache.org/bugzilla/show_bug.cgi?id=39814#c15 . Try ignoring
@@ -173,7 +189,7 @@ svn diff http://svn.apache.org/repos/asf/apr/apr/trunk -c421013 > \
 ./buildconf
 ./configure
 
-APR 1.3.3
+=== APR 1.3.3
 wget http://apache.mirror.aussiehq.net.au/apr/apr-1.3.3.tar.gz -O - |
 tar xz
 cd apr-1.3.3
@@ -191,27 +207,17 @@ cp include/apr{,_*}.h "$PREFIX/include/apr-1"
 cp apr-1.dll "$BIN"
 strip "$BIN/apr-1.dll"
 
-APR-util 0.9.15
+=== APR-util 0.9.15
 # Gave up (depends on APR 0.9.17)
 ./configure --with-berkeley-db="$DBROOTDIR" --with-expat="$EXPAT"
 
-APR 1.2.12, APR-util 1.2.12 prebuilt
+=== APR 1.2.12, APR-util 1.2.12 prebuilt
 # Don't use these because they don't include Berkeley DB.
 # Source:
 # http://apache.mirror.aussiehq.net.au/apr/binaries/win32/apr-all-1.2.12-win32-x86-msvcrt60.zip
 # With $(NAME) = (apr, aprutil)-1, extract bin/lib$(NAME).dll to $BIN, lib/
 # (lib, "")$(NAME).lib to $PREFIX/lib, include/(apr, apu)*.h to $PREFIX/
 # include
-
-# Depends on APR, APR-util
-patch -p0 < autotools-python.diff
-patch -p0 < autotools-lenient.diff
-PYTHON="$PYTHONDIR/python" ./autogen.sh
-./configure \
-    CPPFLAGS="-I $PREFIX/include" \
-    --without-apache --without-apxs \
-    --with-neon --with-serf --with-berkeley-db \
-    --with-sasl --with-ssl --with-zlib
 
 === Wget
 == 1.11.4
