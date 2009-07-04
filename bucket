@@ -213,10 +213,39 @@ mkdir -p "$BIN" "$PREFIX/include/apr-1"
 cp include/apr{,_*}.h "$PREFIX/include/apr-1"
 cp apr-1.dll "$BIN"
 strip "$BIN/apr-1.dll"
+cp build/apr_rules.out "$PREFIX/share/apr-1/build/apr_rules.mk"
 
 === APR-util 0.9.15
 # Gave up (depends on APR 0.9.17)
 ./configure --with-berkeley-db="$DBROOTDIR" --with-expat="$EXPAT"
+
+=== APR-util 1.3.4
+cat "$PUB/software/programming/libraries/apr-util-1.3.4.tar.gz" | tar xz
+cd apr-util-1.3.4
+# apply patches
+rm -f autom4te.cache/traces.0 # otherwise things don't get regenerated!
+autoconf
+db_real="$(cd "$DBROOTDIR" && pwd)"
+# Specify expat at /usr to avoid any chance of using internal expat
+export CPPFLAGS="-I $PREFIX/include/apr-1 -I $EXPAT/Source/lib -D HAVE_SQL_H"
+export LDFLAGS="-L $EXPAT/Libs"
+./configure \
+    APR_BUILD_DIR="$PREFIX/share/apr-1/build" \
+    --with-berkeley-db="$db_real/include:$db_real/bin" \
+    --without-pgsql --without-sqlite3 --without-sqlite2 --without-freetds \
+    --with-odbc \
+    --with-expat=/usr \
+    --without-iconv
+make CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" \
+    LIBS="$PREFIX/bin/apr-1.dll" \
+    TARGET_LIB=aprutil-1.dll LINK='$(CC) $(LDFLAGS) -shared -o $@ $^' \
+    APR_MKEXPORT=':' APR_MKVAREXPORT=':' \
+    LINK_MODULE='$(CC) $(ALL_CFLAGS) $(ALL_LDFLAGS) $(APRUTIL_LDFLAGS) \
+        -shared' \
+    LDADD_dbd_odbc='-lodbc32 $(TARGET_LIB) $(LIBS)'
+mkdir -p "$BIN" "$PREFIX/include/apr-1"
+cp include/*.h "$PREFIX/include/apr-1"
+cp aprutil-1.dll "$BIN"
 
 === APR 1.2.12, APR-util 1.2.12 prebuilt
 # Don't use these because they don't include Berkeley DB.
