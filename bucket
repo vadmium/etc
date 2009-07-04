@@ -482,3 +482,10 @@ http://gnuwin32.sourceforge.net/downlinks/libtool-bin-zip.php
 
 The lib file only has library and include files (not the DLL):
 http://gnuwin32.sourceforge.net/downlinks/libtool-lib-zip.php
+
+=== lib FTDI 0.16
+
+cache_cat "$PUB/software/electronics" \
+    http://www.intra2net.com/en/developer/libftdi/download/libftdi-0.16.tar.gz |
+tar xz
+cd libftdi-0.16
