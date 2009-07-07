@@ -1,2 +1,6 @@
 QUILT_PATCH_OPTS="--binary"
+STRIP="-p 0"
 QUILT_DIFF_ARGS="--color=auto"
+QUILT_IMPORT_ARGS="$STRIP"
+QUILT_FOLD_ARGS="$STRIP"
+QUILT_PATCH_OPTS="--unified-reject-files"
