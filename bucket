@@ -1,10 +1,18 @@
+==== Files
+
+file=subversion/config
+local=~/.subversion/config
+local="$APPDATA/Subversion/config"
+
+file=quiltrc local=~/.quiltrc
+
 ==== installing
 
 cp SciTEUser.properties "$USERPROFILE/"
 cp SciTEUser.properties "$HOME/.SciTEUser.properties"
 #uncomment the appropriate path to vhdl properties
 
-cp subversion/config "$APPDATA/Subversion/"
+cp "$file" "$local"
 
 regedit k-meleon-user.reg
 
@@ -14,12 +22,10 @@ cp quiltrc ~/.quiltrc
 
 ==== updating
 
+diff -u "$file" "$local"
+
 cp "$USERPROFILE/SciTEUser.properties" .
 cp "$HOME/.SciTEUser.properties" SciTEUser.properties
-
-cp "$APPDATA/Subversion/config" subversion/
-
-cp ~/.quiltrc quiltrc
 
 ==== Things
 
@@ -45,6 +51,7 @@ BIN="$PREFIX/bin"
 OPT="$PREFIX/opt"
 PUB=k:/home/pub
 STORE=~/store
+export APPDATA="$USERPROFILE/Application Data"
 
 PYTHONDIR="$SYSTEMDRIVE/Python25"
 export PYTHON="$PYTHONDIR/python"
