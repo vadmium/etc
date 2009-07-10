@@ -105,11 +105,11 @@ user_pref("kmeleon.toolband.&Privacy Bar.visibility", true);
 
 user_pref("kmeleon.plugins.bookmarks.openurl", "ID_OPEN_LINK_IN_NEW_TAB");
 user_pref("kmeleon.plugins.macros.selected.openurl", "ID_OPEN_LINK_IN_NEW_TAB");
-
 user_pref("kmeleon.tabs.onOpenOption", 1);
-
 user_pref("browser.link.open_newwindow", 3);
 user_pref("browser.link.open_newwindow.restriction", 0);
+
+user_pref("kmeleon.plugins.gestures.up", "macros(Go_Up)");
 
 ==== howto
 === CVS
