@@ -475,30 +475,30 @@ cd libmms-0.4
 Requires libmms
 mimms-3.2.1.tar.bz2 from a savannah.nongnu.org mirror (nongnu.org was down)
 
-=== Quilt 0.48
+=== Quilt 0.48-vad-0
 
+upver="0.48"
 cache_cat "$STORE/sw" \
 cache_cat "$PUB/software/storage/version" \
-    http://mirror.dknss.com/nongnu/quilt/quilt-0.48.tar.gz |
+    "http://mirror.dknss.com/nongnu/quilt/quilt-$upver.tar.gz" |
 tar xz
-cd quilt-0.48
+cd "quilt-$upver"
 export QUILT_PATCHES=../patches
 quilt push -a
 autoconf
-# Has to hard-code abolute file names for programs
-alias w=which
+# Empty prefix means root, so that "$PREFIX/dir" becomes "/dir"
 ./configure \
-    --with-bash="$(w bash)" --with-cp="$(w cp)" --with-date="$(w date)" \
-    --with-perl="$(w perl)" --with-grep="$(w grep)" --with-tail="$(w tail)" \
-    --with-tr="$(w tr)" --with-sed="$(w sed)" --with-awk="$(w gawk)" \
+    --prefix="" \
+    --with-bash --with-cp --with-date --with-perl --with-grep --with-tail \
+    --with-tr --with-sed --with-awk \
     --without-pod2man --without-column --without-getopt --without-mktemp \
-    --with-diff="$(w diff)" --with-patch="$(w patch)" \
-    --with-find="$(w find)" \
+    --with-diff --with-patch --with-find \
     --without-diffstat \
     --without-sendmail --without-rpmbuild
+myver="$upver-vad-0"
 # compat_leftover needs executable permissions to work
-make compat_leftover=""
-make install
+make VERSION="$myver" compat_leftover=""
+make install BUILD_ROOT="$(cd .. && pwd)/quilt-$myver-inst"
 
 === Libtool 1.5.26 (including ltdl library)
 
