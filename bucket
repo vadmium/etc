@@ -475,7 +475,7 @@ cd libmms-0.4
 Requires libmms
 mimms-3.2.1.tar.bz2 from a savannah.nongnu.org mirror (nongnu.org was down)
 
-=== Quilt 0.48-vad-0
+=== Quilt 0.48-vad-1
 
 upver="0.48"
 cache_cat "$STORE/sw" \
@@ -483,7 +483,11 @@ cache_cat "$PUB/software/storage/version" \
     "http://mirror.dknss.com/nongnu/quilt/quilt-$upver.tar.gz" |
 tar xz
 cd "quilt-$upver"
-export QUILT_PATCHES=../patches
+mkdir .pc
+echo QUILT_SERIES=series-vad-1 > .pc/quiltrc
+# Get patches directory now
+# echo QUILT_PATCHES=../patches >> .pc/quiltrc
+quilt upgrade
 quilt push -a
 autoconf
 # Empty prefix means root, so that "$PREFIX/dir" becomes "/dir"
@@ -507,7 +511,7 @@ autoconf
 myver="$upver-vad-1"
 # compat_leftover needs executable permissions to work
 make VERSION="$myver" compat_leftover=""
-make install BUILD_ROOT="$(pwd)/inst"
+make install BUILD_ROOT="$(pwd)/stage"
 
 === Libtool 1.5.26 (including ltdl library)
 
