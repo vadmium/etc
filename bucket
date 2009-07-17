@@ -1,3 +1,5 @@
+(coding: utf-8)
+
 ==== Files
 
 file=subversion/config
@@ -18,6 +20,8 @@ regedit k-meleon-user.reg
 
 regedit content-types-mach.reg
 
+regedit -s putty.reg
+
 cp quiltrc ~/.quiltrc
 
 ==== updating
@@ -26,6 +30,8 @@ diff -u "$file" "$local"
 
 cp "$USERPROFILE/SciTEUser.properties" .
 cp "$HOME/.SciTEUser.properties" SciTEUser.properties
+
+regedit -e putty.reg 'HKEY_CURRENT_USER\Software\SimonTatham\PuTTY'
 
 ==== Things
 
