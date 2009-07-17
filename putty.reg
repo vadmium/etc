@@ -1,16 +1,17 @@
 REGEDIT4
 
-[-HKEY_CURRENT_USER\Software\SimonTatham\PuTTY\Sessions\Default%20Settings]
 [HKEY_CURRENT_USER\Software\SimonTatham\PuTTY\Sessions\Default%20Settings]
 "TerminalType"="linux"
 "LineCodePage"="UTF-8"
-"HideMousePtr"=dword:00000001
+
 "Font"="DejaVu Sans Mono"
-"FontHeight"=dword:00000007
-"PasteRTF"=dword:00000001
-"MouseIsXterm"=dword:00000001
+"FontHeight"=dword:00000008
 "FontIsBold"=dword:00000000
 "FontCharSet"=dword:00000000
+
+"HideMousePtr"=dword:00000001
+"PasteRTF"=dword:00000001
+"MouseIsXterm"=dword:00000001
 "ScrollOnKey"=dword:00000001
 "ScrollOnDisp"=dword:00000000
 "ScrollbackLines"=dword:00001388
