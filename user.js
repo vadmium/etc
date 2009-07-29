@@ -59,10 +59,10 @@ user_pref("browser.display.enable_marquee", true);
 //user_pref("clipboard.autocopy", false);
 
 /* Middle mouse prefs: true by default on Unix, false on other platforms. */
-user_pref("middlemouse.paste", false);
+// user_pref("middlemouse.paste", false);
 user_pref("middlemouse.openNewWindow", true);
 user_pref("middlemouse.contentLoadURL", false);
-user_pref("middlemouse.scrollbarPosition", false);
+// user_pref("middlemouse.scrollbarPosition", false);
 
 user_pref("general.autoScroll", true);
 
