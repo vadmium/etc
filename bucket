@@ -8,13 +8,14 @@ local="$APPDATA/Subversion/config"
 
 file=quiltrc local=~/.quiltrc
 
+file=SciTEUser.properties
+local="$HOME/.SciTEUser.properties"
+local="$USERPROFILE/SciTEUser.properties"
+# Patch the appropriate path to vhdl properties
+
 file=user.js local="$(echo ~/.mozilla/firefox/*.default)/$file"
 
 ==== installing
-
-cp SciTEUser.properties "$USERPROFILE/"
-cp SciTEUser.properties "$HOME/.SciTEUser.properties"
-#uncomment the appropriate path to vhdl properties
 
 cp "$file" "$local"
 
@@ -29,9 +30,7 @@ cp quiltrc ~/.quiltrc
 ==== updating
 
 diff -u "$file" "$local"
-
-cp "$USERPROFILE/SciTEUser.properties" .
-cp "$HOME/.SciTEUser.properties" SciTEUser.properties
+cp "$local" "$file"
 
 regedit -e putty.reg 'HKEY_CURRENT_USER\Software\SimonTatham\PuTTY'
 
@@ -59,6 +58,8 @@ BIN="$PREFIX/bin"
 OPT="$PREFIX/opt"
 PUB=k:/home/pub
 STORE=~/store
+
+# Maybe for CopSSH (Cygwin)?
 export APPDATA="$USERPROFILE/Application Data"
 
 PYTHONDIR="$SYSTEMDRIVE/Python25"
@@ -94,6 +95,19 @@ sysctl -w net.ipv4.conf.all.arp_ignore=1
 
 [General]
 StartWithLastProfile=1
+
+=== Firefox
+
+PROFILE="$(echo ~/.mozilla/firefox/*.default)"
+
+== $PROFILE/localstore.rdf
+
+  <RDF:Description RDF:about="chrome://browser/content/browser.xul#toolbar-menubar"
+                   iconsize="small"
+                   currentset="menubar-items,search-container,unified-back-forward-button,reload-button,stop-button,throbber-box" />
+  <RDF:Description RDF:about="chrome://browser/content/browser.xul#nav-bar"
+                   iconsize="small"
+                   currentset="urlbar-container" />
 
 ==== howto
 === CVS

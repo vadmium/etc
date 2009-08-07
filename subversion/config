@@ -82,6 +82,8 @@
 ### Automatic properties are defined in the section 'auto-props'.
 enable-auto-props = yes
 
+interactive-conflicts = no
+
 ### Section for configuring automatic properties.
 [auto-props]
 ### The format of the entries is:
