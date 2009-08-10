@@ -1,3 +1,9 @@
+/* See
+http://kb.mozillazine.org/About:config_entries
+http://preferential.mozdev.org/preferences.html
+http://kb.mozillazine.org/Category:Preferences
+*/
+
 user_pref("kmeleon.toolband.Menu.size", 32767);
 user_pref("kmeleon.toolband.&Main Bar.index", 1);
 user_pref("kmeleon.toolband.&Main Bar.break", 0);
@@ -19,6 +25,8 @@ user_pref("browser.link.open_newwindow", 3);
 user_pref("browser.link.open_newwindow.restriction", 0);
 
 user_pref("kmeleon.plugins.gestures.up", "macros(Go_Up)");
+
+user_pref("browser.startup.page", 0);
 
 /* ==== Potential annoyances */
 
@@ -144,7 +152,7 @@ user_pref("browser.link.open_newwindow", 3);
 // user_pref("browser.tabs.loadDivertedInBackground", true);
 
 /* Control focusing of new tabs opened by middle-click or ctrl-click */
-user_pref("browser.tabs.loadInBackground", false);
+// user_pref("browser.tabs.loadInBackground", false);
 
 /* When the "dom.disable_open_click_delay" pref is set to a non-zero number,
 "window.open" will fail when called more than that number of milliseconds
