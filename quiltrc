@@ -1,5 +1,7 @@
 COLOR="--color=auto"
 QUILT_DIFF_ARGS="--no-timestamps $COLOR"
 QUILT_PUSH_ARGS="$COLOR"
+QUILT_SERIES_ARGS="-v"
+QUILT_PATCHES_ARGS="-v"
 QUILT_PATCH_OPTS="--binary --unified-reject-files"
 QUILT_DIFF_OPTS="--show-c-function"
