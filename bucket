@@ -14,6 +14,8 @@ local="$USERPROFILE/SciTEUser.properties"
 # Patch the appropriate path to vhdl properties
 
 file=user.js local="$(echo ~/.mozilla/firefox/*.default)/$file"
+file=hosts local=/etc/hosts
+file=profile local=~/.profile
 
 ==== installing
 
@@ -519,6 +521,8 @@ make install BUILD_ROOT="$(pwd)/stage"
 + Make quilt del fail if there are unsaved changes, the same way that quilt pop does without -f
 + quilt fold -d option to apply patch to subdirectory
 + quilt -P option uniform for all operations (eg for "quilt files" the argument is the -P option)
++ steal diff syntax highlighting into separate module (if necessary)
++ make it possible to force colour when piping into less -R
 
 === Libtool 1.5.26 (including ltdl library)
 

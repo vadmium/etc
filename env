@@ -1,6 +1,8 @@
+export PATH="/usr/sbin:/sbin:$PATH"
 export PATH="$HOME/bin:$PATH"
 #export EDITOR=vim
 #export EDITOR=winvi32
 #export SVN_SSH="plink -ssh -l svn -batch"
 #export no_proxy="localhost,127.0.0.1/8,network/16,10.0.0.0/8,172.31.0.0/16,example.com.au"
 #export http_proxy='http://domain\username@proxy:3128/'
+export GREP_OPTIONS="--color"

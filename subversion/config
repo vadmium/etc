@@ -82,6 +82,7 @@
 ### Automatic properties are defined in the section 'auto-props'.
 enable-auto-props = yes
 
+# TODO: on MSYS only
 interactive-conflicts = no
 
 ### Section for configuring automatic properties.
