@@ -1,4 +1,4 @@
-(coding: utf-8)
+(coding: UTF-8)
 
 ==== Files
 
@@ -471,7 +471,7 @@ cd libmms-0.4
 Requires libmms
 mimms-3.2.1.tar.bz2 from a savannah.nongnu.org mirror (nongnu.org was down)
 
-=== Quilt 0.48-vad-1
+=== Quilt 0.48-vad-2
 
 upver="0.48"
 cache_cat "$STORE/sw" \
@@ -480,13 +480,15 @@ cache_cat "$PUB/software/storage/version" \
 tar xz
 cd "quilt-$upver"
 mkdir .pc
-echo QUILT_SERIES=series-vad-1 > .pc/quiltrc
+echo QUILT_SERIES=series-vad-2 > .pc/quiltrc
 # Get patches directory now
 # echo QUILT_PATCHES=../patches >> .pc/quiltrc
 quilt upgrade
 quilt push -a
 autoconf
 # Empty prefix means root, so that "$PREFIX/dir" becomes "/dir"
+
+# Without getopt
 ./configure \
     --prefix="" \
     --with-bash --with-cp --with-date --with-perl --with-grep --with-tail \
@@ -495,6 +497,8 @@ autoconf
     --with-diff --with-patch --with-find \
     --without-diffstat \
     --without-sendmail --without-rpmbuild
+
+# With getopt
 ./configure \
     --prefix="" \
     --with-bash --with-cp --with-date --with-perl --with-grep --with-tail \
@@ -504,10 +508,17 @@ autoconf
     --with-diff --with-patch --with-find \
     --without-diffstat \
     --without-sendmail --without-rpmbuild
-myver="$upver-vad-1"
+
+myver="$upver-vad-2"
 # compat_leftover needs executable permissions to work
 make VERSION="$myver" compat_leftover=""
 make install BUILD_ROOT="$(pwd)/stage"
+
+== TODO
+
++ Make quilt del fail if there are unsaved changes, the same way that quilt pop does without -f
++ quilt fold -d option to apply patch to subdirectory
++ quilt -P option uniform for all operations (eg for "quilt files" the argument is the -P option)
 
 === Libtool 1.5.26 (including ltdl library)
 
