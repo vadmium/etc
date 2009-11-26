@@ -540,3 +540,61 @@ cache_cat "$PUB/software/electronics" \
     http://www.intra2net.com/en/developer/libftdi/download/libftdi-0.16.tar.gz |
 tar xz
 cd libftdi-0.16
+
+==== Generic/Serial server
+
+always listen on socket
+
+=== Always buffered mode
+
+socat serial > bufferer < mixer
+server < buffer-share > mix-in
+
+server < serial-out > serial-in
+
+server-send < serial-out
+server-recv > serial-in
+
+same-server
+socat server /dev/null
+
++ Shared server endpoints are always open.
++ Keep shared server data in large "circular" buffer. Circular means that new
+    data eventually overwrites old data.
++ Each new connection will have a tail pointer into the shared circular
+    buffer to keep track of unwritten data.
++ Write all data in the shared buffer to new client connections.
++ If unforwarded server data overflows a client's unsent part of the shared
+    buffer, could:
+    + disconnect the client
+    + overrun the buffer
++ Write buffered shared data from server to clients if possible before
+    reading new data from server, to avoid unnecessarily overrunning the
+    buffer or disconnecting clients.
++ Use another smaller buffer to hold data mixed from clients to server.
++ If there is free space in the mix buffer, read from each client.
++ Write any mixed data to server (after reading from clients, to improve
+    efficiency).
+
+=== Open on demand
+
+server-ondem {socat serial}
+
++ When the first client connection is accepted:
+    + Start opening the server connection. Try not to block.
++ If server connection fails, notify close connections to all clients.
++ When the last connection is closed, close the server connection.
++ Allocate a smaller buffer to hold data from the shared server. This is
+    treated similar to the large circular buffer:
+    + client connections use the buffer for data to send
+    + if the buffer is overrun, perhaps disconnect the client
+    + write old data to clients before reading new data from server
++ Identical rules for mixing data from clients to server.
+
+=== Differences
+
++ Always buffering server opens serial immediately instead of waiting for a
+    connection. Failure can still be notified to each client connection, or
+    each new connection can cause a retry.
++ Buffering server sends the whole buffer to each new connection; on-demand
+    server doesn't.
