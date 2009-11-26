@@ -523,6 +523,7 @@ make install BUILD_ROOT="$(pwd)/stage"
 + quilt -P option uniform for all operations (eg for "quilt files" the argument is the -P option)
 + steal diff syntax highlighting into separate module (if necessary)
 + make it possible to force colour when piping into less -R
++ quilt push -f; quilt fork; quilt pop doesn't ask for a refresh
 
 === Libtool 1.5.26 (including ltdl library)
 
