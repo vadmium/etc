@@ -1,2 +1,8 @@
-xterm*eightBitInput: false
+xterm*metaSendsEscape: true
+//xterm*bellIsUrgent: true
+xterm*bellIsUrgent: false
+xterm*pointerMode: 2
+xterm*scrollKey: true
+xterm*scrollTtyOutput: false
+xterm*visualBell: true
 Xft.dpi: 75

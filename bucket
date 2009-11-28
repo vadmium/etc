@@ -16,6 +16,7 @@ local="$USERPROFILE/SciTEUser.properties"
 file=user.js local="$(echo ~/.mozilla/firefox/*.default)/$file"
 file=hosts local=/etc/hosts
 file=profile local=~/.profile
+file=Xresources local=~/.Xresources
 
 ==== installing
 
