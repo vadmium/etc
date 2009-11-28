@@ -550,6 +550,18 @@ cache_cat "$PUB/software/electronics" \
 tar xz
 cd libftdi-0.16
 
+=== cksfv 1.3.14-vad-1
+
+cache_cat "$PUB/software/storage" \
+    "http://zakalwe.fi/~shd/foss/cksfv/files/cksfv-1.3.14.tar.gz" |
+tar xz
+cd cksfv-1.3.14
+quilt push -a
+./configure
+make
+cp src/cksfv.exe "$BIN/cksfv.exe"
+strip "$BIN/cksfv.exe"
+
 ==== Generic/Serial server
 
 always listen on socket
