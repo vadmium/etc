@@ -2,21 +2,27 @@
 
 ==== Files
 
+homedot () {
+    file="$1"
+    local="$HOME/.$1"
+}
+
 file=subversion/config
 local=~/.subversion/config
 local="$APPDATA/Subversion/config"
 
-file=quiltrc local=~/.quiltrc
+homedot quiltrc
 
-file=SciTEUser.properties
-local="$HOME/.SciTEUser.properties"
-local="$USERPROFILE/SciTEUser.properties"
+homedot SciTEUser.properties
+file=SciTEUser.properties local="$USERPROFILE/SciTEUser.properties"
 # Patch the appropriate path to vhdl properties
 
 file=user.js local="$(echo ~/.mozilla/firefox/*.default)/$file"
-file=hosts local=/etc/hosts
-file=profile local=~/.profile
-file=Xresources local=~/.Xresources
+file=hosts local="/etc/hosts"
+homedot profile
+homedot Xresources
+file=apt.conf local="/etc/apt/apt.conf"
+homedot curlrc
 
 ==== installing
 
@@ -32,6 +38,7 @@ regedit -s putty.reg
 
 diff -u "$file" "$local"
 cp "$local" "$file"
+"$EDITOR" "$local"
 
 regedit -e putty.reg 'HKEY_CURRENT_USER\Software\SimonTatham\PuTTY'
 
