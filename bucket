@@ -481,7 +481,7 @@ cd libmms-0.4
 Requires libmms
 mimms-3.2.1.tar.bz2 from a savannah.nongnu.org mirror (nongnu.org was down)
 
-=== Quilt 0.48-vad-2
+=== Quilt 0.48-vad-3
 
 upver="0.48"
 cache_cat "$STORE/sw" \
@@ -490,7 +490,8 @@ cache_cat "$PUB/software/storage/version" \
 tar xz
 cd "quilt-$upver"
 mkdir .pc
-echo QUILT_SERIES=series-vad-2 > .pc/quiltrc
+vadver="vad-3"
+echo QUILT_SERIES="series-$vadver" > .pc/quiltrc
 # Get patches directory now
 # echo QUILT_PATCHES=../patches >> .pc/quiltrc
 quilt upgrade
@@ -501,7 +502,7 @@ autoconf
 # Without getopt
 ./configure \
     --prefix="" \
-    --with-bash --with-cp --with-date --with-perl --with-grep --with-tail \
+    --with-bash --with-cp --with-date --with-p<<erl --with-grep --with-tail \
     --with-tr --with-sed --with-awk \
     --without-pod2man --without-column --without-getopt --without-mktemp \
     --with-diff --with-patch --with-find \
@@ -519,19 +520,20 @@ autoconf
     --without-diffstat \
     --without-sendmail --without-rpmbuild
 
-myver="$upver-vad-2"
 # compat_leftover needs executable permissions to work
-make VERSION="$myver" compat_leftover=""
+make VERSION="$upver-$vadver" compat_leftover=""
 make install BUILD_ROOT="$(pwd)/stage"
 
 == TODO
 
-+ Make quilt del fail if there are unsaved changes, the same way that quilt pop does without -f
-+ quilt fold -d option to apply patch to subdirectory
++ quilt fold -d option to apply patch to subdirectory [it already does if you cd]
 + quilt -P option uniform for all operations (eg for "quilt files" the argument is the -P option)
 + steal diff syntax highlighting into separate module (if necessary)
 + make it possible to force colour when piping into less -R
 + quilt push -f; quilt fork; quilt pop doesn't ask for a refresh
++ quilt fold colour
++ quilt diff ../<path> doesn't work even if you're cwd is deep inside the source code tree
++ quilt new <existing file>; quilt pop doesn't change the file; therefore quilt push fails
 
 === Libtool 1.5.26 (including ltdl library)
 
