@@ -312,9 +312,7 @@ strip "$BIN/wget.exe"
 
 == patch 2.5 msys
 
-Version 2.5 in M sys release
-
-msysCORE-1.0.11-2007.01.19-1.tar.bz2
+Version 2.5 in M sys release "msysCORE-1.0.11-2007.01.19-1.tar.bz2"
 
 seems to work reasonably well with "binary" option. Without the "binary"
 option, it always seems to convert the entire file to LF line endings,
@@ -322,10 +320,7 @@ despite being run on Windows.
 
 == patch 2.5.4 msys
 
-At least version 2.5.4 in M sys release
-
-msysCORE-1.0.11-20080826.tar.gz
-
+At least version 2.5.4 in M sys release "msysCORE-1.0.11-20080826.tar.gz"
 says
 
 (Stripping trailing CRs from patch.)
