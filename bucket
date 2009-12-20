@@ -18,7 +18,11 @@ file=SciTEUser.properties local="$USERPROFILE/SciTEUser.properties"
 # Patch the appropriate path to vhdl properties
 
 file=user.js local="$(echo ~/.mozilla/firefox/*.default)/$file"
-file=hosts local="/etc/hosts"
+
+file=hosts
+local="/etc/hosts"
+local="$SYSTEMROOT/system32/drivers/etc/hosts"
+
 homedot profile
 homedot Xresources
 file=apt.conf local="/etc/apt/apt.conf"
