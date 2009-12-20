@@ -518,6 +518,7 @@ autoconf
 # compat_leftover needs executable permissions to work
 make VERSION="$upver-$vadver" compat_leftover=""
 make install BUILD_ROOT="$(pwd)/stage"
+strip stage/lib/quilt/backup-files*
 
 == TODO
 
