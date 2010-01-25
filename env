@@ -4,5 +4,10 @@ export PATH="$HOME/bin:$PATH"
 #export EDITOR=winvi32
 #export SVN_SSH="plink -ssh -l svn -batch"
 #export no_proxy="localhost,127.0.0.1/8,network/16,10.0.0.0/8,172.31.0.0/16,example.com.au"
-#export http_proxy='http://domain\username@proxy:3128/'
+#
+## APT doesn't use the address range notation
+#export no_proxy="$no_proxy,webserver"
+#
+#export http_proxy='http://domain\user:p%40ss@proxy:3128/'
 export GREP_OPTIONS="--color"
+export LD_LIBRARY_PATH="$HOME/lib:$LD_LIBRARY_PATH"

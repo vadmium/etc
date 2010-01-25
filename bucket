@@ -27,6 +27,7 @@ homedot profile
 homedot Xresources
 file=apt.conf local="/etc/apt/apt.conf"
 homedot curlrc
+homedot env
 
 ==== installing
 
@@ -490,6 +491,7 @@ tar xz
 cd "quilt-$upver"
 mkdir .pc
 vadver="vad-3"
+vadver="vad-3+dev"
 echo QUILT_SERIES="series-$vadver" > .pc/quiltrc
 # Get patches directory now
 # echo QUILT_PATCHES=../patches >> .pc/quiltrc
@@ -521,8 +523,10 @@ autoconf
 
 # compat_leftover needs executable permissions to work
 make VERSION="$upver-$vadver" compat_leftover=""
-make install BUILD_ROOT="$(pwd)/stage"
-strip stage/lib/quilt/backup-files*
+export BUILD_ROOT="$(pwd)/stage"
+export BUILD_ROOT="$HOME"
+make install
+strip "$BUILD_ROOT/lib/quilt/backup-files"*
 
 == TODO
 
@@ -534,6 +538,8 @@ strip stage/lib/quilt/backup-files*
 + quilt fold colour
 + quilt diff ../<path> doesn't work even if you're cwd is deep inside the source code tree
 + quilt new <existing file>; quilt pop doesn't change the file; therefore quilt push fails
++ quilt pop doesn't seem to complain about needing refreshing if you delete a file rather than edit it
++ quilt fold -f goes interactive like quilt push -f apparently used to
 
 === Libtool 1.5.26 (including ltdl library)
 
@@ -563,6 +569,12 @@ quilt push -a
 make
 cp src/cksfv.exe "$BIN/cksfv.exe"
 strip "$BIN/cksfv.exe"
+
+=== QPDF 2.1.1
+
+./configure --prefix=""
+make
+make install DESTDIR="$(pwd)/stage"
 
 ==== Generic/Serial server
 
