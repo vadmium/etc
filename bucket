@@ -490,11 +490,7 @@ cache_cat "$PUB/software/storage/version" \
 tar xz
 cd "quilt-$upver"
 mkdir .pc
-vadver="vad-3"
-vadver="vad-3+dev"
-echo QUILT_SERIES="series-$vadver" > .pc/quiltrc
-# Get patches directory now
-# echo QUILT_PATCHES=../patches >> .pc/quiltrc
+echo QUILT_PATCHES=../patches > .pc/quiltrc
 quilt upgrade
 quilt push -a
 autoconf
@@ -522,7 +518,7 @@ autoconf
     --without-sendmail --without-rpmbuild
 
 # compat_leftover needs executable permissions to work
-make VERSION="$upver-$vadver" compat_leftover=""
+make VERSION="$upver-vad4+dev" compat_leftover=""
 export BUILD_ROOT="$(pwd)/stage"
 export BUILD_ROOT="$HOME"
 make install
@@ -540,6 +536,10 @@ strip "$BUILD_ROOT/lib/quilt/backup-files"*
 + quilt new <existing file>; quilt pop doesn't change the file; therefore quilt push fails
 + quilt pop doesn't seem to complain about needing refreshing if you delete a file rather than edit it
 + quilt fold -f goes interactive like quilt push -f apparently used to
++ quilt sub scripts don't need the shebang at the top
++ quilt command aliases, without having to add an extra file
++ quilt ref -z but without actually refreshing. Needs thought, like what if you want to get the unrefreshed changes of two patches into the new patch. What if you want to get svn diff (no previous patch) into a new patch? Or explicitly tell it an original file?
++ quilt commit -n; like quilt del -n
 
 === Libtool 1.5.26 (including ltdl library)
 
@@ -633,3 +633,7 @@ server-ondem {socat serial}
     each new connection can cause a retry.
 + Buffering server sends the whole buffer to each new connection; on-demand
     server doesn't.
+
+==== Network
+
++ wpa_supplicant likes iwconfig mode managed (or perhaps also auto)
