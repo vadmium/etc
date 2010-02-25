@@ -103,6 +103,8 @@ native-eol-style = LF
 # *.dsw = svn:eol-style=CRLF
 # *.sh = svn:eol-style=native;svn:executable
 # *.txt = svn:eol-style=native
+# Makefile = svn:eol-style=native
+
 *.png = svn:mime-type=image/png
 *.jpg = svn:mime-type=image/jpeg
 *.jpeg = svn:mime-type=image/jpeg
@@ -112,4 +114,4 @@ native-eol-style = LF
 *.html = svn:mime-type=text/html
 *.htm = svn:mime-type=text/html
 *.pdf = svn:mime-type=application/pdf
-# Makefile = svn:eol-style=native
+*.class = svn:mime-type=application/java

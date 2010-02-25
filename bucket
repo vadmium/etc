@@ -481,9 +481,10 @@ cd libmms-0.4
 Requires libmms
 mimms-3.2.1.tar.bz2 from a savannah.nongnu.org mirror (nongnu.org was down)
 
-=== Quilt 0.48-vad-3
+=== Quilt 0.48-vad4
 
 upver="0.48"
+vadver="vad4+dev"
 cache_cat "$STORE/sw" \
 cache_cat "$PUB/software/storage/version" \
     "http://mirror.dknss.com/nongnu/quilt/quilt-$upver.tar.gz" |
@@ -494,28 +495,23 @@ echo QUILT_PATCHES=../patches > .pc/quiltrc
 quilt upgrade
 quilt push -a
 autoconf
+
+# Windows
+opt="--without-column --without-getopt --without-mktemp"
+
+# Linux
+opt="--with-column --with-getopt --without-mktemp"
+
 # Empty prefix means root, so that "$PREFIX/dir" becomes "/dir"
-
-# Without getopt
-./configure \
-    --prefix="" \
-    --with-bash --with-cp --with-date --with-p<<erl --with-grep --with-tail \
-    --with-tr --with-sed --with-awk \
-    --without-pod2man --without-column --without-getopt --without-mktemp \
-    --with-diff --with-patch --with-find \
-    --without-diffstat \
-    --without-sendmail --without-rpmbuild
-
-# With getopt
 ./configure \
     --prefix="" \
     --with-bash --with-cp --with-date --with-perl --with-grep --with-tail \
     --with-tr --with-sed --with-awk \
     --without-pod2man \
-    --with-column --with-getopt --with-mktemp \
     --with-diff --with-patch --with-find \
     --without-diffstat \
-    --without-sendmail --without-rpmbuild
+    --without-sendmail --without-rpmbuild \
+    $opt
 
 # compat_leftover needs executable permissions to work
 make VERSION="$upver-vad4+dev" compat_leftover=""
@@ -537,9 +533,11 @@ strip "$BUILD_ROOT/lib/quilt/backup-files"*
 + quilt pop doesn't seem to complain about needing refreshing if you delete a file rather than edit it
 + quilt fold -f goes interactive like quilt push -f apparently used to
 + quilt sub scripts don't need the shebang at the top
-+ quilt command aliases, without having to add an extra file
++ quilt command aliases, without having to add an extra file (then quilt ci = commit :)
 + quilt ref -z but without actually refreshing. Needs thought, like what if you want to get the unrefreshed changes of two patches into the new patch. What if you want to get svn diff (no previous patch) into a new patch? Or explicitly tell it an original file?
-+ quilt commit -n; like quilt del -n
++ quilt commit -n(ext); like quilt del -n
++ quilt commit 2 etc, vaguely matching quilt push. Needs more thought
++ quilt commit -n (dry run) conflicts with quilt del -n (next)
 
 === Libtool 1.5.26 (including ltdl library)
 
@@ -637,3 +635,23 @@ server-ondem {socat serial}
 ==== Network
 
 + wpa_supplicant likes iwconfig mode managed (or perhaps also auto)
+
+==== Use cases
+
+=== Subversion replication
+
+touch hooks/pre-revprop-change.bat
+svnsync synchronize file:///c:/marty/proj/jtag/marty
+
+=== Subversion history addition
+
+svnhadd() {
+    SRC="$1"
+    DEST="$2"
+    real="$DEST.real"
+    mv "$DEST" "$real"
+    svn revert "$DEST"
+    svn copy "$SRC@BASE" "$DEST"
+    mv "$real" "$DEST"
+    svn diff "$DEST"
+}
