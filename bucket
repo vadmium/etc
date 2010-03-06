@@ -432,6 +432,35 @@ make
 cp src/patch.exe "$BIN"
 strip "$BIN/patch.exe"
 
+== 2.6.1
+
+tar xzf "$PUB/software/text/diff/patch-2.6.1.tar.gz"
+cd patch-2.6.1
+./configure
+make
+# Make file still doesn't build gl/lib/strnlen.o
+
+== 2.6.1-2-g2c4e3ec
+
+UPVER=2.6.1-2-g2c4e3ec
+VADVER="$UPVER-vad"
+cache_cat "$PUB/software/text/diff" \
+    "ftp://alpha.gnu.org/gnu/patch/patch-$UPVER.tar.gz" |
+tar xz
+cd "patch-$UPVER"
+echo "$VADVER" > VERSION
+mkdir .pc
+cat > .pc/quiltrc << QUILTRC
+QUILT_PATCHES=../patches
+QUILT_SERIES=series-$VADVER
+QUILTRC
+quilt upgrade
+quilt push -a
+./configure
+make # Causes configure to re-run
+cp src/patch.exe "$BIN"
+strip "$BIN/patch.exe"
+
 === rtmpdump 1.6
 
 wget http://lkcl.net/rtmp/rtmpdump-v1.6.tar.gz -O - |
@@ -538,6 +567,10 @@ strip "$BUILD_ROOT/lib/quilt/backup-files"*
 + quilt commit -n(ext); like quilt del -n
 + quilt commit 2 etc, vaguely matching quilt push. Needs more thought
 + quilt commit -n (dry run) conflicts with quilt del -n (next)
++ quilt push 2 -f only pushed the first one. I notice that you can't do another push if a patch "needs" refreshing
++ empty patch with message treated as a patch that doesn't apply; should be treated as empty patch; cannot refresh yet I must before I pop!!!
++ improve message for quilt commit when a patch isn't refreshed
++ quilt ser -e (to edit series file)
 
 === Libtool 1.5.26 (including ltdl library)
 
