@@ -1,0 +1,3 @@
+#! /bin/sh -eu
+svn log -v "$@"
+svn diff -x -p "$@"

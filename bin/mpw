@@ -1,0 +1,28 @@
+#! /bin/sh -eu
+set -o errexit -o nounset -o pipefail
+MNT="$HOME/mpwd"
+mkdir --parents "$MNT"
+
+target="${1-.}"
+
+play_rar() {
+    rarfs "$1" "$MNT"
+    umount() {
+        fusermount -u "$MNT"
+    }
+    trap umount EXIT
+    mplayer "$MNT"/*
+    trap - EXIT
+    umount
+}
+
+if test ! -d "$target"; then
+    play_rar "$target"
+elif test "$(find "$target" -maxdepth 1 -name "*.part01.rar" | wc -l)" -ge 1
+then
+    play_rar "$target"/*.part01.rar
+elif test ! -e "$target"/*.rar; then
+    echo "$target: No file found" >&2
+else
+    play_rar "$target"/*.rar
+fi
