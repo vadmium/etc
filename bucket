@@ -566,7 +566,10 @@ strip "$BUILD_ROOT/lib/quilt/backup-files"*
 + quilt ref -z but without actually refreshing. Needs thought, like what if you want to get the unrefreshed changes of two patches into the new patch. What if you want to get svn diff (no previous patch) into a new patch? Or explicitly tell it an original file?
 + quilt commit -n(ext); like quilt del -n
 + quilt commit 2 etc, vaguely matching quilt push. Needs more thought
-+ quilt commit -n (dry run) conflicts with quilt del -n (next)
++ quilt commit -n (dry run) conflicts with quilt del -n (next) Maybe just use long option --dry-run
++ quilt commit quick option for -s forget
++ quilt commit -s forget should work even with an empty patch
++ some form of quilt ref -z that doesn't refresh, just creates a new patch with the unrefreshed changes (maybe "new -z"?)
 + quilt push 2 -f only pushed the first one. I notice that you can't do another push if a patch "needs" refreshing
 + empty patch with message treated as a patch that doesn't apply; should be treated as empty patch; cannot refresh yet I must before I pop!!!
 + improve message for quilt commit when a patch isn't refreshed
@@ -673,10 +676,15 @@ server-ondem {socat serial}
 
 === Subversion replication
 
+svnadmin create mirror && cd mirror
 touch hooks/pre-revprop-change.bat
-svnsync synchronize file:///c:/marty/proj/jtag/marty
+echo '#! /bin/sh' > hooks/pre-revprop-change &&
+chmod a+x hooks/pre-revprop-change
+svnsync initialize "file://$(pwd)" svn+ssh://magicuser@drs-storage/magic
 
-=== Subversion history addition
+svnsync synchronize "file://$(pwd)"
+
+=== Subversion ancestor addition
 
 svnhadd() {
     SRC="$1"
@@ -688,3 +696,26 @@ svnhadd() {
     mv "$real" "$DEST"
     svn diff "$DEST"
 }
+
+=== Set up existing Subversion repository
+
+svnadmin create <path>
+svnadmin load <path> < <dump>
+
+=== Mount FAT disk
+
+sudo mount -t vfat -o noatime,umask=0,shortname=winnt,iocharset=utf8
+
+=== ls
+
+ls -go --time-style "+%Y-%M-%d %h:%m:%s"
+
+=== Copying files
+
+# Rsync "size-only" option seems to override the "ignore-times" option, so to
+# completely disable all size and time "quick checking" you have to
+# additionally remove the "size-only" option.
+
+# Replace --size-only with --ignore-times to not skip over same-sized files
+# Or use a single -i to hide the skipped-over files
+rsync --no-whole-file --inplace --times --size-only --super --recursive -Pii src/ dest/
