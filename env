@@ -13,6 +13,8 @@ fi
 ## APT doesn't use the address range notation
 #export no_proxy="$no_proxy,webserver"
 #
+#export no_proxy="$no_proxy,host"
+#
 #export http_proxy='http://domain\user:p%40ss@proxy:3128/'
 
 export GREP_OPTIONS
@@ -23,3 +25,5 @@ else
 fi
 
 export LD_LIBRARY_PATH="$HOME/lib:$LD_LIBRARY_PATH"
+
+eval "$(ssh-agent)"

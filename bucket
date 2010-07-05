@@ -575,6 +575,10 @@ strip "$BUILD_ROOT/lib/quilt/backup-files"*
 + improve message for quilt commit when a patch isn't refreshed
 + quilt ser -e (to edit series file)
 + quilt add file; quilt pop; quilt add; edit added files; quilt push; quilt pop => deletes the files
++ new version of quilt del refuses to delete topmost patch when earlier patches also modify that file (commit & delete aren't the same)
++ quilt ren doesn't rename to an existing (old) patch name; add a --force option? And howcome quilt new does (mainly) overwrite an existing old patch name?
++ quilt add doesn't work with absolute file names (appends whole absolute path to a directory, so that it looks like xxx.orig/home/user/. . .)
++ Change behaviour so that unrefreshed changes are treated like changes to another file. Quilt pop should still work as long as the patch will reverse-apply. Though technically I guess it may reverse-apply differently to how it will foward-apply.
 
 === Libtool 1.5.26 (including ltdl library)
 
@@ -610,6 +614,20 @@ strip "$BIN/cksfv.exe"
 ./configure --prefix=""
 make
 make install DESTDIR="$(pwd)/stage"
+
+=== GREP 2.5.4
+
+mkdir grep
+cd grep
+# get ftp://ftp.gnu.org/gnu/grep/grep-2.5.4.tar.bz2
+tar xjf ~/pkg/grep-2.5.4.tar.bz2
+cd grep-2.5.4/
+./configure --prefix="" --without-included-gettext --without-included-regex \
+    --without-included-getopt
+make V=0
+export DESTDIR="$(pwd)/stage"
+make install-strip
+sudo cp --archive "$DESTDIR/bin/grep" /usr/local/bin/
 
 ==== Generic/Serial server
 
@@ -720,3 +738,20 @@ ls -go --time-style "+%Y-%M-%d %h:%m:%s"
 # Replace --size-only with --ignore-times to not skip over same-sized files
 # Or use a single -i to hide the skipped-over files
 rsync --no-whole-file --inplace --times --size-only --super --recursive -Pii src/ dest/
+
+=== [pdf_decrypt] Decrypt PDFs
+
+echo -n "$f: "
+qpdf --show-encryption "$f"
+
+# Just see the "invalid password" errors
+qpdf --show-encryption "$f" > /dev/null
+
++ QPDF cannot use the same infile and outfile
+
+# Usage: pdf_decrypt <file> [<pass>]
+pdf_decrypt() (
+    set -o errexit -o nounset -o pipefail
+    qpdf ${2+--password=$2} --decrypt --stream-data=preserve "$1" "$1.tmp"
+    mv "$1.tmp" "$1"
+)

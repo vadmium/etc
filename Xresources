@@ -5,4 +5,6 @@ xterm*pointerMode: 2
 xterm*scrollKey: true
 xterm*scrollTtyOutput: false
 xterm*visualBell: true
-Xft.dpi: 75
+
+/* Why was this needed again? It screws up Icedove (Thunderbird) */
+//Xft.dpi: 75
