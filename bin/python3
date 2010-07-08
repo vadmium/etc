@@ -1,0 +1,2 @@
+#! /bin/sh
+"$SYSTEMDRIVE"/Python3*/python "$@"
