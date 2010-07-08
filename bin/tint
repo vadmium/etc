@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python3
 
 import sys
 import os
@@ -20,8 +20,8 @@ def tint(file):
                 eq = False
         if not eq:
             for entry in eq_list:
-                print os.path.join(file, entry)
+                print(os.path.join(file, entry))
     return eq
 
 if tint(""):
-    print "."
+    print(".")

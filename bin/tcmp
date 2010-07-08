@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python3
 
 import sys
 import os
@@ -9,7 +9,7 @@ dest = sys.argv[2]
 
 def tcmp(file):
     if not os.path.exists(os.path.join(dest, file)):
-        print file
+        print(file)
     elif os.path.isdir(os.path.join(src, file)):
         for entry in os.listdir(os.path.join(src, file)):
             tcmp(os.path.join(file, entry))
