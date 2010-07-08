@@ -1,0 +1,2 @@
+#! /bin/sh -eu
+mount -t vfat -o noatime,umask=0,shortname=winnt,iocharset=utf8 "$@"
