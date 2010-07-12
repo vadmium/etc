@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<gconf>
+        <entry name="scrollback_lines" type="int" value="1000">
+        </entry>
+</gconf>
