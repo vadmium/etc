@@ -6,5 +6,8 @@ xterm*scrollKey: true
 xterm*scrollTtyOutput: false
 xterm*visualBell: true
 
-/* Why was this needed again? It screws up Icedove (Thunderbird) */
+/* For icewm: */
 //Xft.dpi: 75
+
+/* For Thunderbird on Gnome: */
+Xft.dpi: 96

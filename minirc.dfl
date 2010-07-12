@@ -1,2 +1,5 @@
 pu minit
 pu mreset
+
+pu port /dev/ttyS0
+pu statusline disabled

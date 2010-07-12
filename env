@@ -2,9 +2,10 @@ export PATH="/usr/sbin:/sbin:$PATH"
 export PATH="$HOME/bin:$PATH"
 
 export EDITOR
-#export EDITOR=vim
 if test "${OS-}" = Windows_NT; then
     EDITOR=winvi32
+else
+    EDITOR=vim
 fi
 
 #export SVN_SSH="plink -ssh -batch" # TODO move this env var to Windows registry
@@ -15,7 +16,10 @@ fi
 #
 #export no_proxy="$no_proxy,host"
 #
-#export http_proxy='http://domain\user:p%40ss@proxy:3128/'
+#PROXY_SRV=proxy:3128
+#PROXY_AUTH='user:p%40ss'
+#PROXY_AUTH='domain\user:p%40ss'
+#export http_proxy="http://$PROXY_AUTH@$PROXY_SRV/"
 
 export GREP_OPTIONS
 if test "${TERM-}" = msys; then
@@ -26,4 +30,6 @@ fi
 
 export LD_LIBRARY_PATH="$HOME/lib:$LD_LIBRARY_PATH"
 
-eval "$(ssh-agent)"
+if test -z "${SSH_AGENT_PID+set}"; then
+    eval "$(ssh-agent)"
+fi

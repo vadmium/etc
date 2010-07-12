@@ -4,7 +4,9 @@ QUILT_PUSH_ARGS="$COLOR"
 QUILT_SERIES_ARGS="-v"
 QUILT_PATCHES_ARGS="-v"
 
-#UNIREJ=--unified-reject-files
-UNIREJ=--reject-format=unified
-QUILT_PATCH_OPTS="--binary $UNIREJ"
+QUILT_PATCH_OPTS="--binary"
+
+# Debian-specific option
+#QUILT_PATCH_OPTS="$QUILT_PATCH_OPTS --unified-reject-files"
+
 QUILT_DIFF_OPTS="--show-c-function"
