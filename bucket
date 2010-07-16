@@ -733,7 +733,7 @@ sudo mount -t vfat -o noatime,umask=0,shortname=winnt,iocharset=utf8
 
 === ls
 
-ls -go --time-style "+%Y-%M-%d %h:%m:%s"
+ls -go --time-style +"%Y-%m-%d %H:%M:%S"
 
 === [rsync] Copying files
 
