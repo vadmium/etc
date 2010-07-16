@@ -581,6 +581,7 @@ strip "$BUILD_ROOT/lib/quilt/backup-files"*
 + quilt ren doesn't rename to an existing (old) patch name; add a --force option? And howcome quilt new does (mainly) overwrite an existing old patch name?
 + quilt add doesn't work with absolute file names (appends whole absolute path to a directory, so that it looks like xxx.orig/home/user/. . .)
 + Change behaviour so that unrefreshed changes are treated like changes to another file. Quilt pop should still work as long as the patch will reverse-apply. Though technically I guess it may reverse-apply differently to how it will foward-apply.
++ Operation to bring a buried patch to the top. Not sure how it would handle conflicts though.
 
 === Libtool 1.5.26 (including ltdl library)
 
