@@ -1,0 +1,4 @@
+# Backports pinning priority:
+#Package: *
+#Pin: release a=lucid-backports
+#Pin-Priority: 400
