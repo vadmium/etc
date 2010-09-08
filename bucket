@@ -124,6 +124,11 @@ PROFILE="$(echo ~/.mozilla/firefox/*.default)"
                    iconsize="small"
                    currentset="urlbar-container" />
 
+=== Windows
+
+gpedit.msc
+Local Computer Policy/Computer Configuration/Administrative Templates/Windows Components/Windows Update/No auto-restart for scheduled Automatic Update installation
+
 ==== howto
 === CVS
 
