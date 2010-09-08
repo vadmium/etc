@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oor:component-data xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" oor:name="Writer" oor:package="org.openoffice.Office">
+ <node oor:name="Layout">
+  <node oor:name="Other">
+   <prop oor:name="MeasureUnit" oor:type="xs:int">
+    <value>2</value>
+   </prop>
+   <prop oor:name="TabStop" oor:type="xs:int" />
+   <prop oor:name="ApplyCharUnit" oor:type="xs:boolean" />
+  </node>
+  <node oor:name="ViewLayout">
+   <prop oor:name="Columns" oor:type="xs:int">
+    <value>1</value>
+   </prop>
+  </node>
+  <node oor:name="Zoom">
+   <prop oor:name="Value" oor:type="xs:int" />
+  </node>
+ </node>
+ <node oor:name="ObjectBar">
+  <node oor:name="Selection">
+   <prop oor:name="NumberedList" oor:type="xs:int" />
+  </node>
+ </node>
+ <node oor:name="Navigator">
+  <prop oor:name="ActiveBlock" oor:type="xs:int" />
+  <prop oor:name="InsertMode" oor:type="xs:int" />
+  <prop oor:name="RootType" oor:type="xs:int" />
+ </node>
+ <node oor:name="Insert">
+  <node oor:name="Caption">
+   <prop oor:name="CaptionOrderNumberingFirst" oor:type="xs:boolean" />
+   <node oor:name="OfficeObject">
+    <node oor:name="Calc">
+     <node oor:name="Settings">
+      <prop oor:name="ApplyAttributes" oor:type="xs:boolean" />
+      <prop oor:name="CharacterStyle" oor:type="xs:string" />
+     </node>
+    </node>
+    <node oor:name="Chart">
+     <node oor:name="Settings">
+      <prop oor:name="ApplyAttributes" oor:type="xs:boolean" />
+      <prop oor:name="CharacterStyle" oor:type="xs:string" />
+     </node>
+    </node>
+    <node oor:name="Draw">
+     <node oor:name="Settings">
+      <prop oor:name="ApplyAttributes" oor:type="xs:boolean" />
+      <prop oor:name="CharacterStyle" oor:type="xs:string" />
+     </node>
+    </node>
+    <node oor:name="Formula">
+     <node oor:name="Settings">
+      <prop oor:name="ApplyAttributes" oor:type="xs:boolean" />
+      <prop oor:name="CharacterStyle" oor:type="xs:string" />
+     </node>
+    </node>
+    <node oor:name="Impress">
+     <node oor:name="Settings">
+      <prop oor:name="ApplyAttributes" oor:type="xs:boolean" />
+      <prop oor:name="CharacterStyle" oor:type="xs:string" />
+     </node>
+    </node>
+    <node oor:name="OLEMisc">
+     <node oor:name="Settings">
+      <prop oor:name="ApplyAttributes" oor:type="xs:boolean" />
+      <prop oor:name="CharacterStyle" oor:type="xs:string" />
+     </node>
+    </node>
+   </node>
+   <node oor:name="WriterObject">
+    <node oor:name="Frame">
+     <node oor:name="Settings">
+      <prop oor:name="CharacterStyle" oor:type="xs:string" />
+     </node>
+    </node>
+    <node oor:name="Graphic">
+     <node oor:name="Settings">
+      <prop oor:name="ApplyAttributes" oor:type="xs:boolean" />
+      <prop oor:name="CharacterStyle" oor:type="xs:string" />
+     </node>
+    </node>
+    <node oor:name="Table">
+     <node oor:name="Settings">
+      <prop oor:name="CaptionText" oor:type="xs:string" />
+      <prop oor:name="CharacterStyle" oor:type="xs:string" />
+     </node>
+    </node>
+   </node>
+  </node>
+ </node>
+ <node oor:name="AutoFunction">
+  <node oor:name="Format">
+   <node oor:name="Option">
+    <prop oor:name="CapitalAtStartSentence" oor:type="xs:boolean">
+     <value>false</value>
+    </prop>
+    <prop oor:name="TwoCapitalsAtStart" oor:type="xs:boolean">
+     <value>false</value>
+    </prop>
+   </node>
+  </node>
+ </node>
+</oor:component-data>

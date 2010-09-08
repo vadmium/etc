@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oor:component-data xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" oor:name="Common" oor:package="org.openoffice.Office">
+ <node oor:name="Misc">
+  <prop oor:name="FirstRun" oor:type="xs:boolean">
+   <value>false</value>
+  </prop>
+ </node>
+ <node oor:name="Filter">
+  <node oor:name="PDF">
+   <node oor:name="Export">
+    <prop oor:name="InitialView" oor:type="xs:int" />
+   </node>
+  </node>
+ </node>
+ <node oor:name="AutoCorrect">
+  <prop oor:name="AddNonBreakingSpace" oor:type="xs:boolean" />
+  <prop oor:name="CapitalAtStartSentence" oor:type="xs:boolean">
+   <value>false</value>
+  </prop>
+  <prop oor:name="DoubleQuoteAtEnd" oor:type="xs:int" />
+  <prop oor:name="DoubleQuoteAtStart" oor:type="xs:int" />
+  <prop oor:name="SingleQuoteAtEnd" oor:type="xs:int" />
+  <prop oor:name="SingleQuoteAtStart" oor:type="xs:int" />
+  <prop oor:name="TwoCapitalsAtStart" oor:type="xs:boolean">
+   <value>false</value>
+  </prop>
+ </node>
+</oor:component-data>
