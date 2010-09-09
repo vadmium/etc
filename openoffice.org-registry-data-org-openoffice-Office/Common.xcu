@@ -4,6 +4,12 @@
   <prop oor:name="FirstRun" oor:type="xs:boolean">
    <value>false</value>
   </prop>
+  <prop oor:name="SymbolSet" oor:type="xs:short">
+   <value>0</value>
+  </prop>
+  <prop oor:name="SymbolStyle" oor:type="xs:string">
+   <value>classic</value>
+  </prop>
  </node>
  <node oor:name="Filter">
   <node oor:name="PDF">
@@ -24,5 +30,19 @@
   <prop oor:name="TwoCapitalsAtStart" oor:type="xs:boolean">
    <value>false</value>
   </prop>
+ </node>
+ <node oor:name="Font">
+  <node oor:name="SourceViewFont">
+   <prop oor:name="FontHeight" oor:type="xs:short" />
+   <prop oor:name="FontName" oor:type="xs:string" />
+  </node>
+ </node>
+ <node oor:name="View">
+  <prop oor:name="FontScaling" oor:type="xs:short">
+   <value>80</value>
+  </prop>
+ </node>
+ <node oor:name="Accessibility">
+  <prop oor:name="IsSystemFont" oor:type="xs:boolean" />
  </node>
 </oor:component-data>
