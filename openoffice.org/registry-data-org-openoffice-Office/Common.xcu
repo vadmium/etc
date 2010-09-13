@@ -16,6 +16,8 @@
    <node oor:name="Export">
     <prop oor:name="InitialView" oor:type="xs:int" />
    </node>
+    <prop oor:name="ExportBookmarks" oor:type="xs:boolean" />
+    <prop oor:name="UseLosslessCompression" oor:type="xs:boolean" />
   </node>
  </node>
  <node oor:name="AutoCorrect">
@@ -28,6 +30,9 @@
   <prop oor:name="SingleQuoteAtEnd" oor:type="xs:int" />
   <prop oor:name="SingleQuoteAtStart" oor:type="xs:int" />
   <prop oor:name="TwoCapitalsAtStart" oor:type="xs:boolean">
+   <value>false</value>
+  </prop>
+  <prop oor:name="ChangeOrdinalNumber" oor:type="xs:boolean">
    <value>false</value>
   </prop>
  </node>

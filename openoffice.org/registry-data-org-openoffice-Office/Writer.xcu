@@ -98,6 +98,9 @@
     <prop oor:name="TwoCapitalsAtStart" oor:type="xs:boolean">
      <value>false</value>
     </prop>
+    <prop oor:name="ChangeOrdinalNumber" oor:type="xs:boolean">
+     <value>false</value>
+    </prop>
    </node>
   </node>
  </node>
