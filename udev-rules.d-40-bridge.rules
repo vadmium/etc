@@ -1,0 +1,2 @@
+SUBSYSTEM=="usb", SYSFS{idVendor}=="03eb", SYSFS{idProduct}=="2107", MODE="0660", GROUP="plugdev" # AVR dragon
+SUBSYSTEM=="usb", SYSFS{idVendor}=="1781", SYSFS{idProduct}=="0c9f", MODE="0660", GROUP="plugdev" # USB tiny AVR programmer
