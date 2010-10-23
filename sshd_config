@@ -1,2 +1,3 @@
 X11Forwarding yes
 UseDNS no
+PermitRootLogin no
