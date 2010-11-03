@@ -751,7 +751,7 @@ ls -go --time-style +"%Y-%m-%d %H:%M:%S"
 
 # Replace --size-only with --ignore-times to not skip over same-sized files
 # Or use a single -i to hide the skipped-over files
-rsync --no-whole-file --inplace --times --size-only --super --recursive -Pii src/ dest/
+rsync --no-whole-file --inplace --times --size-only --recursive -Pii src/ dest/
 
 === [pdf_decrypt] Decrypt PDFs
 
@@ -821,3 +821,19 @@ make O=../out ARCH=arm CROSS_COMPILE=arm-angstrom-linux-gnueabi- \
 
 ssh nls -D 3333 -fN
 socat
+
+==== Music player
+
+=== Amarok
+
+- apparently requires KDE: 200 MB install
+
+=== Audacious
+
+- winamp UI
+    - tiny
+    - own "skin"
+    o multi windows
++ cue file => playlist
+- global volume
+- utf-8 looks broken
