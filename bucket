@@ -843,3 +843,33 @@ socat
 packages depend on a specific "feature"/file/etc
 
 eg pacman depends on libarchive.so.2; libarchive(a) provides libarchive.so.2 and depends on liblzma.so.0; libarchive(b) also provides libarchive.so.2 but depends instead on liblzma.so.5. xz-utils provides liblzma.so.0; xz provides liblzma.so.5
+
+==== distros
+
+=== Debian
+
+tends to get "out of date" and independant debs require lots of things to be updated
+uses libnameV to have multiple versions of a library
+
+=== Ubuntu
+
+"nice" python upgrade script
+
+=== Arch
+
+"rolling" release => only current version of everything is supported, so you have to upgrade everything if you want to add/upgrade a single package
+non-split packages: have everything usually (dev, libs, docs, plugins, etc)
+
+=== Ångström
+
+=== Gentoo?
+
+=== Cent OS
+
+=== SUSE
+
+=== Be OS
+
+=== Windows 95
+
+=== Windows NT
