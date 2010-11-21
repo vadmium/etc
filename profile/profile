@@ -25,12 +25,12 @@ export EDITOR
 #PROXY_AUTH='domain\user:p%40ss'
 #export http_proxy="http://$PROXY_AUTH@$PROXY_SRV/"
 
-export GREP_OPTIONS
 if test "${TERM-}" = msys; then
     GREP_OPTIONS="--color=always"
 else
     GREP_OPTIONS="--color"
 fi
+export GREP_OPTIONS
 
 export LD_LIBRARY_PATH="$HOME/lib:$LD_LIBRARY_PATH"
 
@@ -45,13 +45,12 @@ if test -z "${SSH_AUTH_SOCK+set}"; then
     . "$SSA"
 fi
 
-DU_BLOCK_SIZE=si
-DF_BLOCK_SIZE=si
+export DU_BLOCK_SIZE=si DF_BLOCK_SIZE=si
 # This affects ls -l despite what this GNU coreutils manual says:
 # http://www.gnu.org/software/coreutils/manual/html_node/Block-size.html
-#BLOCKSIZE=si
+#export BLOCKSIZE=si
 
-export ENV=~/.bashrc
+ENV=~/.bashrc
 if test -n "${BASH_VERSION+set}"; then
     . "$ENV"
 fi
