@@ -1,1 +1,3 @@
-[ -e ~/.env ] && . ~/.env
+if test -e ~/.profile; then
+    . ~/.profile
+fi

@@ -1,6 +1,57 @@
-if test -e ~/.env; then
-    . ~/.env
+# TODO: only insert elements if they don't already exist. That way we can re-
+# run this script without indefinitely extending the path each time, and the
+# sbin components will be ignored on OSes like Ubuntu that already include
+# sbin elsewhere
+export PATH="/usr/sbin:/sbin:$PATH"
+export PATH="$HOME/bin:$PATH"
+
+if test "${OS-}" = Windows_NT; then
+    EDITOR=winvi32
+else
+    : #EDITOR=vim
+fi
+export EDITOR
+
+#export SVN_SSH="plink -ssh -batch" # TODO move this env var to Windows registry
+#export no_proxy="localhost,127.0.0.1/8,network/16,10.0.0.0/8,172.31.0.0/16,example.com.au"
+#
+## APT doesn't use the address range notation
+#export no_proxy="$no_proxy,webserver"
+#
+#export no_proxy="$no_proxy,host"
+#
+#PROXY_SRV=proxy:3128
+#PROXY_AUTH='user:p%40ss'
+#PROXY_AUTH='domain\user:p%40ss'
+#export http_proxy="http://$PROXY_AUTH@$PROXY_SRV/"
+
+export GREP_OPTIONS
+if test "${TERM-}" = msys; then
+    GREP_OPTIONS="--color=always"
+else
+    GREP_OPTIONS="--color"
 fi
 
-alias ls='ls --color=auto'
-alias patch='patch --binary'
+export LD_LIBRARY_PATH="$HOME/lib:$LD_LIBRARY_PATH"
+
+# Would have thought "keychain" was appropriate for this, but the inherit any
+# option isn't doing what I would like. See
+# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=502468
+if test -z "${SSH_AUTH_SOCK+set}"; then
+    SSA="/tmp/sshagent-$(id -u).sh"
+    if test ! -e "$SSA"; then
+        ssh-agent -s > "$SSA"
+    fi
+    . "$SSA"
+fi
+
+DU_BLOCK_SIZE=si
+DF_BLOCK_SIZE=si
+# This affects ls -l despite what this GNU coreutils manual says:
+# http://www.gnu.org/software/coreutils/manual/html_node/Block-size.html
+#BLOCKSIZE=si
+
+export ENV=~/.bashrc
+if test -n "${BASH_VERSION+set}"; then
+    . "$ENV"
+fi
