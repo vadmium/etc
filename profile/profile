@@ -51,6 +51,10 @@ export DU_BLOCK_SIZE=si DF_BLOCK_SIZE=si
 #export BLOCKSIZE=si
 
 ENV=~/.bashrc
-if test -n "${BASH_VERSION+set}"; then
-    . "$ENV"
+if test -e "$ENV"; then
+    if test -n "${BASH_VERSION+set}"; then
+        . "$ENV"
+    fi
+else
+    unset ENV
 fi
