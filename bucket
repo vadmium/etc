@@ -877,3 +877,16 @@ non-split packages: have everything usually (dev, libs, docs, plugins, etc)
 ==== Prevail
 
 pkgs, reputation
+
+==== Distros
+
+LFS
+Gentoo
+Gobolinux: no Unix FSH
+Angstrom
+T2 SDE
+Fedora (RPM)
+BSD
+Haiku: no Unix FSH
+Minix
+Nixos
