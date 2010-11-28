@@ -1,3 +1,5 @@
+# Typically this can replace the whole skeleton ~/.profile file
+
 # TODO: only insert elements if they don't already exist. That way we can re-
 # run this script without indefinitely extending the path each time, and the
 # sbin components will be ignored on OSes like Ubuntu that already include
