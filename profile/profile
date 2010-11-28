@@ -2,8 +2,13 @@
 # run this script without indefinitely extending the path each time, and the
 # sbin components will be ignored on OSes like Ubuntu that already include
 # sbin elsewhere
-export PATH="/usr/sbin:/sbin:$PATH"
-export PATH="$HOME/bin:$PATH"
+prepend_list () {
+    eval "$3=\"\$1\${$3+\$2\$$3}\""
+    export "$3"
+}
+
+prepend_list /usr/sbin:/sbin : PATH
+prepend_list ~/bin : PATH
 
 if test "${OS-}" = Windows_NT; then
     EDITOR=winvi32
@@ -32,7 +37,7 @@ else
 fi
 export GREP_OPTIONS
 
-export LD_LIBRARY_PATH="$HOME/lib:$LD_LIBRARY_PATH"
+prepend_list ~/lib : LD_LIBRARY_PATH
 
 # Would have thought "keychain" was appropriate for this, but the inherit any
 # option isn't doing what I would like. See
