@@ -84,7 +84,7 @@ global-ignores =
 enable-auto-props = yes
 
 # TODO: on MSYS only
-interactive-conflicts = no
+#interactive-conflicts = no
 
 # My proposed setting
 native-eol-style = LF

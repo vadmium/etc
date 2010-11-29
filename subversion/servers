@@ -82,4 +82,8 @@
 
 #http-proxy-host = proxy.latrobe.edu.au
 #http-proxy-port = 8080
-
+#http-proxy-host = address
+#http-proxy-port = 3128
+#http-proxy-username = domain\user
+#http-proxy-password = password
+#http-auth-types = negotiate
