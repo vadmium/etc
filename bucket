@@ -893,3 +893,16 @@ BSD
 Haiku: no Unix FSH
 Minix
 Nixos
+
+= VCS
+
+Rebase, cherry-pick, revert, svn merge are all similar things: Graft or transplant (copies of) parts of one history onto another history.
+Explicit file history is useful
+Reverts should allow a change to be re-merged
+
+git rebase --onto NEW UPSTREAM [BRANCH]
+BRANCH default is what's checked out
+NEW default is UPSTREAM
+git rebase --onto APPLY-POINT NOT-IN [FROM]
+git rebase --onto DEST COMPARE [SOURCE]
+git rebase --onto GRAFT-POINT FROM-TRUNK [GRAFT-BRANCH]
