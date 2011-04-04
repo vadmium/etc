@@ -57,6 +57,8 @@ export DU_BLOCK_SIZE=si DF_BLOCK_SIZE=si
 # http://www.gnu.org/software/coreutils/manual/html_node/Block-size.html
 #export BLOCKSIZE=si
 
+export LESS="-R"
+
 ENV=~/.bashrc
 if test -e "$ENV"; then
     if test -n "${BASH_VERSION+set}"; then
