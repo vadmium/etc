@@ -906,3 +906,83 @@ NEW default is UPSTREAM
 git rebase --onto APPLY-POINT NOT-IN [FROM]
 git rebase --onto DEST COMPARE [SOURCE]
 git rebase --onto GRAFT-POINT FROM-TRUNK [GRAFT-BRANCH]
+
+==== CD ripping
+
+http://www.exactaudiocopy.de/en/index.php/resources/download/
+http://wiki.dennyhalim.com/secure-ripping-on-linux
+http://thomas.apestaart.org/morituri/trac
+https://thomas.apestaart.org/thomas/trac/wiki/DAD/Rip
+https://gna.org/projects/cued
+http://wiki.hydrogenaudio.org/index.php?title=Comparison_of_CD_rippers
+http://www.cuetools.net/
+http://sbooth.org/Rip/
+
+apparently bloc party's album has a hidden track ("eating glass" or something?); check the cue sheets
+
+=== Accurate rip
+
+http://www.accuraterip.com/
+http://code.google.com/p/rubyripper/wiki/AccurateRip_Research
+http://jonls.dk/2009/10/calculating-accuraterip-checksums/
+http://db.cuetools.net/
+http://www.hydrogenaudio.org/forums/index.php?showtopic=79882 Cue tools DB announcement
+
+http://club.cdfreaks.com/showthread.php?t=111913
+= <http://club.myce.com/f61/offsets-handling-syncing-audio-data-vs-q-channel-111913/>
+EAC and Accurate rip (and DB power amp?) offset corrections o; Perfect rip offset (compensation?) = -(o - 30)
+"True" EAC offset = Common (AR) offset - 30
+Plex tools (read offset) is negative of EAC (read offset correction) too; plex tools offset feature added after EAC (?).
+
+AR offset (correction) + => read lead-out; - => read lead-in
+
+== Implementations
+
+http://forum.dbpoweramp.com/showthread.php?t=20641 Accurate rip code
+http://www.hydrogenaudio.org/forums/index.php?showtopic=53583 ARCue.pl
+http://www.srcf.ucam.org/~cjk32/ARCue/ARCue.pl
+http://www.hydrogenaudio.org/forums/index.php?showtopic=62522 ARFlac.pl
+ARCue + exe is buggy
+http://www.cuetools.net/
+comes with arcuedotnet.exe cli
+http://jonls.dk/2010/10/accuraterip-tools/ also does EAC CRC32s
+https://github.com/jonls/accuraterip-tools
+http://thomas.apestaart.org/morituri/trac/browser/trunk/examples/ARcue.py
+http://thomas.apestaart.org/morituri/trac/browser/trunk/morituri/common/accurip.py
+http://cvs.gna.org/cvsweb/cued/accurip/notdown (ruby + C implementation)
+XLD (mac only? web page gone?)
+http://sbooth.org/Rip/ (mac only)
+http://www.hydrogenaudio.org/forums/index.php?showtopic=61574 ARFlac C port
+
+arcue: pl script (original). Needs LWP (Perl WWW library).
+arflac.pl and C?
+accuraterip-tools
+morituri: rip image verify
+
+=== Drives
+
+Matshita (Panasonic) DVD-RAM UJ880AS
+Offset: +102 [AR: 64 submissions, 100% agreement]
+No lead-out overread ability [EAC]
+Accurate stream, no audio cache, no C2 pointers [EAC]
+
+TEAC CD-220EA
+Offset: +684 [AR: 1 submission, 100% agreement]
+C2 pointers, accurate stream, no audio cache [EAC]
+
+Matshita (Panasonic) DVD/CDRW UJDA770
+Offset: +102 [AR: 29 submissionss, 100% agreement]
+Accurate stream, defeat audio cache, no C2 pointers [EAC]
+
+====
+
+Ranger file manager, qtfm
+build pkgbuild on ubuntu?
+
+= vobsub subtitles
+
+mplayer's view is that ifo file is required as well as idx, to provide colours/palette
+however it looks like this info may be in the idx file
+
+Remove "sed" command on "makefile"
+Run "make install" which now automatically installs the GUI. Just needs a bit of cleaning up after it.
