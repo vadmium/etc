@@ -1,98 +1,123 @@
-#! /bin/sh -eu
-set -o errexit -o nounset
+#! /usr/bin/env python3
 
-target="${1-.}"
+import sys
+import os
+import subprocess
+import tempfile
+import shutil
+
+try:
+    target = sys.argv[1]
+except IndexError:
+    target = "."
 
 # Workaround for not being able to fusermount from a fusermount directory
 # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=584541
-target="$(readlink -f "$target")"
-cd /
+target = os.path.abspath(target)
+os.chdir("/")
 
-play_rar() {
-    mnt="$tmp/mnt"
-    mkdir -- "$mnt"
-    rarfs "$rar" "$mnt"
-    umount() {
-        fusermount -u "$mnt"
-        rmtmp
-    }
-    trap umount EXIT
+def play_rar(rar, tmp, vobsub=None):
+    mnt = os.path.join(tmp, "mnt")
+    os.mkdir(mnt)
+    subprocess.check_call(["rarfs", rar, mnt])
     
-    set --
-    if test -n "${subs+set}"; then
-        set -- "$@" -unrarexec "$(which unrar)"
-        set -- "$@" -vobsub "$vobsub"
-    fi
+    try:
+        opts = list()
+        
+        if vobsub is not None:
+            unrar = subprocess.check_output(["which", "unrar"]).rstrip(b"\n")
+            opts.extend(["-unrarexec", unrar, "-vobsub", vobsub])
+        
+        subprocess.check_call(["mplayer"] + opts +
+            [os.path.join(mnt, i) for i in os.listdir(mnt)])
+    finally:
+        subprocess.check_call(["fusermount", "-u", mnt])
 
-    mplayer "$@" "$mnt"/*
-}
+tmp = tempfile.mkdtemp(prefix="mpw")
+try:
+    if not os.path.isdir(target):
+        rar = target
+        vobsub = None
+    else:
+        # Seen the following rarset schemes:
+        # *.rar
+        # *.r00
+        # *.r01
+        # . . .
+        # *.part01.rar
+        # *.part02.rar
+        # . . .
+        # CD*/*cd*.* (not implemented)
+        suffixes = [".part01.rar", ".rar"]
+        rar = None
+        for file in os.listdir(target):
+            for i in range(len(suffixes)):
+                if file.endswith(suffixes[i]):
+                    rar = file
+                    suffixes = suffixes[:i]
+                    break
+            if not suffixes:
+                break
+        if rar is None:
+            raise Exception("{}: No file found".format(target))
+        rar = os.path.join(target, rar)
 
-tmp="$(mktemp --tmpdir -d mpw.XXXXXXXXXX)"
-rmtmp() {
-    rm -rf -- "$tmp"
-}
-trap rmtmp EXIT
-
-if test ! -d "$target"; then
-    rar="$target"
-    unset vobsub
-else
-    # Seen the following rarset schemes:
-    # *.rar
-    # *.r00
-    # *.r01
-    # . . .
-    # *.part01.rar
-    # *.part02.rar
-    # . . .
-    # CD*/*cd*.* (not implemented)
-    if test "$(find "$target" -maxdepth 1 -name "*.part01.rar" | wc -l)" -ge 1
-    then
-        ext=part01.rar
-    elif test ! -e "$target"/*.rar; then
-        echo "$target: No file found" >&2
-        false
-    else
-        ext=rar
-    fi
-    set -- "$target"/*."$ext"; rar="$1"
-
-    # Seen the following vobsub schemes:
-    # Subs
-    # Vobsubs
-    #     *.rar
-    #         *.idx
-    #         *.sub
-    #         *.rar (alongside idx file only)
-    #             *.sub
-    #         *-cd*.idx (alongside combined-CD files) (not implemented)
-    #         *-cd*.rar (alongside combined-CD files) (not implemented)
-    #         *.cd*.srt (not implemented)
-    #     *-cd*-subs.rar (not implemented)
-    #         *-cd*.idx
-    #         *-cd*.rar
-    #     CD*/*.idx (not implemented)
-    #     CD*/*.sub (not implemented)
+        # Seen the following vobsub schemes:
+        # Subs
+        # Vobsubs
+        #     *.rar
+        #         *.idx
+        #         *.sub
+        #         *.rar (alongside idx file only)
+        #             *.sub
+        #         *-cd*.idx (alongside combined-CD files) (not implemented)
+        #         *-cd*.rar (alongside combined-CD files) (not implemented)
+        #         *.cd*.srt (not implemented)
+        #     *-cd*-subs.rar (not implemented)
+        #         *-cd*.idx
+        #         *-cd*.rar
+        #     CD*/*.idx (not implemented)
+        #     CD*/*.sub (not implemented)
+        
+        for subsdir in ["Subs", "Vobsubs"]:
+            subsdir = os.path.join(target, subsdir)
+            if os.path.isdir(subsdir):
+                break
+        else:
+            subsdir = None
+        
+        if subsdir is None:
+            vobsub = None
+        else:
+            rar_suffix = ".rar"
+            for subs in os.listdir(subsdir):
+                if subs.endswith(rar_suffix):
+                    break
+            else:
+                subs = None
+            subs = os.path.join(subsdir, subs)
+            
+            proc = subprocess.Popen(["unrar", "vb", "--", subs, "*.sub"],
+                stdout=subprocess.PIPE)
+            has_sub = 0 != len(proc.stdout.read(1))
+            proc.stdout.close()
+            proc.wait()
+            
+            if has_sub:
+                vobsub = subs[:-len(rar_suffix)]
+            else:
+                tmpsubs = os.path.join(tmp, os.path.basename(subsdir))
+                subprocess.check_call(["unrar", "x", "-ierr", "-o+", "-ts",
+                    "-idcd", "--", subs, tmpsubs + os.path.sep])
+                idx_suffix = ".idx"
+                for vobsub in os.listdir(tmpsubs):
+                    if vobsub.endswith(idx_suffix):
+                        vobsub = os.path.join(tmpsubs,
+                            vobsub[:-len(idx_suffix)])
+                        break
+                else:
+                    vobsub = None
     
-    if test -d "$target/Subs"; then
-        subs="$target/Subs"
-    elif test -d "$target/Vobsubs"; then
-        subs="$target/Vobsubs"
-    else
-        unset subs
-    fi
-    
-    if test -z "${subs+set}"; then
-        unset vobsub
-    else
-        set -- "$subs"/*.rar; subs="$1"
-        if test "$(unrar vb -- "$subs" "*.sub" | wc -l)" -ge 1; then
-            vobsub="${subs%.rar}"
-        else
-            unrar x -ierr -o+ -ts -idcd -- "$subs" "$tmp/Subs/"
-            set -- "$tmp/Subs"/*.idx; vobsub="${1%.idx}"
-        fi
-    fi
-fi
-
-play_rar
+    play_rar(rar, tmp, vobsub=vobsub)
+finally:
+    shutil.rmtree(tmp)
