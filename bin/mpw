@@ -9,32 +9,90 @@ target="$(readlink -f "$target")"
 cd /
 
 play_rar() {
-    mnt="$(mktemp --tmpdir -d mpw.XXXXXXXXXX)"
-    rmtmp() {
-        rmdir -- "$mnt"
-    }
-    trap rmtmp EXIT
-    
-    rarfs "$1" "$mnt"
+    mnt="$tmp/mnt"
+    mkdir -- "$mnt"
+    rarfs "$rar" "$mnt"
     umount() {
         fusermount -u "$mnt"
         rmtmp
     }
     trap umount EXIT
     
-    mplayer "$mnt"/*
-    
-    trap - EXIT
-    umount
+    set --
+    if test -n "${subs+set}"; then
+        set -- "$@" -unrarexec "$(which unrar)"
+        set -- "$@" -vobsub "$vobsub"
+    fi
+
+    mplayer "$@" "$mnt"/*
 }
 
+tmp="$(mktemp --tmpdir -d mpw.XXXXXXXXXX)"
+rmtmp() {
+    rm -rf -- "$tmp"
+}
+trap rmtmp EXIT
+
 if test ! -d "$target"; then
-    play_rar "$target"
-elif test "$(find "$target" -maxdepth 1 -name "*.part01.rar" | wc -l)" -ge 1
-then
-    play_rar "$target"/*.part01.rar
-elif test ! -e "$target"/*.rar; then
-    echo "$target: No file found" >&2
+    rar="$target"
+    unset vobsub
 else
-    play_rar "$target"/*.rar
+    # Seen the following rarset schemes:
+    # *.rar
+    # *.r00
+    # *.r01
+    # . . .
+    # *.part01.rar
+    # *.part02.rar
+    # . . .
+    # CD*/*cd*.* (not implemented)
+    if test "$(find "$target" -maxdepth 1 -name "*.part01.rar" | wc -l)" -ge 1
+    then
+        ext=part01.rar
+    elif test ! -e "$target"/*.rar; then
+        echo "$target: No file found" >&2
+        false
+    else
+        ext=rar
+    fi
+    set -- "$target"/*."$ext"; rar="$1"
+
+    # Seen the following vobsub schemes:
+    # Subs
+    # Vobsubs
+    #     *.rar
+    #         *.idx
+    #         *.sub
+    #         *.rar (alongside idx file only)
+    #             *.sub
+    #         *-cd*.idx (alongside combined-CD files) (not implemented)
+    #         *-cd*.rar (alongside combined-CD files) (not implemented)
+    #         *.cd*.srt (not implemented)
+    #     *-cd*-subs.rar (not implemented)
+    #         *-cd*.idx
+    #         *-cd*.rar
+    #     CD*/*.idx (not implemented)
+    #     CD*/*.sub (not implemented)
+    
+    if test -d "$target/Subs"; then
+        subs="$target/Subs"
+    elif test -d "$target/Vobsubs"; then
+        subs="$target/Vobsubs"
+    else
+        unset subs
+    fi
+    
+    if test -z "${subs+set}"; then
+        unset vobsub
+    else
+        set -- "$subs"/*.rar; subs="$1"
+        if test "$(unrar vb -- "$subs" "*.sub" | wc -l)" -ge 1; then
+            vobsub="${subs%.rar}"
+        else
+            unrar x -ierr -o+ -ts -idcd -- "$subs" "$tmp/Subs/"
+            set -- "$tmp/Subs"/*.idx; vobsub="${1%.idx}"
+        fi
+    fi
 fi
+
+play_rar
