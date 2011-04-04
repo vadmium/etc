@@ -132,6 +132,11 @@ PROFILE="$(echo ~/.mozilla/firefox/*.default)"
 gpedit.msc
 Local Computer Policy/Computer Configuration/Administrative Templates/Windows Components/Windows Update/No auto-restart for scheduled Automatic Update installation
 
+=== Group permissions
+
+uucp (Arch)
+dialout (Debian)
+
 ==== howto
 === CVS
 
@@ -986,3 +991,153 @@ however it looks like this info may be in the idx file
 
 Remove "sed" command on "makefile"
 Run "make install" which now automatically installs the GUI. Just needs a bit of cleaning up after it.
+
+= Inserting an empty root Git commit
+
+# Latch onto an existing initial commit
+git checkout <an initial commit> (for example, HEAD~1)
+
+# Create the empty commit
+git rm --cached . -r
+git commit --author="" --date="" -m "Empty root commit" -n --allow-empty --amend
+
+git tag root
+
+# Remove any working directory files leftover from the checkout because they
+# will conflict with child commits
+#git clean -f -d
+#rm <files>
+mkdir stash && mv <valuable files> stash/
+
+# Rebase main trunk branch (master)
+git rebase --onto root --root master
+
+# Subsequent branchs
+git rebase --onto <equivalent branch point> <previous branch point> <branch>
+
+# Update tags
+git tag <equivalent commit> <tag> -f
+
+JLMS XJ-HD165H CH11: +12 AR correction offset
+
+= CD ripping
+
+rubyripper ? May not include full indexes in cue?
+cdrdao: toc gets some things, inconsistencies with others, funny isrc behaviour without "fast toc"
+cdparanoia: doesn't get much toc info
+is cue enough to encapsulate what I want? (I hope so)
+abcde: does cue files + cdparanoia
+cdparanoia "[::]-"
+what about cds that have data tracks?
+multi-disc sets: use "DISC" tag
+
+= Knowledge base
+
+== Requirements
+
+Syntax is easy to remember (don't need Google how to do things all the time)
+Syntax is easy to read in plain text
+Syntax is easy to type (XML/HTML/SGML can be awkward)
+Syntax is obvious (so you can paste things in plain text and easily see that they don't need encoding)
+Syntax gracefully degrades, so local errors do not obscure the whole file
+Compatible with plain text files so that svn blame, diff, etc works
+
+== Implementations
+
+http://wikidpad.sourceforge.net/
+
+=== Gnu C library
+
+Using a different version:
+LD_PRELOAD="$OTHER/lib/libc-2.12.2.so" "$OTHER/lib/ld-linux.so.3" "$OTHER/usr/bin/ubiattach"
+
+or replace both ld and libc (just replacing one causes everything to segfault!)
+Probably using a shell script won't work, you'd have to have both replaced by a single command (process).
+
+This almost worked I think, but I ran out of space:
+tar -C / -xjvf Angstrom-aegle-image-eglibc-ipk-next-beagleboard.rootfs.tar.bz2 "./lib/ld*" "./lib/libc.*" "./lib/libc-*"
+
+= Applications
+
+see ~/TODO
+
+If you're an end user who is actively looking for an IMAP e-mail client, please note that Trojitá's GUI is not completely ready for mass consumption yet (read: needs some polishing to not scare users away). If you are scared now, please come back in a few months, you might be pleasantly surprised :)
+Resources
+Source Code
+== PDF browsers
+
+???
+
+== Email
+
+Thunderbird
+Kmail (part of KDE + Kcontact or something)
+Sylpheed (GTK+)
+Claws mail (forked from Sylpheed) odd server port settings; dumb mandatory "wizard"; decided to spend ages (downloading?) all 43 thousand of my messages, but seemed to forget about that after I killed and restarted; uses GTK; slow if you accidentally click out of "Inbox" and back again
+Mahogany: horrible ass-uming Configure script; failed to compile (x86-64?)
+Gnu mail (gnumail)
+
+= Software package description
+
+== Source packages
+linux
+linux-omap
+bitbake
+quilt
+gquilt
+udev
+python
+
+== Source versions
+2.6.n
+2.6.n.m
+2.6.n-rcX
+2.6.38-rcX+gabcd
++full-path
+
+== Target packages
+linux
+linux 2.6
+linux 2.6.x. . .
+linux-omap. . .
+bitbake 1.10
+quilt
+quilt+debian
+gquilt
+udev
+udev+full-path
+python 2
+python 2.6
+python 2.7
+python 3
+arch-base
+aegle-image
+tuomov-b
+
+== Ideas
+One package P+variation, P-variation or P' may "provide" another package P's functionality, meaning anything requiring package P should work just as well with P+variation et al. However a package requiring P' won't necessarily work with P alone.
+
+Package name has default provision
+
+Source package generates many target packages
+
+Different target "spaces": file system, kernel images (incl memtest etc); initramfs
+
+Some packages and versions may be installed side-by-side (eg python2 and python3); some may conflict
+
+Architectures and platforms; a bit like another version; if you can run arch x86_64 you may install x64_32 packages as well (but not kernel modules?); x86_64 would be prioritised though. Also windows packages may work via Wine; other architectures might work through an emulator like Qemu.
+
+Various installation targets: file system; bootloader; random file (eg misc kernel image); tarball; staged file system, bootloader, etc. Not all targets would be valid for all packages.
+
+Bringing common themes together: configure options; make options; the make install DESTDIR syntax. There should be a way to configure the default make -jN option; whether to enable or disable this by default would be contraversial.
+
+report approx cpu usage (perhaps weighed against some bogomips-like standard), peak memory usage, peak disk usage, size of disk output
+
+set disassembly-flavor intel
+disp/i $eip
+disas $eip,+0x100
+
+git defaults:
+git status -uno
+--color=auto?
+whitespace "errors"
