@@ -1,7 +1,5 @@
 #! /bin/sh -eu
 set -o errexit -o nounset
-MNT="$HOME/mpwd"
-mkdir --parents "$MNT"
 
 target="${1-.}"
 
@@ -11,12 +9,21 @@ target="$(readlink -f "$target")"
 cd /
 
 play_rar() {
-    rarfs "$1" "$MNT"
+    mnt="$(mktemp --tmpdir -d mpw.XXXXXXXXXX)"
+    rmtmp() {
+        rmdir -- "$mnt"
+    }
+    trap rmtmp EXIT
+    
+    rarfs "$1" "$mnt"
     umount() {
-        fusermount -u "$MNT"
+        fusermount -u "$mnt"
+        rmtmp
     }
     trap umount EXIT
-    mplayer "$MNT"/*
+    
+    mplayer "$mnt"/*
+    
     trap - EXIT
     umount
 }
