@@ -6,118 +6,125 @@ import subprocess
 import tempfile
 import shutil
 
-try:
-    target = sys.argv[1]
-except IndexError:
-    target = "."
+def main():
+    try: target = sys.argv[1]
+    except IndexError: target = "."
 
-# Workaround for not being able to fusermount from a fusermount directory
-# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=584541
-target = os.path.abspath(target)
-os.chdir("/")
+    # Workaround for not being able to fusermount from a fusermount directory
+    # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=584541
+    target = os.path.abspath(target)
+    os.chdir("/")
 
-def play_rar(rar, tmp, vobsub=None):
-    mnt = os.path.join(tmp, "mnt")
-    os.mkdir(mnt)
-    subprocess.check_call(["rarfs", rar, mnt])
-    
+    tmp = tempfile.mkdtemp(prefix="mpw")
     try:
-        opts = list()
-        
-        if vobsub is not None:
-            unrar = subprocess.check_output(["which", "unrar"]).rstrip(b"\n")
-            opts.extend(["-unrarexec", unrar, "-vobsub", vobsub])
-        
-        subprocess.check_call(["mplayer"] + opts +
-            [os.path.join(mnt, i) for i in os.listdir(mnt)])
-    finally:
-        subprocess.check_call(["fusermount", "-u", mnt])
-
-tmp = tempfile.mkdtemp(prefix="mpw")
-try:
-    if not os.path.isdir(target):
-        rar = target
-        vobsub = None
-    else:
-        # Seen the following rarset schemes:
-        # *.rar
-        # *.r00
-        # *.r01
-        # . . .
-        # *.part01.rar
-        # *.part02.rar
-        # . . .
-        # CD*/*cd*.* (not implemented)
-        suffixes = [".part01.rar", ".rar"]
-        rar = None
-        for file in os.listdir(target):
-            for i in range(len(suffixes)):
-                if file.endswith(suffixes[i]):
-                    rar = file
-                    suffixes = suffixes[:i]
-                    break
-            if not suffixes:
-                break
-        if rar is None:
-            raise Exception("{}: No file found".format(target))
-        rar = os.path.join(target, rar)
-
-        # Seen the following vobsub schemes:
-        # Subs
-        # Vobsubs
-        #     *.rar
-        #         *.idx
-        #         *.sub
-        #         *.rar (alongside idx file only)
-        #             *.sub
-        #         *-cd*.idx (alongside combined-CD files) (not implemented)
-        #         *-cd*.rar (alongside combined-CD files) (not implemented)
-        #         *.cd*.srt (not implemented)
-        #     *-cd*-subs.rar (not implemented)
-        #         *-cd*.idx
-        #         *-cd*.rar
-        #     CD*/*.idx (not implemented)
-        #     CD*/*.sub (not implemented)
-        
-        for subsdir in ["Subs", "Vobsubs"]:
-            subsdir = os.path.join(target, subsdir)
-            if os.path.isdir(subsdir):
-                break
-        else:
-            subsdir = None
-        
-        if subsdir is None:
+        if not os.path.isdir(target):
+            rars = [target]
             vobsub = None
         else:
-            rar_suffix = ".rar"
-            for subs in os.listdir(subsdir):
-                if subs.endswith(rar_suffix):
-                    break
+            # Seen the following rarset schemes:
+            # *.rar
+            # *.r00
+            # *.r01
+            # . . .
+            # *.part01.rar
+            # *.part02.rar
+            # . . .
+            # CD*/*
+            discs = [i for i in os.listdir(target) if i.startswith("CD")]
+            if 0 == len(discs):
+                rars = [find_rar(target)]
             else:
-                subs = None
-            subs = os.path.join(subsdir, subs)
+                discs.sort()
+                rars = list(map(
+                    lambda disc: find_rar(os.path.join(target, disc)),
+                    discs))
+
+            # Seen the following vobsub schemes:
+            # Subs
+            # Vobsubs
+            #     *.rar
+            #         *.idx
+            #         *.sub
+            #         *.rar (alongside idx file only)
+            #             *.sub
+            #         *-cd*.idx (alongside combined-CD files) (not implemented)
+            #         *-cd*.rar (alongside combined-CD files) (not implemented)
+            #         *.cd*.srt (not implemented)
+            #     *-cd*-subs.rar (not implemented)
+            #         *-cd*.idx
+            #         *-cd*.rar
+            #     CD*/*.idx (not implemented)
+            #     CD*/*.sub (not implemented)
             
-            proc = subprocess.Popen(["unrar", "vb", "--", subs, "*.sub"],
-                stdout=subprocess.PIPE)
-            has_sub = 0 != len(proc.stdout.read(1))
-            proc.stdout.close()
-            proc.wait()
+            subsdirs = ["Subs", "Vobsubs"]
             
-            if has_sub:
-                vobsub = subs[:-len(rar_suffix)]
+            for subsdir in subsdirs:
+                subsdir = os.path.join(target, subsdir)
+                if os.path.isdir(subsdir): break
+            else: subsdir = None
+            
+            if subsdir is None:
+                vobsub = None
             else:
-                tmpsubs = os.path.join(tmp, os.path.basename(subsdir))
-                subprocess.check_call(["unrar", "x", "-ierr", "-o+", "-ts",
-                    "-idcd", "--", subs, tmpsubs + os.path.sep])
-                idx_suffix = ".idx"
-                for vobsub in os.listdir(tmpsubs):
-                    if vobsub.endswith(idx_suffix):
-                        vobsub = os.path.join(tmpsubs,
-                            vobsub[:-len(idx_suffix)])
-                        break
+                subs = filename_ending(subsdir, rar_suffix)
+                proc = subprocess.Popen(["unrar", "vb", "--", subs, "*.sub"],
+                    stdout=subprocess.PIPE)
+                has_sub = 0 != len(proc.stdout.read(1))
+                proc.stdout.close()
+                proc.wait()
+                
+                if has_sub:
+                    vobsub = subs[:-len(rar_suffix)]
                 else:
-                    vobsub = None
+                    tmpsubs = os.path.join(tmp, subsdirs[0])
+                    subprocess.check_call(["unrar", "x", "-ierr", "-o+",
+                        "-ts", "-idcd", "--", subs, tmpsubs + os.path.sep])
+                    idx_suffix = ".idx"
+                    vobsub = filename_ending(tmpsubs, idx_suffix)
+                    if vobsub is not None:
+                        vobsub = vobsub[:-len(idx_suffix)]
+        
+        play_rars(rars, tmp, vobsub=vobsub)
+    finally:
+        shutil.rmtree(tmp)
+
+def play_rars(rars, tmp, vobsub=None):
+    if vobsub is None:
+        subopts = list()
+    else:
+        unrar = subprocess.check_output(["which", "unrar"]).rstrip(b"\n")
+        subopts = ["-unrarexec", unrar, "-vobsub", vobsub]
     
-    play_rar(rar, tmp, vobsub=vobsub)
-finally:
-    shutil.rmtree(tmp)
+    mnt_count = 0
+    mnt_format = "mnt{}"
+    try:
+        files = list()
+        for i in range(len(rars)):
+            mnt = os.path.join(tmp, mnt_format.format(i))
+            os.mkdir(mnt)
+            subprocess.check_call(["rarfs", rars[i], mnt])
+            mnt_count += 1
+            
+            files.extend([os.path.join(mnt, i) for i in os.listdir(mnt)])
+        
+        subprocess.check_call(["mplayer"] + subopts + ["-fixed-vo", "-fs"] +
+            files)
+    finally:
+        while mnt_count > 0:
+            mnt_count -= 1
+            subprocess.check_call(["fusermount", "-u",
+                os.path.join(tmp, mnt_format.format(mnt_count))])
+
+rar_suffix = ".rar"
+def find_rar(dir):
+    for suffix in [".part01" + rar_suffix, rar_suffix]:
+        rar = filename_ending(dir, suffix)
+        if rar is not None: return rar
+    raise Exception("{}: No file found".format(target))
+
+def filename_ending(dir, suffix):
+    for name in os.listdir(dir):
+        if name.endswith(suffix):
+            return os.path.join(dir, name)
+
+main()
