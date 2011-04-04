@@ -5,6 +5,11 @@ mkdir --parents "$MNT"
 
 target="${1-.}"
 
+# Workaround for not being able to fusermount from a fusermount directory
+# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=584541
+target="$(readlink -f "$target")"
+cd /
+
 play_rar() {
     rarfs "$1" "$MNT"
     umount() {
