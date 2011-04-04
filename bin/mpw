@@ -1,5 +1,5 @@
 #! /bin/sh -eu
-set -o errexit -o nounset -o pipefail
+set -o errexit -o nounset
 MNT="$HOME/mpwd"
 mkdir --parents "$MNT"
 
