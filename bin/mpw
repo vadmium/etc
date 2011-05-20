@@ -158,7 +158,7 @@ def find_rar(dir):
     for suffix in (".part01" + rar_suffix, rar_suffix):
         rar = filename_ending(dir, suffix)
         if rar is not None: return rar
-    raise Exception("{}: No file found".format(target))
+    raise SystemExit("{}: No file found".format(target))
 
 def filename_ending(dir, suffix):
     for name in os.listdir(dir):
