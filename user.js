@@ -89,10 +89,6 @@ to the end of the line. */
 1 focuses text controls, 2 focuses other form elements, 4 adds links. */
 // user_pref("accessibility.tabfocus", 1);
 
-/* Don't ever show a font smaller than this: see bug 30910. This is cross-
-platform; there is a deprecated Unix-only "font.min-size" pref. */
-// user_pref("font.minimum-size.x-western", 13);
-
 /* X font banning: see bug 104075. */
 // user_pref("font.x11.rejectfontpattern", "fname=.*arial.*");
 
@@ -178,3 +174,12 @@ user_pref("extensions.irc.munger.smileyText", true);
 
 /* Default paper size */
 user_pref("print.postscript.paper_size", "A4");
+
+user_pref("browser.rights.3.shown", true);
+user_pref("browser.xul.error_pages.expert_bad_cert", true);
+user_pref("general.warnOnAboutConfig", false);
+
+user_pref("font.name.serif.x-western", "Nimbus Roman No9 L");
+user_pref("dom.disable_window_move_resize", true);
+
+user_pref("browser.tabs.animate", false);

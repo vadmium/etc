@@ -136,6 +136,7 @@ Local Computer Policy/Computer Configuration/Administrative Templates/Windows Co
 
 uucp (Arch)
 dialout (Debian)
+network (Arch); netdev (Debian)
 
 ==== howto
 === CVS

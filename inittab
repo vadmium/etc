@@ -1,0 +1,11 @@
+c1:2345:respawn:fgetty tty1 --noclear
+c2:2345:respawn:fgetty tty2 --noclear
+c3:2345:respawn:fgetty tty3 --noclear
+c4:2345:respawn:fgetty tty4 --noclear
+c5:2345:respawn:fgetty tty5 --noclear
+c6:2345:respawn:fgetty tty6 --noclear
+
+# Bash requires the -l option to force login mode when it is non-interactive:
+# http://linux.derkeiler.com/Newsgroups/comp.os.linux.misc/2006-09/msg00666.html
+# Cd because Bash only seems to set PWD=$HOME in interactive login mode
+x:5:respawn:su - -- vadmium -l -c 'cd ~; exec startx vt7 < /dev/null'
