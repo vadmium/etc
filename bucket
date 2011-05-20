@@ -1141,3 +1141,34 @@ git defaults:
 git status -uno
 --color=auto?
 whitespace "errors"
+
+= Python nits
+
+Anonymous function, class, etc definitions: something like
+
+increment = function(i):
+    return i + 1
+increment = def(i):
+    return i + 1
+increment = lambda i:
+    return i + 1
+sequence = generator(i):
+    yield ...
+ClassName = class(Base):
+    ...
+
+super: the name is misleading, maybe worse
+
+"with" context manager stuff is better than nothing, but rather inflexible. What if you want to conditionally create the context object, but still execute the code block inside? How to properly make your own context objects, eg a file object wrapping open, making it immune to exceptions.
+
+Inconsistencies with assignment operations
+
+ctn = []; print(ctn)
+tup = (ctn,); print(tup)
+ctn.extend(["ctn.extend"]); print(ctn, tup)
+ctn += ["ctn +="]; print(ctn, tup)
+tup[0].extend(["tup[0].extend"]); print(ctn, tup)
+tup[0] += ["tup[0] +="]
+print("Container was modified before assignment attempt:", ctn, tup)
+
+Also it's odd that list += x leaves (assigns) the same object identity, but int (or tuple) += x changes the identity.
