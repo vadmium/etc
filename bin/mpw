@@ -74,11 +74,13 @@ def main():
                     # TODO: Use Python rarfile module for this
                     proc = subprocess.Popen(("unrar", "vb", "--", subs,
                         "*.sub"), stdout=subprocess.PIPE)
-                    has_sub = 0 != len(proc.stdout.read(1))
+                    sub_count = proc.stdout.read().count(b"\n")
                     proc.stdout.close()
                     proc.wait()
                     
-                    if has_sub:
+                    # M Player can play a *.sub file inside a Rar file, but
+                    # not if there are more than one *.sub file.
+                    if 1 == sub_count:
                         vobsubs.append(subs[:-len(rar_suffix)])
                     else:
                         tmpsubs = os.path.join(tmp,
@@ -91,13 +93,18 @@ def main():
                             "-ts", "-idcd", "--", subs,
                             tmpsubs + os.path.sep))
                         
+                        # List each *.idx file, but ignore initial files if
+                        # they have generalised names of subsequent files.
+                        # E.g.: prefix-suffix ignored if followed by
+                        # prefix-1-suffix.
                         idx_suffix = ".idx"
                         idxs = []
                         for idx in os.listdir(tmpsubs):
-                            if not idx.endswith(idx_suffix): continue
+                            if not idx.endswith(idx_suffix):
+                                continue
                             idx = idx[:-len(idx_suffix)]
                             
-                            if len(idxs):
+                            if idxs:
                                 # Find common prefix and suffix lengths
                                 common_len = min(len(idx), len(idxs[0]))
                                 pref_len = 0
@@ -143,7 +150,8 @@ def play_rars(rars, tmp, vobsubs=None):
             mnt_count += 1
             
             files.extend(os.path.join(mnt, i) for i in os.listdir(mnt))
-            if vobsubs is not None: files.extend(("-vobsub", vobsubs[i]))
+            if vobsubs is not None:
+                files.extend(("-vobsub", vobsubs[i]))
         
         subprocess.check_call(["mplayer"] + subopts + ["-fixed-vo", "-fs"] +
             files)
