@@ -1,12 +1,25 @@
 # Typically this can replace the whole skeleton ~/.profile file
 
-# TODO: only insert elements if they don't already exist. That way we can re-
-# run this script without indefinitely extending the path each time, and the
-# sbin components will be ignored on OSes like Ubuntu that already include
-# sbin elsewhere
+# Only inserts elements if they don't already exist.
 prepend_list () {
-    eval "$3=\"\$1\${$3+\$2\$$3}\""
-    export "$3"
+    local pre="$1" IFS="$2" var="$3"
+    
+    local val
+    eval "if test -n \"\${$var+set}\"; then val=\$$var; fi"
+    
+    local p
+    for p in $pre; do
+        local v
+        for v in ${val-}; do
+            if test "$p" = "$v"; then continue 2; fi
+        done
+        
+        val="$p${val+$IFS$val}"
+    done
+    
+    if test -n "${val+set}"
+        then export "$var=$val"
+    fi
 }
 
 prepend_list /usr/sbin:/sbin : PATH
@@ -58,12 +71,9 @@ export DU_BLOCK_SIZE=si DF_BLOCK_SIZE=si
 #export BLOCKSIZE=si
 
 export LESS="-R"
+export MAKEFLAGS="--no-print-directory"
 
-ENV=~/.bashrc
-if test -e "$ENV"; then
-    if test -n "${BASH_VERSION+set}"; then
-        . "$ENV"
-    fi
-else
-    unset ENV
+export ENV=~/.bashrc
+if test -e "$ENV" -a -n "${BASH_VERSION+set}"; then
+    . "$ENV"
 fi
