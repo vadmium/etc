@@ -786,7 +786,7 @@ sudo apt-get install git-core
 git clone git://git.openezx.org/gnufiish.git
 cd gnufiish
 
-== Operations
+==== Operations
 
 git show
 Gives hash and log of last commit.
@@ -805,7 +805,7 @@ git reset
 git show-branch
 git annotate <file>
 
-== General options
+==== General options
 
 --pretty=oneline
 
@@ -813,6 +813,47 @@ git annotate <file>
 Shows first 7 digits of hashes instead of all 40 digits
 
 --no-pager
+
+==== Create repository
+
+git init
+Creates .git structure in CWD
+
+==== Empty root commit
+
+git commit --author="none <>" --date="" -m "Empty root commit" -n --allow-empty
+
+===== Root commit insertion
+
+# Latch onto an existing initial commit
+git checkout <an initial commit> (for example, HEAD~1)
+
+(Find root commits with git log --max-parents=0)
+
+# Create the empty commit
+git rm --cached . -r
+git commit --author="" --date="" -m "Empty root commit" -n --allow-empty --amend
+
+git tag root
+
+# Remove any working directory files leftover from the checkout because they
+# will conflict with child commits
+#git clean -f -d
+#rm <files>
+mkdir stash && mv <valuable files> stash/
+
+# Rebase main trunk branch (master)
+git rebase --onto root --root master
+
+# Subsequent branchs
+git rebase --onto <equivalent branch point> <previous branch point> <branch>
+
+# Update tags
+git tag <equivalent commit> <tag> -f
+
+==== Cardinal commit number
+
+echo "$(git rev-list --count HEAD)-g$(git rev-parse --short HEAD)"
 
 === Linux
 
@@ -980,6 +1021,8 @@ Matshita (Panasonic) DVD/CDRW UJDA770
 Offset: +102 [AR: 29 submissionss, 100% agreement]
 Accurate stream, defeat audio cache, no C2 pointers [EAC]
 
+JLMS XJ-HD165H CH11: +12 AR correction offset
+
 ====
 
 Ranger file manager, qtfm
@@ -992,34 +1035,6 @@ however it looks like this info may be in the idx file
 
 Remove "sed" command on "makefile"
 Run "make install" which now automatically installs the GUI. Just needs a bit of cleaning up after it.
-
-= Inserting an empty root Git commit
-
-# Latch onto an existing initial commit
-git checkout <an initial commit> (for example, HEAD~1)
-
-# Create the empty commit
-git rm --cached . -r
-git commit --author="" --date="" -m "Empty root commit" -n --allow-empty --amend
-
-git tag root
-
-# Remove any working directory files leftover from the checkout because they
-# will conflict with child commits
-#git clean -f -d
-#rm <files>
-mkdir stash && mv <valuable files> stash/
-
-# Rebase main trunk branch (master)
-git rebase --onto root --root master
-
-# Subsequent branchs
-git rebase --onto <equivalent branch point> <previous branch point> <branch>
-
-# Update tags
-git tag <equivalent commit> <tag> -f
-
-JLMS XJ-HD165H CH11: +12 AR correction offset
 
 = CD ripping
 
@@ -1158,18 +1173,101 @@ sequence = generator(i):
 ClassName = class(Base):
     ...
 
-super: the name is misleading, maybe worse
+Surely anonymous definitions can be done better, and in such a way that special decorator syntax is no longer desirable. Also it would be nice to have the documentation string less inside the body and more associated with the decorated form and name. Might be tied up a little with the requirement for indentation.
+
+super: the name is misleading, maybe worse. I'm not sure how okay it is to just ignore it.
 
 "with" context manager stuff is better than nothing, but rather inflexible. What if you want to conditionally create the context object, but still execute the code block inside? How to properly make your own context objects, eg a file object wrapping open, making it immune to exceptions.
 
-Inconsistencies with assignment operations
+Inconsistencies with assignment operations to immutable objects
 
 ctn = []; print(ctn)
 tup = (ctn,); print(tup)
 ctn.extend(["ctn.extend"]); print(ctn, tup)
 ctn += ["ctn +="]; print(ctn, tup)
 tup[0].extend(["tup[0].extend"]); print(ctn, tup)
-tup[0] += ["tup[0] +="]
+tup[0] += ["tup[0] +="] # TypeError: 'tuple' object does not support item assignment
 print("Container was modified before assignment attempt:", ctn, tup)
 
 Also it's odd that list += x leaves (assigns) the same object identity, but int (or tuple) += x changes the identity.
+
+= How to use command line
+
+--help -h etc
+getopt and gnu stuff
+--
+-v => verbose
+
+= [re-import] Python reload module
+
+import module
+...
+from imp import reload
+reload(module)
+
+= Yield leaks exception being handled
+
+Doesn't appear to delete the exception variable unless the generator is called back into, as happens otherwise for return, break, continue, raise, fall through, double exception. Result is a reference cycle that needs garbage collecting. Even happens with anonymous exception handler.
+
+from gc import set_debug, DEBUG_LEAK, collect
+set_debug(DEBUG_LEAK)
+
+def genfunc():
+    try:
+        raise Exception()
+    except:
+        yield
+    finally:
+        print("finally")
+
+def start():
+    g = genfunc()
+    next(g)
+    print(g.gi_frame, "line", g.gi_frame.f_lineno) # Frame is at yield line
+    return g
+
+# Throw leaks
+g = start()
+try:
+    g.throw(Exception()) # Finally suite executed
+except Exception:
+    pass
+
+del g
+print(collect()) # Exception, traceback and frame leaked
+
+# Close leaks
+g = start()
+g.close() # Finally
+del g
+print(collect()) # Leak
+
+# Del leaks
+g = start()
+del g # Finally
+print(collect()) # Leak
+
+# Next cleans up successfully
+g = start()
+try:
+    next(g) # Finally
+except StopIteration:
+    pass
+
+del g
+print(collect()) # Nothing
+
+# Send okay
+g = start()
+try:
+    g.send(None) # Finally
+except StopIteration:
+    pass
+
+del g
+print(collect()) # Nothing
+
+= Similarly, how to use
+
+gui
+editor with vim keys
