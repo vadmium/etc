@@ -8,3 +8,5 @@ alias patch='patch --binary'
 
 HISTSIZE=1000
 HISTFILESIZE=2000
+
+CSI="'\e['" TEXT='"(exit $?)"'; trap "printf $CSI'1;41;37m'$TEXT$CSI'0m\n'" ERR
