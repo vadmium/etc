@@ -1,0 +1,12 @@
+/* Improve scroll performance */
+* {background-attachment: scroll !important}
+
+@-moz-document url-prefix(https://wiki.archlinux.org/index.php) {
+    .mediawiki a.new {color: green}
+    textarea {font-family: serif}
+}
+
+@-moz-document url-prefix(https://mail.google.com/mail/h) {
+    body > table + table {direction: rtl}
+    body > table + table > * {direction: ltr}
+}
