@@ -127,6 +127,9 @@ def main():
                         idxs.sort()
                         vobsubs.extend(os.path.join(tmpsubs, idx)
                             for idx in idxs)
+            
+            if not vobsubs:
+                vobsubs = None
         
         play_rars(rars, tmp, vobsubs)
     finally:
