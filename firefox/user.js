@@ -110,7 +110,6 @@ user_pref("ui.submenuDelay", 7000);
 user_pref("accessibility.typeaheadfind", true);
 user_pref("accessibility.typeaheadfind.linksonly", true);
 user_pref("accessibility.typeaheadfind.startlinksonly", false);
-user_pref("accessibility.typeaheadfind.timeout", 5000);
 
 /* Select colors for text */
 // user_pref("ui.textSelectBackground", "green");
@@ -183,3 +182,6 @@ user_pref("font.name.serif.x-western", "Nimbus Roman No9 L");
 user_pref("dom.disable_window_move_resize", true);
 
 user_pref("browser.tabs.animate", false);
+
+user_pref("font.name.sans-serif.x-western", "Nimbus Sans L");
+user_pref("font.name.serif.x-western", "Nimbus Roman No9 L");
