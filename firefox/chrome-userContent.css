@@ -1,5 +1,56 @@
 /* Improve scroll performance */
 * {background-attachment: scroll !important}
+h1, h2, h3, h4, h5, h6 {font-family: sans-serif}
+
+.mediawiki {font-family: serif !important}
+
+.mediawiki #column-content, .mediawiki #content {
+	float: none !important;
+	margin-left: 0 !important;
+}
+.mediawiki #column-one {padding: 0 2em !important}
+.mediawiki .portlet#p-cactions {left: 0.14em !important}
+.mediawiki #left-navigation {left: 0 !important}
+.mediawiki .portlet#p-navigation, .mediawiki .portlet#p-search,
+.mediawiki .portlet#p-tb, .mediawiki .portlet#p-lang,
+.mediawiki #mw-panel {
+    width: auto !important;
+    position: static !important;
+    padding-top: 0 !important;
+}
+.mediawiki .portlet .pBody, .mediawiki #mw-panel .body,
+.mediawiki .portlet#p-navigation h5, .mediawiki .portlet#p-search h5,
+.mediawiki .portlet#p-tb h5, .mediawiki .portlet#p-lang h5,
+.mediawiki #mw-panel h5,
+.mediawiki .portlet#p-navigation ul, .mediawiki .portlet#p-search ul,
+.mediawiki .portlet#p-tb ul, .mediawiki .portlet#p-lang ul,
+.mediawiki #mw-panel ul,
+.mediawiki .portlet #searchform,
+.mediawiki .portlet#p-navigation li, .mediawiki .portlet#p-search li,
+.mediawiki .portlet#p-tb li, .mediawiki .portlet#p-lang li,
+.mediawiki #mw-panel li {
+    background: transparent !important;
+    color: inherit !important;
+    border: none !important;
+    padding: 0 !important;
+    white-space: normal !important;
+    display: inline !important;
+}
+.mediawiki #mw-head-base,
+.mediawiki .portlet ul, .mediawiki #mw-panel .body,
+.mediawiki #footer, .mediawiki #footer ul {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+.mediawiki .portlet#p-navigation li:before,
+.mediawiki .portlet#p-search li:before, .mediawiki .portlet#p-tb li:before,
+.mediawiki .portlet#p-lang li:before,
+.mediawiki .portlet #searchform:before,
+.mediawiki #mw-panel li:before {content: "\2003"}
+.mediawiki #p-logo {
+    position: static !important;
+    float: right !important;
+}
 
 @-moz-document url-prefix(https://wiki.archlinux.org/index.php) {
     .mediawiki a.new {color: green}
@@ -9,4 +60,5 @@
 @-moz-document url-prefix(https://mail.google.com/mail/h) {
     body > table + table {direction: rtl}
     body > table + table > * {direction: ltr}
+    body, td {font-family: inherit !important}
 }
