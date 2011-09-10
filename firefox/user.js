@@ -178,10 +178,10 @@ user_pref("browser.rights.3.shown", true);
 user_pref("browser.xul.error_pages.expert_bad_cert", true);
 user_pref("general.warnOnAboutConfig", false);
 
-user_pref("font.name.serif.x-western", "Nimbus Roman No9 L");
 user_pref("dom.disable_window_move_resize", true);
 
 user_pref("browser.tabs.animate", false);
 
 user_pref("font.name.sans-serif.x-western", "Nimbus Sans L");
-user_pref("font.name.serif.x-western", "Nimbus Roman No9 L");
+user_pref("font.name.serif.x-western", "Nimbus Roman No9 L, FreeSerif, Linux Libertine O, Linux Libertine");
+user_pref("font.name.serif.el", "Nimbus Roman No9 L, FreeSerif, Linux Libertine O, Linux Libertine");
