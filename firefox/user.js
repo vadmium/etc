@@ -185,3 +185,5 @@ user_pref("browser.tabs.animate", false);
 user_pref("font.name.sans-serif.x-western", "Nimbus Sans L");
 user_pref("font.name.serif.x-western", "Nimbus Roman No9 L, FreeSerif, Linux Libertine O, Linux Libertine");
 user_pref("font.name.serif.el", "Nimbus Roman No9 L, FreeSerif, Linux Libertine O, Linux Libertine");
+
+user_pref("browser.urlbar.trimURLs", false); /* Otherwise "http://" removed */

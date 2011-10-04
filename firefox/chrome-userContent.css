@@ -1,9 +1,11 @@
 /* Improve scroll performance */
 * {background-attachment: scroll !important}
+
 h1, h2, h3, h4, h5, h6 {font-family: sans-serif}
 
 .mediawiki {font-family: serif !important}
 
+/* Redistribute content from left-hand margin */
 .mediawiki #column-content, .mediawiki #content {
 	float: none !important;
 	margin-left: 0 !important;
@@ -52,12 +54,16 @@ h1, h2, h3, h4, h5, h6 {font-family: sans-serif}
     float: right !important;
 }
 
+/* Normal text was shrunk to 0.8 em */
+.mediawiki #bodyContent {font-size: 1em !important}
+
 @-moz-document url-prefix(https://wiki.archlinux.org/index.php) {
+    /* "Red links" not distinguished except perhaps with the default skin */
     .mediawiki a.new {color: green}
-    textarea {font-family: serif}
 }
 
 @-moz-document url-prefix(https://mail.google.com/mail/h) {
+    /* Swap left-hand table margin to right-hand side */
     body > table + table {direction: rtl}
     body > table + table > * {direction: ltr}
     body, td {font-family: inherit !important}
