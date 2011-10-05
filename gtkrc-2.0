@@ -1,0 +1,4 @@
+style "user-font" {
+    font_name="Sans 8"
+}
+widget_class "*" style "user-font"
