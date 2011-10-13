@@ -1,7 +1,8 @@
 /* See
-http://kb.mozillazine.org/About:config_entries
-http://preferential.mozdev.org/preferences.html
 http://kb.mozillazine.org/Category:Preferences
+http://kb.mozillazine.org/about:config_entries
+http://mxr.mozilla.org/mozilla-central/source/browser/app/profile/firefox.js
+http://preferential.mozdev.org/preferences.html
 */
 
 user_pref("kmeleon.toolband.Menu.size", 32767);
@@ -21,7 +22,8 @@ user_pref("kmeleon.toolband.&Privacy Bar.visibility", true);
 user_pref("kmeleon.plugins.bookmarks.openurl", "ID_OPEN_LINK_IN_NEW_TAB");
 user_pref("kmeleon.plugins.macros.selected.openurl", "ID_OPEN_LINK_IN_NEW_TAB");
 user_pref("kmeleon.tabs.onOpenOption", 1);
-user_pref("browser.link.open_newwindow", 3);
+user_pref("browser.block.target_new_window", true);
+user_pref("browser.link.open_newwindow", 1);
 user_pref("browser.link.open_newwindow.restriction", 0);
 
 user_pref("kmeleon.plugins.gestures.up", "macros(Go_Up)");
@@ -137,12 +139,6 @@ user_pref("dom.disable_open_during_load", true);
 /* Open links from external apps into a new tab */
 // user_pref("browser.link.open_external", 3);
 
-/* Force new windows into tabs */
-user_pref("browser.link.open_newwindow", 3);
-
-/* Make the above pref apply only to targeted links, not window.open */
-// user_pref("browser.link.open_newwindow.restriction", 1);
-
 /* Don't focus new tabs opened by left-click or external URL */
 // user_pref("browser.tabs.loadDivertedInBackground", true);
 
@@ -186,4 +182,48 @@ user_pref("font.name.sans-serif.x-western", "Nimbus Sans L");
 user_pref("font.name.serif.x-western", "Nimbus Roman No9 L, FreeSerif, Linux Libertine O, Linux Libertine");
 user_pref("font.name.serif.el", "Nimbus Roman No9 L, FreeSerif, Linux Libertine O, Linux Libertine");
 
-user_pref("browser.urlbar.trimURLs", false); /* Otherwise "http://" removed */
+/* Otherwise the "http://" prefix is removed */
+user_pref("browser.urlbar.trimURLs", false);
+
+user_pref("browser.safebrowsing.enabled", false);
+user_pref("browser.safebrowsing.remoteLookups", false);
+user_pref("browser.search.update", false);
+user_pref("mousewheel.withshiftkey.action", 0);
+user_pref("mousewheel.withshiftkey.sysnumlines", false);
+user_pref("mousewheel.withshiftkey.numlines", 0);
+user_pref("toolkit.scrollbox.smoothScroll", false);
+user_pref("accessibility.blockautorefresh", true);
+user_pref("app.update.enabled", false);
+user_pref("app.update.auto", false);
+user_pref("browser.fullscreen.autohide", true);
+user_pref("browser.fullscreen.animateUp", 0);
+user_pref("image.animation_mode", "none");
+user_pref("view_source.wrap_long_lines", true);
+user_pref("keyword.enabled", false);
+user_pref("browser.startup.homepage_override.mstone", "ignore");
+user_pref("startup.homepage_welcome_url", "");
+user_pref("browser.sessionstore.max_tabs_undo", 30);
+user_pref("browser.sessionstore.resume_session", true);
+user_pref("browser.startup.page", 3);
+user_pref("accessibility.typeaheadfind.enabletimeout", false);
+user_pref("browser.identity.ssl_domain_display", 0);
+user_pref("browser.safebrowsing.malware.enabled", false);
+user_pref("browser.urlbar.doubleClickSelectsAll", false);
+user_pref("browser.urlbar.filter.javascript", false);
+user_pref("browser.urlbar.maxRichResults", 20);
+user_pref("browser.urlbar.animateBlend", false);
+user_pref("browser.trim_user_and_password", false);
+user_pref("browser.sessionstore.privacy_level", 0);
+user_pref("network.prefetch-next", false);
+user_pref("config.use_system_prefs", true);
+user_pref("intl.locale.matchOS", true);
+user_pref("javascript.options.relimit", true);
+user_pref("layout.frames.force_resizability", true);
+user_pref("network.dns.disablePrefetch", true);
+user_pref("network.dns.disablePrefetchFromHTTPS", false);
+user_pref("network.http.phishy-userpass-length", 30);
+user_pref("nglayout.enable_drag_images", false);
+user_pref("network.http.pipelining", true);
+user_pref("plugins.hide_infobar_for_missing_plugin", true);
+user_pref("browser.shell.checkDefaultBrowser", false);
+user_pref("accessibility.warn_on_browsewithcaret", false);
