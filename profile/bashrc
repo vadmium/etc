@@ -1,3 +1,5 @@
+# Disable Ubuntu's Bash completion crap
+
 # Generic shell ENV initialisation, named after Bash because of its special
 # behaviour. Typically this can be appended to the end of the ~/.bashrc file.
 
@@ -6,7 +8,7 @@ set -o nounset
 alias ls='ls --color=auto'
 alias patch='patch --binary'
 
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=2000
+HISTFILESIZE="$HISTSIZE"
 
 CSI="'\e['" TEXT='"(exit $?)"'; trap "printf $CSI'1;41;37m'$TEXT$CSI'0m\n'" ERR
