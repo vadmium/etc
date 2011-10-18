@@ -5,6 +5,7 @@ import os
 import subprocess
 import tempfile
 import shutil
+from subprocess import CalledProcessError
 
 def main():
     try: target = sys.argv[1]
@@ -59,8 +60,10 @@ def main():
             # Use only the first directory that exists
             for subsdir in ("Subs", "Vobsubs"):
                 subsdir = os.path.join(target, subsdir)
-                if os.path.isdir(subsdir): break
-            else: subsdir = None
+                if os.path.isdir(subsdir):
+                    break
+            else:
+                subsdir = None
             
             if subsdir is None:
                 vobsubs = None
@@ -68,7 +71,8 @@ def main():
                 vobsubs = []
                 subs_x_count = 0
                 for subs in sorted(os.listdir(subsdir)):
-                    if not subs.endswith(rar_suffix): continue
+                    if not subs.endswith(rar_suffix):
+                        continue
                     subs = os.path.join(subsdir, subs)
                     
                     # TODO: Use Python rarfile module for this
@@ -89,9 +93,12 @@ def main():
                         
                         # TODO: Check if everything is uncompressed (using
                         # rarfile), and use rarfs instead if so
-                        subprocess.check_call(("unrar", "x", "-ierr", "-o+",
-                            "-ts", "-idcd", "--", subs,
-                            tmpsubs + os.path.sep))
+                        try:
+                            subprocess.check_call(
+                                "unrar x -ierr -o+ -ts -idcd --".split(" ") +
+                                [subs, tmpsubs + os.path.sep])
+                        except CalledProcessError:
+                            continue
                         
                         # List each *.idx file, but ignore initial files if
                         # they have generalised names of subsequent files.
@@ -108,12 +115,12 @@ def main():
                                 # Find common prefix and suffix lengths
                                 common_len = min(len(idx), len(idxs[0]))
                                 pref_len = 0
-                                while pref_len < common_len and \
-                                idx[pref_len] == idxs[0][pref_len]:
+                                while (pref_len < common_len and
+                                idx[pref_len] == idxs[0][pref_len]):
                                     pref_len += 1
                                 suf_len = 0
-                                while suf_len < common_len and \
-                                idx[-suf_len - 1] == idxs[0][-suf_len - 1]:
+                                while (suf_len < common_len and
+                                idx[-suf_len - 1] == idxs[0][-suf_len - 1]):
                                     suf_len += 1
                                 
                                 if pref_len + suf_len >= len(idx):
