@@ -2,8 +2,7 @@
 * {background-attachment: scroll !important}
 
 h1, h2, h3, h4, h5, h6 {font-family: sans-serif}
-
-.mediawiki {font-family: serif !important}
+dt {font-weight: bolder}
 
 /* Redistribute content from left-hand margin */
 .mediawiki #column-content, .mediawiki #content {
@@ -58,8 +57,12 @@ h1, h2, h3, h4, h5, h6 {font-family: sans-serif}
 .mediawiki #bodyContent {font-size: 1em !important}
 
 /* Another version shrinks everything and then makes it larger again */
-body.mediawiki {font-size: medium !important}
-body.mediawiki #globalWrapper {font-size: 100% !important}
+body.mediawiki, body.mediawiki #wikiContent {
+    font-size: medium !important;
+    font-family: serif !important;
+}
+body.mediawiki #globalWrapper, body.mediawiki #mw_main
+    {font-size: 100% !important}
 
 @-moz-document url-prefix(https://wiki.archlinux.org/index.php) {
     /* "Red links" not distinguished except perhaps with the default skin */

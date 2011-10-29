@@ -1,7 +1,8 @@
 # Disable Ubuntu's Bash completion crap
+#. ~/proj/etc/profile/bashrc
 
 # Generic shell ENV initialisation, named after Bash because of its special
-# behaviour. Typically this can be appended to the end of the ~/.bashrc file.
+# behaviour. Typically this can be appended to the skeleton ~/.bashrc file.
 
 set -o nounset
 
@@ -10,5 +11,7 @@ alias patch='patch --binary'
 
 HISTSIZE=2000
 HISTFILESIZE="$HISTSIZE"
+HISTCONTROL=erasedups
 
 CSI="'\e['" TEXT='"(exit $?)"'; trap "printf $CSI'1;41;37m'$TEXT$CSI'0m\n'" ERR
+trap exit TERM  # Apparently ignored by default so that "kill 0" applies to process group except shell

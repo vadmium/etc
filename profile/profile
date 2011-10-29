@@ -72,6 +72,7 @@ export DU_BLOCK_SIZE=si DF_BLOCK_SIZE=si
 
 export LESS="-R"
 export MAKEFLAGS="--no-print-directory"
+export PYTHONSTARTUP="$HOME/pythonstartup.py"
 
 export ENV=~/.bashrc
 if test -e "$ENV" -a -n "${BASH_VERSION+set}"; then
