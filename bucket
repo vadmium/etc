@@ -819,8 +819,7 @@ Shows first 7 digits of hashes instead of all 40 digits
 git init
 Creates .git structure in CWD
 
-==== Empty root commit
-
+# Empty root commit
 git commit --author="none <>" --date="" -m "Empty root commit" -n --allow-empty
 
 ===== Root commit insertion
@@ -854,6 +853,11 @@ git tag <equivalent commit> <tag> -f
 ==== Cardinal commit number
 
 echo "$(git rev-list --count HEAD)-g$(git rev-parse --short HEAD)"
+
+==== Manual merge
+
+# --no-ff is required even when --no-commit is given!
+git merge --no-commit --no-ff
 
 === Linux
 
@@ -1323,3 +1327,40 @@ sudo aireplay-ng wifi -3 -b AA:BB:CC:DD:EE:FF -e <string>
                          KEY FOUND! [ xx:xx:xx:xx:xx ] 
 
 = Arch installation
+
+FS=/home/os/arch-i686
+
+sudo rm -r "$FS/m/sik/boot/arch-i686"
+sudo umount "$FS/home" "$FS/m/sik"
+sudo rm -r "$FS"
+
+sudo mkdir -p "$FS"
+
+sudo mkdir "$FS/media"
+sudo ln -s media "$FS/m"
+
+sudo mkdir "$FS/m/sik" "$FS/home"
+sudo mount /dev/sda1 "$FS/m/sik"
+sudo mount /dev/disk/by-label/HOME "$FS/home" -t ext2
+
+sudo mkdir "$FS/m/sik/boot/arch-i686"
+sudo ln -s m/sik/boot/arch-i686 "$FS/boot"
+sudo chmod go+w "$FS/boot"  # Temporarily, to reduce the need for "sudo"
+
+./pkgbundle fs "$FS" fs-sudo \
+    repo 'http://mirrors.kernel.org/archlinux/core/os/$arch/core.db' \
+    install base build mkinitcpio-dir \
+    offline
+
+sudo ${EDITOR-vi} "$FS/etc/mkinitcpio.conf"  # Add HOOKS="$HOOKS dir"
+
+./mkinitcpio-cross "$FS" linux -v  # Previously kernel26
+
+
+./mkinitcpio-cross "$FS" "$FS/etc/mkinitcpio.d/kernel26.preset" -v
+(
+    WD="$(pwd)" && cd "$FS/lib/initcpio" &&
+    ALL_kver="$WD/mkinitcpio" -v \
+        -p "etc/mkinitcpio.d/kernel26.preset" -b "$FS"
+)
+#-c "$FS/etc/mkinitcpio.conf" 
