@@ -8,8 +8,10 @@ import shutil
 from subprocess import CalledProcessError
 
 def main():
-    try: target = sys.argv[1]
-    except IndexError: target = "."
+    try:
+        target = sys.argv[1]
+    except IndexError:
+        target = "."
 
     # Workaround for not being able to fusermount from a fusermount directory
     # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=584541
@@ -176,7 +178,7 @@ def find_rar(dir):
     for suffix in (".part01" + rar_suffix, rar_suffix):
         rar = filename_ending(dir, suffix)
         if rar is not None: return rar
-    raise SystemExit("{}: No file found".format(target))
+    raise SystemExit("{}: No file found".format(dir))
 
 def filename_ending(dir, suffix):
     for name in os.listdir(dir):
