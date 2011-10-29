@@ -744,6 +744,51 @@ svnhadd() {
 svnadmin create <path>
 svnadmin load <path> < <dump>
 
+=== [git-svn] Migration from Subversion to Git
+
+# List Subversion authors:
+svn log -qg file:///srv/svn/etc |
+sed -n 's/^r[0-9]\+ | \(.*\) |[^|]*$/\1/p' |
+sort -u > /srv/svn/etc-git-authors
+
+# Convert "power" to "power = Martin Panter <power@bat>"
+$EDITOR /srv/svn/etc-git-authors
+
+mkdir etc.git &&
+cd etc.git &&
+git svn init file:///srv/svn/etc &&
+git commit --author="none <>" --date="" \
+    --message "Empty root commit" --allow-empty &&
+git tag root &&
+git svn fetch --authors-file=/srv/svn/etc-git-authors &&
+git rebase --onto root --root git-svn &&
+git branch -rd git-svn &&
+git tag git-svn &&
+git branch -d master &&
+git checkout -b master
+
+=== Searchable history
+
+git log --reverse --patch --find-copies > log.diff
+
+=== Git cleanup history
+
+git rebase --interactive root
+
+git filter-branch --index-filter '
+        git rm --cached --ignore-unmatch \
+            id/vadmium.ssh2.ossh id/vadmium.ssh2.ppk
+    ' --prune-empty
+git update-ref -d refs/original/refs/heads/master
+
+=== Git find empty commits
+
+# Final "git log" command will show single HEAD revision regardless if there
+# are no empty revisions found
+git log --format='%H' | sort > all
+git log --format='%H' . | sort | comm -23 all - |
+git log --no-walk --stdin
+
 === [mount.vfat] Mount FAT disk
 
 sudo mount -t vfat -o noatime,umask=0,shortname=winnt,iocharset=utf8
@@ -816,13 +861,12 @@ Shows first 7 digits of hashes instead of all 40 digits
 
 ==== Create repository
 
-git init
-Creates .git structure in CWD
-
+#Creates .git structure in CWD
+git init &&
 # Empty root commit
 git commit --author="none <>" --date="" -m "Empty root commit" -n --allow-empty
 
-===== Root commit insertion
+==== Root commit insertion
 
 # Latch onto an existing initial commit
 git checkout <an initial commit> (for example, HEAD~1)
@@ -842,9 +886,10 @@ git tag root
 mkdir stash && mv <valuable files> stash/
 
 # Rebase main trunk branch (master)
+# What happens if any of this involves merges?
 git rebase --onto root --root master
 
-# Subsequent branchs
+# Subsequent branches
 git rebase --onto <equivalent branch point> <previous branch point> <branch>
 
 # Update tags
@@ -858,6 +903,29 @@ echo "$(git rev-list --count HEAD)-g$(git rev-parse --short HEAD)"
 
 # --no-ff is required even when --no-commit is given!
 git merge --no-commit --no-ff
+
+==== Remotes
+
+git remote # list
+git remote -v
+# --master option manually specifies the default branch to use for the remote
+git remote add --fetch $(: --master master) thee ssh://marty@thee/~/proj/rar/rerar
+git remote set-head  # Alternate to set default branch
+git branch --set-upstream master thee/master
+git branch -avv
+
+# After setting up
+git fetch  # By default uses the "upstream" remote for current branch head
+
+==== Detaching from branch head
+
+git checkout HEAD~0  # Works even for older Git
+git checkout --detach  # Only newer
+
+==== Merges
+
+# Buggered if I can find where this is documented. Not in "git diff" nor "gitdiffcore" man pages.
+git diff -3  # Or --theirs. Diff against the "foreign" merge parent (MERGE_HEAD)
 
 === Linux
 
@@ -1030,7 +1098,6 @@ JLMS XJ-HD165H CH11: +12 AR correction offset
 ====
 
 Ranger file manager, qtfm
-build pkgbuild on ubuntu?
 
 = vobsub subtitles
 
@@ -1195,6 +1262,8 @@ print("Container was modified before assignment attempt:", ctn, tup)
 
 Also it's odd that list += x leaves (assigns) the same object identity, but int (or tuple) += x changes the identity.
 
+Assigning to a variable name with a typo might not obviously be detected if the variable with the real name already exists.
+
 = How to use command line
 
 --help -h etc
@@ -1209,72 +1278,77 @@ import module
 from imp import reload
 reload(module)
 
-= Yield leaks exception being handled
+= "Yield" leaks exception being handled as garbage
 
-Doesn't appear to delete the exception variable unless the generator is called back into, as happens otherwise for return, break, continue, raise, fall through, double exception. Result is a reference cycle that needs garbage collecting. Even happens with anonymous exception handler.
+Python doesn't appear to delete the exception variable if an exception is thrown back into it (via "throw", "close" or by deleting it). The exception variable _is_ deleted if the generator is called normally (via "next" or "send"). The exception variable of an exception handler is usually deleted [reference] as soon as the handler is exited (via "return", "break", "continue", "raise", fall through, double exception). The result is a reference cycle that needs garbage collecting. The leak even happens when the exception variable is anonymous.
 
-from gc import set_debug, DEBUG_LEAK, collect
-set_debug(DEBUG_LEAK)
+I'm guessing this issue is specific to Python 3 because it exists for me in Python 3.2, 3.2.1 (both on Arch Linux) and 3.1.2 (Ubuntu) but not Python 2.7.1, 2.7.2 (Arch) nor 2.6.5 (Ubuntu).
 
-def genfunc():
+Issue 1463867 may be related? Hard to tell.
+
+def throw_leaks(g):
+    try:
+        g.throw(Exception())
+    except Exception:
+        pass
+
+def close_leaks(g):
+    g.close()
+
+def del_leaks(g):
+    pass
+
+def next_okay(g):
+    try:
+        next(g)
+    except StopIteration:
+        pass
+
+def send_okay(g):
+    try:
+        g.send(None)
+    except StopIteration:
+        pass
+
+def leaky_generator():
     try:
         raise Exception()
-    except:
-        yield
-    finally:
-        print("finally")
+    except:  # Exception handler with anonymous exception variable
+        yield  # Yield from exception handler
 
-def start():
-    g = genfunc()
+from gc import set_debug, DEBUG_LEAK, collect
+collect()
+set_debug(DEBUG_LEAK)
+for test in (throw_leaks, close_leaks, del_leaks, next_okay, send_okay):
+    print("Testing", test.__name__)
+    g = leaky_generator()
     next(g)
-    print(g.gi_frame, "line", g.gi_frame.f_lineno) # Frame is at yield line
-    return g
-
-# Throw leaks
-g = start()
-try:
-    g.throw(Exception()) # Finally suite executed
-except Exception:
-    pass
-
-del g
-print(collect()) # Exception, traceback and frame leaked
-
-# Close leaks
-g = start()
-g.close() # Finally
-del g
-print(collect()) # Leak
-
-# Del leaks
-g = start()
-del g # Finally
-print(collect()) # Leak
-
-# Next cleans up successfully
-g = start()
-try:
-    next(g) # Finally
-except StopIteration:
-    pass
-
-del g
-print(collect()) # Nothing
-
-# Send okay
-g = start()
-try:
-    g.send(None) # Finally
-except StopIteration:
-    pass
-
-del g
-print(collect()) # Nothing
+    # Generator is now at the "yield" line
+    print(g.gi_frame, "line", g.gi_frame.f_lineno)
+    test(g)
+    del g
+    print("Leak count:", collect())
 
 = Similarly, how to use
 
 gui
 editor with vim keys
+
+= os.path.realpath: undetected link loop
+
+The fix for issue 930024 handles some cases but not the loop created by the following:
+
+deep => deep/inside
+
+Issue 11397 documents false directory backlink normalisation
+
+Proposed solution in issue11397_py32_2.patch does not account for paths with multiple independent references to the same link. Example:
+
+here => .
+
+readlink("here/here")
+
+import realpath.py
 
 = LEDs
 
@@ -1311,10 +1385,11 @@ def chrom_cct_jha_low(chrom):
     return A_0 + sum(A[i] * exp(-n * t[i]) for i in range(3))
 
 def ct_chrom_kim(T):
-    x = \
-        -0.2661239e9 / T ** 3 - 0.2343580e6 / T ** 2 + 0.8776956e3 / T + 0.179910 if 1667 <= T < 4000 else \
+    x = (
+        -0.2661239e9 / T ** 3 - 0.2343580e6 / T ** 2 + 0.8776956e3 / T + 0.179910 if 1667 <= T < 4000 else
         -3.0258469e9 / T ** 3 + 2.1070379e6 / T ** 2 + 0.2226347e3 / T + 0.240390 if 4000 <= T <= 25000
-    y = \
+    )
+    y = (
         
 AL-103W2C-004 10 mm 30 mA 80 mW 2.8–3.6 V 3500–6500 mcd 30° 0.75–1.39 lm chrom. (0.25,0.26) 17000 K 1000 h
 
@@ -1364,3 +1439,25 @@ sudo ${EDITOR-vi} "$FS/etc/mkinitcpio.conf"  # Add HOOKS="$HOOKS dir"
         -p "etc/mkinitcpio.d/kernel26.preset" -b "$FS"
 )
 #-c "$FS/etc/mkinitcpio.conf" 
+
+= Nits
+
+X "clipboard" contents disappear when the program it was copied from is gone
+How hard it is to _cross_-compile most programs, or compile and configure them independently of where they will be installed (/usr, /usr/local, $HOME, etc)
+Gnu Autocrap
+Most Linux GUI programs seem to be designed for only using the keyboard with text fields, not for navigating, menu commands, etc
+Arch Linux not supporting "pacman -Sy"
+
+# Traceback from first parameter apparently ignored
+generator.throw(type(exc), exc, exc.__traceback__)
+
+=== Window focus problems caused by "gitk"
+mouse cursor is positioned over exposed gitk window in background
+switched (alt-tab) from a third window (text editor) to firefox which focuses firefox's address bar
+start typing in address bar
+after the first character, firefox pops up its drop down uber know-it-all menu thing
+menu is immediately closed and focus switches to third window again although firefox window stays in z-order foreground
+
+== Windows Postscript printer driver
+local printer, FILE port
+Generic/MS Publisher Imagesetter

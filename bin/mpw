@@ -8,8 +8,10 @@ import shutil
 from subprocess import CalledProcessError
 
 def main():
-    try: target = sys.argv[1]
-    except IndexError: target = "."
+    try:
+        target = sys.argv[1]
+    except IndexError:
+        target = "."
 
     # Workaround for not being able to fusermount from a fusermount directory
     # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=584541
@@ -71,7 +73,7 @@ def main():
                 vobsubs = []
                 subs_x_count = 0
                 for subs in sorted(os.listdir(subsdir)):
-                    if not subs.endswith(rar_suffix):
+                    if not subs.endswith(RAR_SUFFIX):
                         continue
                     subs = os.path.join(subsdir, subs)
                     
@@ -85,7 +87,7 @@ def main():
                     # M Player can play a *.sub file inside a Rar file, but
                     # not if there are more than one *.sub file.
                     if 1 == sub_count:
-                        vobsubs.append(subs[:-len(rar_suffix)])
+                        vobsubs.append(subs[:-len(RAR_SUFFIX)])
                     else:
                         tmpsubs = os.path.join(tmp,
                             "subs{}".format(subs_x_count))
@@ -156,6 +158,7 @@ def play_rars(rars, tmp, vobsubs=None):
         for i in range(len(rars)):
             mnt = os.path.join(tmp, mnt_format.format(i))
             os.mkdir(mnt)
+            print("rarfs", rars[i], mnt)
             subprocess.check_call(("rarfs", rars[i], mnt))
             mnt_count += 1
             
@@ -171,12 +174,14 @@ def play_rars(rars, tmp, vobsubs=None):
             subprocess.check_call(("fusermount", "-u",
                 os.path.join(tmp, mnt_format.format(mnt_count))))
 
-rar_suffix = ".rar"
 def find_rar(dir):
-    for suffix in (".part01" + rar_suffix, rar_suffix):
+    for suffix in (".part01" + RAR_SUFFIX, RAR_SUFFIX, ".001"):
         rar = filename_ending(dir, suffix)
-        if rar is not None: return rar
-    raise SystemExit("{}: No file found".format(target))
+        if rar is not None:
+            return rar
+    raise SystemExit("{}: No file found".format(dir))
+
+RAR_SUFFIX = ".rar"
 
 def filename_ending(dir, suffix):
     for name in os.listdir(dir):
