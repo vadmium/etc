@@ -158,7 +158,6 @@ def play_rars(rars, tmp, vobsubs=None):
         for i in range(len(rars)):
             mnt = os.path.join(tmp, mnt_format.format(i))
             os.mkdir(mnt)
-            print("rarfs", rars[i], mnt)
             subprocess.check_call(("rarfs", rars[i], mnt))
             mnt_count += 1
             
