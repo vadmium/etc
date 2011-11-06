@@ -70,10 +70,12 @@ body.mediawiki #globalWrapper, body.mediawiki #mw_main
 }
 
 @-moz-document url-prefix(https://mail.google.com/mail/h) {
-    /* Swap left-hand table margin to right-hand side */
-    body > table + table {direction: rtl}
-    body > table + table > * {direction: ltr}
     body, td {font-family: inherit !important}
+    
+    /* Display left-hand margin across the top */
+    body > table + table > tbody > tr > td {display: block; width: auto}
+    .m > tbody > tr {display: inline}
+    .l br {display: none}
 }
 
 /* Pun BB */
