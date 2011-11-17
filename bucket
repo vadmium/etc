@@ -688,3 +688,94 @@ svnhadd() {
     mv "$real" "$DEST"
     svn diff "$DEST"
 }
+
+=== Package names
+
+sudo apt-get install manpages manpages-dev
+sudo apt-get install manpages-posix-dev manpages-posix
+
+=== Filesystems
+
+ext3:
+-O dir_index
+-O has_journal
+
+# TODO: is there a way of piling this into a config file or something?
+part=/dev/sda2
+set -- # Building mke2fs command line
+set -- "$@" -t ext3
+set -- "$@" -b 4096 # Space allocated in blocks of size: 1024/2048/4096
+set -- "$@" -i 50000 # Bytes per inode (inodes count is based on total space)
+#set -- "$@" -I 128 # Inode size: minimum 128; 256 for extended attributes
+set -- "$@" -j # ext3 journal
+#set -- "$@" -J size=10 # Journal size in "megabytes"
+#features="dir_index" # Hashed B-trees for fast directory lookup
+#features="$features,^filetype" # File type information in directories
+#features="$features,^flex_bg" # ?
+#features="$features,has_journal" # Equivalent to -j? Only turn off in ext4
+#features="$features,^extent" # Faster data block location storing method
+
+#features="$features,^uninit_bg" # Stop background init. and faster FS check
+#set -- "$@" -E lazy_itable_init=0 # Disable background initialisation
+
+#features="$features,^resize_inode"
+#set -- "$@" -M /
+set -- "$@" -L cross # Volume label
+set -- "$@" -m 1 # Percentage of blocks reserved for super-user
+
+mke2fs "$@" -O "$features" "$part"
+
+mke2fs -t ext3 -j -b 4096 -i 50000 -j -L cross -m 1 "$part"
+
+noatime
+
+=== Arch Linux
+
+sudo apt-get install qemu
+qemu-system-x86_64 -hda archlinux-2010.05-netinstall-x86_64.iso -hdb /dev/sda
+# Look in /var/log/aif/pacman.log to see what the GUI is trying to tell you
+
+grub --batch --device-map /dev/null << GRUB
+device (hd0) /dev/sda
+setup --prefix=/grub (hd0) (hd0,0)
+GRUB
+
+ARCH_HOST=i686
+# Check latest versions (I used pacman-3.3.3-1, pacman-mirrorlist-20100131-1)
+http://www.archlinux.org/packages/core/i686/pacman/
+http://www.archlinux.org/packages/core/i686/pacman-mirrorlist/
+wget "ftp://ftp.archlinux.org/core/os/$ARCH_HOST/pacman-*.pkg.tar.gz"
+sudo tar xzf "pacman-3.3.3-5-$ARCH_HOST.pkg.tar.gz" -C /
+sudo tar xzf "pacman-mirrorlist-20100131-1-$ARCH_HOST.pkg.tar.gz" -C /
+for pkg in libarchive openssl xz-utils; do
+    wget "ftp://ftp.archlinux.org/core/os/$ARCH_HOST/$pkg-*.pkg.tar.gz"
+    sudo tar xzf "$pkg"-*-"$ARCH_HOST.pkg.tar.gz" -C /
+done
+sudo apt-get install qemu
+
+ARCH=/mnt2/os/arch
+# Remember to mount the target file system, and any extra filesystems such as
+# boot
+
+ARCH_TARGET=x86_64
+sed --expression "s/$ARCH_HOST/$ARCH_TARGET/g" /etc/pacman.d/mirrorlist \
+    > "mirrorlist-$ARCH_TARGET"
+sed --expression "s|/etc/pacman.d/mirrorlist|mirrorlist-$ARCH_TARGET|g" \
+    /etc/pacman.conf > "pacman-$ARCH_TARGET.conf"
+
+# Set RootDir, CacheDir in pacman-$ARCH_TARGET.conf
+# Uncomment some mirrors from mirrorlist-$ARCH_TARGET
+sudo mkdir --parents "$ARCH/var/lib/pacman"
+sudo pacman --config "pacman-$ARCH_TARGET.conf" -Sy
+
+# Fails trying to overwrite grub/menu.lst
+sudo mv "$ARCH/boot/grub/menu.lst" "$ARCH/boot/grub/menu-orig.lst"
+
+sudo pacman --config "pacman-$ARCH_TARGET.conf" -S base
+sudo "qemu-$ARCH_TARGET" "$ARCH/lib/ld-linux-x86-64.so.2" \
+    --library-path "$ARCH/lib:$ARCH/usr/lib" \
+    "$ARCH/usr/bin/pacman" --config "pacman-$ARCH_TARGET.conf" -S base
+
+# References
+# http://wiki.archlinux.org/index.php/Arch64_Install_bundled_32bit_system
+# http://wiki.archlinux.org/index.php/Install_from_Existing_Linux
