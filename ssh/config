@@ -1,0 +1,6 @@
+Host nls
+  Port 443
+  HostName host
+#  User vadmium
+# TODO: use $http_proxy et al
+  ProxyCommand corkscrew localhost 3128 %h %p

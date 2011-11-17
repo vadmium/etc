@@ -1,3 +1,0 @@
-export HOME=/c/marty
-cd "$HOME"
-[ -e .profile ] && . ./.profile

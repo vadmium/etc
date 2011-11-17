@@ -1,0 +1,17 @@
+#! /usr/bin/env python3
+
+import sys
+import os
+
+# Find the relative complement of dest (files not in dest) in src
+src = sys.argv[1]
+dest = sys.argv[2]
+
+def tcmp(file):
+    if not os.path.exists(os.path.join(dest, file)):
+        print(file)
+    elif os.path.isdir(os.path.join(src, file)):
+        for entry in os.listdir(os.path.join(src, file)):
+            tcmp(os.path.join(file, entry))
+
+tcmp("")

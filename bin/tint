@@ -1,0 +1,27 @@
+#! /usr/bin/env python3
+
+import sys
+import os
+
+# Find the intersect of file in both trees
+src = sys.argv[1]
+dest = sys.argv[2]
+
+def tint(file):
+    eq = os.path.exists(os.path.join(dest, file))
+    if not eq:
+        return eq
+    if os.path.isdir(os.path.join(src, file)):
+        eq_list = []
+        for entry in os.listdir(os.path.join(src, file)):
+            if tint(os.path.join(file, entry)):
+                eq_list.append(entry)
+            else:
+                eq = False
+        if not eq:
+            for entry in eq_list:
+                print(os.path.join(file, entry))
+    return eq
+
+if tint(""):
+    print(".")

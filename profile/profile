@@ -1,0 +1,80 @@
+# Typically this can replace the whole skeleton ~/.profile file
+
+# Only inserts elements if they don't already exist.
+prepend_list () {
+    local pre="$1" IFS="$2" var="$3"
+    
+    local val
+    eval "if test -n \"\${$var+set}\"; then val=\$$var; fi"
+    
+    local p
+    for p in $pre; do
+        local v
+        for v in ${val-}; do
+            if test "$p" = "$v"; then continue 2; fi
+        done
+        
+        val="$p${val+$IFS$val}"
+    done
+    
+    if test -n "${val+set}"
+        then export "$var=$val"
+    fi
+}
+
+prepend_list /usr/sbin:/sbin : PATH
+prepend_list ~/bin : PATH
+
+if test "${OS-}" = Windows_NT; then
+    EDITOR=winvi32
+else
+    EDITOR=vim
+fi
+export EDITOR
+
+#export SVN_SSH="plink -ssh -batch" # TODO move this env var to Windows registry
+#export no_proxy="localhost,127.0.0.1/8,network/16,10.0.0.0/8,172.31.0.0/16,example.com.au"
+#
+## APT doesn't use the address range notation
+#export no_proxy="$no_proxy,webserver"
+#
+#export no_proxy="$no_proxy,host"
+#
+#PROXY_SRV=proxy:3128
+#PROXY_AUTH='user:p%40ss'
+#PROXY_AUTH='domain\user:p%40ss'
+#export http_proxy="http://$PROXY_AUTH@$PROXY_SRV/"
+
+if test "${TERM-}" = msys; then
+    GREP_OPTIONS="--color=always"
+else
+    GREP_OPTIONS="--color"
+fi
+export GREP_OPTIONS
+
+prepend_list ~/lib : LD_LIBRARY_PATH
+
+# Would have thought "keychain" was appropriate for this, but the inherit any
+# option isn't doing what I would like. See
+# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=502468
+if test -z "${SSH_AUTH_SOCK+set}"; then
+    SSA="/tmp/sshagent-$(id -u).sh"
+    if test ! -e "$SSA"; then
+        ssh-agent -s > "$SSA"
+    fi
+    . "$SSA"
+fi
+
+export DU_BLOCK_SIZE=si DF_BLOCK_SIZE=si
+# This affects ls -l despite what this GNU coreutils manual says:
+# http://www.gnu.org/software/coreutils/manual/html_node/Block-size.html
+#export BLOCKSIZE=si
+
+export LESS="-R"
+export MAKEFLAGS="--no-print-directory"
+export PYTHONSTARTUP="$HOME/pythonstartup.py"
+
+export ENV=~/.bashrc
+if test -e "$ENV" -a -n "${BASH_VERSION+set}"; then
+    . "$ENV"
+fi

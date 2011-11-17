@@ -1,0 +1,7 @@
+REGEDIT4
+
+[HKEY_CURRENT_USER\Software\Classes\sumatra-pdf\shell\open\command]
+@="c:\\marty/bin/SumatraPDF \"%1\""
+
+[HKEY_CURRENT_USER\Software\Classes\.pdf]
+@="sumatra-pdf"

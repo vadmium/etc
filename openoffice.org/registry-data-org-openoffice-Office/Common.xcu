@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oor:component-data xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" oor:name="Common" oor:package="org.openoffice.Office">
+ <node oor:name="Misc">
+  <prop oor:name="FirstRun" oor:type="xs:boolean">
+   <value>false</value>
+  </prop>
+  <prop oor:name="SymbolSet" oor:type="xs:short">
+   <value>0</value>
+  </prop>
+  <prop oor:name="SymbolStyle" oor:type="xs:string">
+   <value>classic</value>
+  </prop>
+ </node>
+ <node oor:name="Filter">
+  <node oor:name="PDF">
+   <node oor:name="Export">
+    <prop oor:name="InitialView" oor:type="xs:int" />
+   </node>
+    <prop oor:name="ExportBookmarks" oor:type="xs:boolean" />
+    <prop oor:name="UseLosslessCompression" oor:type="xs:boolean" />
+  </node>
+ </node>
+ <node oor:name="AutoCorrect">
+  <prop oor:name="AddNonBreakingSpace" oor:type="xs:boolean" />
+  <prop oor:name="CapitalAtStartSentence" oor:type="xs:boolean">
+   <value>false</value>
+  </prop>
+  <prop oor:name="DoubleQuoteAtEnd" oor:type="xs:int" />
+  <prop oor:name="DoubleQuoteAtStart" oor:type="xs:int" />
+  <prop oor:name="SingleQuoteAtEnd" oor:type="xs:int" />
+  <prop oor:name="SingleQuoteAtStart" oor:type="xs:int" />
+  <prop oor:name="TwoCapitalsAtStart" oor:type="xs:boolean">
+   <value>false</value>
+  </prop>
+  <prop oor:name="ChangeOrdinalNumber" oor:type="xs:boolean">
+   <value>false</value>
+  </prop>
+ </node>
+ <node oor:name="Font">
+  <node oor:name="SourceViewFont">
+   <prop oor:name="FontHeight" oor:type="xs:short" />
+   <prop oor:name="FontName" oor:type="xs:string" />
+  </node>
+ </node>
+ <node oor:name="View">
+  <prop oor:name="FontScaling" oor:type="xs:short">
+   <value>80</value>
+  </prop>
+ </node>
+ <node oor:name="Accessibility">
+  <prop oor:name="IsSystemFont" oor:type="xs:boolean" />
+ </node>
+</oor:component-data>

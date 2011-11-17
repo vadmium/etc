@@ -1,0 +1,3 @@
+if test -e ~/.profile; then
+    . ~/.profile
+fi

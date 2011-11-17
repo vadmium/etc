@@ -5,4 +5,9 @@ xterm*pointerMode: 2
 xterm*scrollKey: true
 xterm*scrollTtyOutput: false
 xterm*visualBell: true
-Xft.dpi: 75
+
+/* For icewm: */
+//Xft.dpi: 75
+
+/* For Thunderbird on Gnome: */
+Xft.dpi: 96

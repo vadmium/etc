@@ -1,0 +1,2 @@
+#! /bin/sh -eu
+iconv --from CP437 "$@" | less --chop-long-lines --RAW-CONTROL-CHARS

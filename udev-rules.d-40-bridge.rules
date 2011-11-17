@@ -1,0 +1,2 @@
+SUBSYSTEM=="usb", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="2107", MODE="0660", GROUP="plugdev" # AVR dragon
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1781", ATTRS{idProduct}=="0c9f", MODE="0660", GROUP="plugdev" # USB tiny AVR programmer

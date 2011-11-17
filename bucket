@@ -7,9 +7,8 @@ homedot () {
     local="$HOME/.$1"
 }
 
-file=subversion/config
-local=~/.subversion/config
-local="$APPDATA/Subversion/config"
+homedot subversion/config
+file=subversion/config local="$APPDATA/Subversion/config"
 
 homedot quiltrc
 
@@ -28,6 +27,9 @@ homedot Xresources
 file=apt.conf local="/etc/apt/apt.conf"
 homedot curlrc
 homedot env
+homedot gnomerc
+homedot snmp/snmp.conf
+homedot snmp/snmptrapd.conf
 
 ==== installing
 
@@ -41,7 +43,7 @@ regedit -s putty.reg
 
 ==== updating
 
-diff -u "$file" "$local"
+diff -up "$file" "$local"
 cp "$local" "$file"
 "$EDITOR" "$local"
 
@@ -55,6 +57,9 @@ DPI: delete from
 ~/.gconf/desktop/gnome/font_rendering/%gconf.xml
 /var/lib/gconf/debian.defaults/%gconf-tree.xml
 /usr/share/gconf/defaults/10_libgnome2-common
+
+# Was <Alt>Escape, which prevents cancelling of Alt-Tab
+gconftool-2 --set --type string /apps/metacity/global_keybindings/cycle_windows disabled
 
 === IPADDR
 
@@ -122,6 +127,17 @@ PROFILE="$(echo ~/.mozilla/firefox/*.default)"
                    iconsize="small"
                    currentset="urlbar-container" />
 
+=== Windows
+
+gpedit.msc
+Local Computer Policy/Computer Configuration/Administrative Templates/Windows Components/Windows Update/No auto-restart for scheduled Automatic Update installation
+
+=== Group permissions
+
+uucp (Arch)
+dialout (Debian)
+network (Arch); netdev (Debian)
+
 ==== howto
 === CVS
 
@@ -144,6 +160,7 @@ Requires:
 + Cyrus SASL 2.1.22
 + APR 1.3.3
 # Depends on APR, APR-util
++ Serf
 
 export QUILT_PATCHES=../patches
 quilt push -a
@@ -566,11 +583,20 @@ strip "$BUILD_ROOT/lib/quilt/backup-files"*
 + quilt ref -z but without actually refreshing. Needs thought, like what if you want to get the unrefreshed changes of two patches into the new patch. What if you want to get svn diff (no previous patch) into a new patch? Or explicitly tell it an original file?
 + quilt commit -n(ext); like quilt del -n
 + quilt commit 2 etc, vaguely matching quilt push. Needs more thought
-+ quilt commit -n (dry run) conflicts with quilt del -n (next)
++ quilt commit -n (dry run) conflicts with quilt del -n (next) Maybe just use long option --dry-run
++ quilt commit quick option for -s forget
++ quilt commit -s forget should work even with an empty patch
++ some form of quilt ref -z that doesn't refresh, just creates a new patch with the unrefreshed changes (maybe "new -z"?)
 + quilt push 2 -f only pushed the first one. I notice that you can't do another push if a patch "needs" refreshing
 + empty patch with message treated as a patch that doesn't apply; should be treated as empty patch; cannot refresh yet I must before I pop!!!
 + improve message for quilt commit when a patch isn't refreshed
 + quilt ser -e (to edit series file)
++ quilt add file; quilt pop; quilt add; edit added files; quilt push; quilt pop => deletes the files
++ new version of quilt del refuses to delete topmost patch when earlier patches also modify that file (commit & delete aren't the same)
++ quilt ren doesn't rename to an existing (old) patch name; add a --force option? And howcome quilt new does (mainly) overwrite an existing old patch name?
++ quilt add doesn't work with absolute file names (appends whole absolute path to a directory, so that it looks like xxx.orig/home/user/. . .)
++ Change behaviour so that unrefreshed changes are treated like changes to another file. Quilt pop should still work as long as the patch will reverse-apply. Though technically I guess it may reverse-apply differently to how it will foward-apply.
++ Operation to bring a buried patch to the top. Not sure how it would handle conflicts though.
 
 === Libtool 1.5.26 (including ltdl library)
 
@@ -589,23 +615,42 @@ cache_cat "$PUB/software/electronics" \
 tar xz
 cd libftdi-0.16
 
+=== Serf 0.2.0
+
 === cksfv 1.3.14-vad-1
 
 cache_cat "$PUB/software/storage" \
     "http://zakalwe.fi/~shd/foss/cksfv/files/cksfv-1.3.14.tar.gz" |
 tar xz
 cd cksfv-1.3.14
+scp -r nl:/media/frain/store/subjects/computers/software/storage/hash/cksfv.patches patches
 quilt push -a
-./configure
+./configure --prefix=""
 make
-cp src/cksfv.exe "$BIN/cksfv.exe"
-strip "$BIN/cksfv.exe"
+EXE=
+EXE=.exe
+cp "src/cksfv$EXE" "$BIN/"
+strip "$BIN/cksfv$EXE"
 
 === QPDF 2.1.1
 
 ./configure --prefix=""
 make
 make install DESTDIR="$(pwd)/stage"
+
+=== GREP 2.5.4
+
+mkdir grep
+cd grep
+# get ftp://ftp.gnu.org/gnu/grep/grep-2.5.4.tar.bz2
+tar xjf ~/pkg/grep-2.5.4.tar.bz2
+cd grep-2.5.4/
+./configure --prefix="" --without-included-gettext --without-included-regex \
+    --without-included-getopt
+make V=0
+export DESTDIR="$(pwd)/stage"
+make install-strip
+sudo cp --archive "$DESTDIR/bin/grep" /usr/local/bin/
 
 ==== Generic/Serial server
 
@@ -671,12 +716,17 @@ server-ondem {socat serial}
 
 ==== Use cases
 
-=== Subversion replication
+=== [svnsync] Subversion replication
 
+svnadmin create mirror && cd mirror
 touch hooks/pre-revprop-change.bat
-svnsync synchronize file:///c:/marty/proj/jtag/marty
+echo '#! /bin/sh' > hooks/pre-revprop-change &&
+chmod a+x hooks/pre-revprop-change
+svnsync initialize "file://$(pwd)" svn+ssh://magicuser@drs-storage/magic
 
-=== Subversion history addition
+svnsync synchronize "file://$(pwd)"
+
+=== [svnhadd] Subversion ancestor addition
 
 svnhadd() {
     SRC="$1"
@@ -688,6 +738,729 @@ svnhadd() {
     mv "$real" "$DEST"
     svn diff "$DEST"
 }
+
+=== [svnadmin] Set up existing Subversion repository
+
+svnadmin create <path>
+svnadmin load <path> < <dump>
+
+=== [git-svn] Migration from Subversion to Git
+
+# List Subversion authors:
+svn log -qg file:///srv/svn/etc |
+sed -n 's/^r[0-9]\+ | \(.*\) |[^|]*$/\1/p' |
+sort -u > /srv/svn/etc-git-authors
+
+# Convert "power" to "power = Martin Panter <power@bat>"
+$EDITOR /srv/svn/etc-git-authors
+
+mkdir etc.git &&
+cd etc.git &&
+git svn init file:///srv/svn/etc &&
+git commit --author="none <>" --date="" \
+    --message "Empty root commit" --allow-empty &&
+git tag root &&
+git svn fetch --authors-file=/srv/svn/etc-git-authors &&
+git rebase --onto root --root git-svn &&
+git branch -rd git-svn &&
+git tag git-svn &&
+git branch -d master &&
+git checkout -b master
+
+=== Searchable history
+
+git log --reverse --patch --find-copies > log.diff
+
+=== Git cleanup history
+
+git rebase --interactive root
+
+git filter-branch --index-filter '
+        git rm --cached --ignore-unmatch \
+            id/vadmium.ssh2.ossh id/vadmium.ssh2.ppk
+    ' --prune-empty
+git update-ref -d refs/original/refs/heads/master
+
+=== Git find empty commits
+
+# Final "git log" command will show single HEAD revision regardless if there
+# are no empty revisions found
+git log --format='%H' | sort > all
+git log --format='%H' . | sort | comm -23 all - |
+git log --no-walk --stdin
+
+=== [mount.vfat] Mount FAT disk
+
+sudo mount -t vfat -o noatime,umask=0,shortname=winnt,iocharset=utf8
+
+=== ls
+
+ls -go --time-style +"%Y-%m-%d %H:%M:%S"
+
+=== [rsync] Copying files
+
+# Rsync "size-only" option seems to override the "ignore-times" option, so to
+# completely disable all size and time "quick checking" you have to
+# additionally remove the "size-only" option.
+
+# Replace --size-only with --ignore-times to not skip over same-sized files
+# Or use a single -i to hide the skipped-over files
+rsync --no-whole-file --inplace --times --size-only --recursive -Pii src/ dest/
+
+=== [pdf_decrypt] Decrypt PDFs
+
+echo -n "$f: "
+qpdf --show-encryption "$f"
+
+# Just see the "invalid password" errors
+qpdf --show-encryption "$f" > /dev/null
+
++ QPDF cannot use the same infile and outfile
+
+# Usage: pdf_decrypt <file> [<pass>]
+pdf_decrypt() (
+    set -o errexit -o nounset -o pipefail
+    qpdf ${2+--password=$2} --decrypt --stream-data=preserve "$1" "$1.tmp"
+    mv "$1.tmp" "$1"
+)
+
+=== Git
+
+sudo apt-get install git-core
+
+git clone git://git.openezx.org/gnufiish.git
+cd gnufiish
+
+==== Operations
+
+git show
+Gives hash and log of last commit.
+
+git checkout <hash>|master
+Change working copy to that particular revision.
+
+git status
+git head
+git tag -l
+git rev-parse [--show-cdup]
+git describe [--tags]
+git log
+git diff
+git reset
+git show-branch
+git annotate <file>
+
+==== General options
+
+--pretty=oneline
+
+--abbrev-commit
+Shows first 7 digits of hashes instead of all 40 digits
+
+--no-pager
+
+==== Create repository
+
+#Creates .git structure in CWD
+git init &&
+# Empty root commit
+git commit --author="none <>" --date="" -m "Empty root commit" -n --allow-empty
+
+==== Root commit insertion
+
+# Latch onto an existing initial commit
+git checkout <an initial commit> (for example, HEAD~1)
+
+(Find root commits with git log --max-parents=0)
+
+# Create the empty commit
+git rm --cached . -r
+git commit --author="" --date="" -m "Empty root commit" -n --allow-empty --amend
+
+git tag root
+
+# Remove any working directory files leftover from the checkout because they
+# will conflict with child commits
+#git clean -f -d
+#rm <files>
+mkdir stash && mv <valuable files> stash/
+
+# Rebase main trunk branch (master)
+# What happens if any of this involves merges?
+git rebase --onto root --root master
+
+# Subsequent branches
+git rebase --onto <equivalent branch point> <previous branch point> <branch>
+
+# Update tags
+git tag <equivalent commit> <tag> -f
+
+==== Cardinal commit number
+
+echo "$(git rev-list --count HEAD)-g$(git rev-parse --short HEAD)"
+
+==== Manual merge
+
+# --no-ff is required even when --no-commit is given!
+git merge --no-commit --no-ff
+
+==== Remotes
+
+git remote # list
+git remote -v
+# --master option manually specifies the default branch to use for the remote
+git remote add --fetch $(: --master master) thee ssh://marty@thee/~/proj/rar/rerar
+git remote set-head  # Alternate to set default branch
+git branch --set-upstream master thee/master
+git branch -avv
+
+# After setting up
+git fetch  # By default uses the "upstream" remote for current branch head
+
+==== Detaching from branch head
+
+git checkout HEAD~0  # Works even for older Git
+git checkout --detach  # Only newer
+
+==== Merges
+
+# Buggered if I can find where this is documented. Not in "git diff" nor "gitdiffcore" man pages.
+git diff -3  # Or --theirs. Diff against the "foreign" merge parent (MERGE_HEAD)
+
+=== Linux
+
+# make O=out ARCH=arm CROSS_COMPILE=arm-angstrom-linux-gnueabi- silentoldconfig
+make -j 2 O=../out ARCH=arm CROSS_COMPILE=arm-angstrom-linux-gnueabi-
+# Now we have out/arch/arm/boot/zImage
+
+# Install modules into out/stage. It also installs absolute symbolic links to
+# the kernel source and build directoriesSeems to install a whole lot of other
+# stuff: C files, object files.
+make O=../out ARCH=arm CROSS_COMPILE=arm-angstrom-linux-gnueabi- \
+    modules_install INSTALL_MOD_PATH=../fs
+
+==== digging tunnel
+
+ssh nls -D 3333 -fN
+socat
+
+==== Music player
+
+=== Amarok
+
+- apparently requires KDE: 200 MB install
+
+=== Audacious
+
+- winamp UI
+    - tiny
+    - own "skin"
+    o multi windows
++ cue file => playlist
+- global volume
+- utf-8 looks broken
+
+==== packages
+
+packages depend on a specific "feature"/file/etc
+
+eg pacman depends on libarchive.so.2; libarchive(a) provides libarchive.so.2 and depends on liblzma.so.0; libarchive(b) also provides libarchive.so.2 but depends instead on liblzma.so.5. xz-utils provides liblzma.so.0; xz provides liblzma.so.5
+
+==== distros
+
+=== Debian
+
+tends to get "out of date" and independant debs require lots of things to be updated
+uses libnameV to have multiple versions of a library
+
+=== Ubuntu
+
+"nice" python upgrade script
+
+=== Arch
+
+"rolling" release => only current version of everything is supported, so you have to upgrade everything if you want to add/upgrade a single package
+non-split packages: have everything usually (dev, libs, docs, plugins, etc)
+
+=== Ångström
+
+=== Gentoo?
+
+=== Cent OS
+
+=== SUSE
+
+=== Be OS
+
+=== Windows 95
+
+=== Windows NT
+
+==== Prevail
+
+pkgs, reputation
+
+==== Distros
+
+LFS
+Gentoo
+Gobolinux: no Unix FSH
+Angstrom
+T2 SDE
+Fedora (RPM)
+BSD
+Haiku: no Unix FSH
+Minix
+Nixos
+
+= VCS
+
+Rebase, cherry-pick, revert, svn merge are all similar things: Graft or transplant (copies of) parts of one history onto another history.
+Explicit file history is useful
+Reverts should allow a change to be re-merged
+
+git rebase --onto NEW UPSTREAM [BRANCH]
+BRANCH default is what's checked out
+NEW default is UPSTREAM
+git rebase --onto APPLY-POINT NOT-IN [FROM]
+git rebase --onto DEST COMPARE [SOURCE]
+git rebase --onto GRAFT-POINT FROM-TRUNK [GRAFT-BRANCH]
+
+==== CD ripping
+
+http://www.exactaudiocopy.de/en/index.php/resources/download/
+http://wiki.dennyhalim.com/secure-ripping-on-linux
+http://thomas.apestaart.org/morituri/trac
+https://thomas.apestaart.org/thomas/trac/wiki/DAD/Rip
+https://gna.org/projects/cued
+http://wiki.hydrogenaudio.org/index.php?title=Comparison_of_CD_rippers
+http://www.cuetools.net/
+http://sbooth.org/Rip/
+
+apparently bloc party's album has a hidden track ("eating glass" or something?); check the cue sheets
+
+=== Accurate rip
+
+http://www.accuraterip.com/
+http://code.google.com/p/rubyripper/wiki/AccurateRip_Research
+http://jonls.dk/2009/10/calculating-accuraterip-checksums/
+http://db.cuetools.net/
+http://www.hydrogenaudio.org/forums/index.php?showtopic=79882 Cue tools DB announcement
+
+http://club.cdfreaks.com/showthread.php?t=111913
+= <http://club.myce.com/f61/offsets-handling-syncing-audio-data-vs-q-channel-111913/>
+EAC and Accurate rip (and DB power amp?) offset corrections o; Perfect rip offset (compensation?) = -(o - 30)
+"True" EAC offset = Common (AR) offset - 30
+Plex tools (read offset) is negative of EAC (read offset correction) too; plex tools offset feature added after EAC (?).
+
+AR offset (correction) + => read lead-out; - => read lead-in
+
+== Implementations
+
+http://forum.dbpoweramp.com/showthread.php?t=20641 Accurate rip code
+http://www.hydrogenaudio.org/forums/index.php?showtopic=53583 ARCue.pl
+http://www.srcf.ucam.org/~cjk32/ARCue/ARCue.pl
+http://www.hydrogenaudio.org/forums/index.php?showtopic=62522 ARFlac.pl
+ARCue + exe is buggy
+http://www.cuetools.net/
+comes with arcuedotnet.exe cli
+http://jonls.dk/2010/10/accuraterip-tools/ also does EAC CRC32s
+https://github.com/jonls/accuraterip-tools
+http://thomas.apestaart.org/morituri/trac/browser/trunk/examples/ARcue.py
+http://thomas.apestaart.org/morituri/trac/browser/trunk/morituri/common/accurip.py
+http://cvs.gna.org/cvsweb/cued/accurip/notdown (ruby + C implementation)
+XLD (mac only? web page gone?)
+http://sbooth.org/Rip/ (mac only)
+http://www.hydrogenaudio.org/forums/index.php?showtopic=61574 ARFlac C port
+
+arcue: pl script (original). Needs LWP (Perl WWW library).
+arflac.pl and C?
+accuraterip-tools
+morituri: rip image verify
+
+=== Drives
+
+Matshita (Panasonic) DVD-RAM UJ880AS
+Offset: +102 [AR: 64 submissions, 100% agreement]
+No lead-out overread ability [EAC]
+Accurate stream, no audio cache, no C2 pointers [EAC]
+
+TEAC CD-220EA
+Offset: +684 [AR: 1 submission, 100% agreement]
+C2 pointers, accurate stream, no audio cache [EAC]
+
+Matshita (Panasonic) DVD/CDRW UJDA770
+Offset: +102 [AR: 29 submissionss, 100% agreement]
+Accurate stream, defeat audio cache, no C2 pointers [EAC]
+
+JLMS XJ-HD165H CH11: +12 AR correction offset
+
+====
+
+Ranger file manager, qtfm
+
+= vobsub subtitles
+
+mplayer's view is that ifo file is required as well as idx, to provide colours/palette
+however it looks like this info may be in the idx file
+
+Remove "sed" command on "makefile"
+Run "make install" which now automatically installs the GUI. Just needs a bit of cleaning up after it.
+
+= CD ripping
+
+rubyripper ? May not include full indexes in cue?
+cdrdao: toc gets some things, inconsistencies with others, funny isrc behaviour without "fast toc"
+cdparanoia: doesn't get much toc info
+is cue enough to encapsulate what I want? (I hope so)
+abcde: does cue files + cdparanoia
+cdparanoia "[::]-"
+what about cds that have data tracks?
+multi-disc sets: use "DISC" tag
+
+= Knowledge base
+
+== Requirements
+
+Syntax is easy to remember (don't need Google how to do things all the time)
+Syntax is easy to read in plain text
+Syntax is easy to type (XML/HTML/SGML can be awkward)
+Syntax is obvious (so you can paste things in plain text and easily see that they don't need encoding)
+Syntax gracefully degrades, so local errors do not obscure the whole file
+Compatible with plain text files so that svn blame, diff, etc works
+
+== Implementations
+
+http://wikidpad.sourceforge.net/
+
+=== Gnu C library
+
+Using a different version:
+LD_PRELOAD="$OTHER/lib/libc-2.12.2.so" "$OTHER/lib/ld-linux.so.3" "$OTHER/usr/bin/ubiattach"
+
+or replace both ld and libc (just replacing one causes everything to segfault!)
+Probably using a shell script won't work, you'd have to have both replaced by a single command (process).
+
+This almost worked I think, but I ran out of space:
+tar -C / -xjvf Angstrom-aegle-image-eglibc-ipk-next-beagleboard.rootfs.tar.bz2 "./lib/ld*" "./lib/libc.*" "./lib/libc-*"
+
+= Applications
+
+see ~/TODO
+
+If you're an end user who is actively looking for an IMAP e-mail client, please note that Trojitá's GUI is not completely ready for mass consumption yet (read: needs some polishing to not scare users away). If you are scared now, please come back in a few months, you might be pleasantly surprised :)
+Resources
+Source Code
+== PDF browsers
+
+???
+
+== Email
+
+Thunderbird
+Kmail (part of KDE + Kcontact or something)
+Sylpheed (GTK+)
+Claws mail (forked from Sylpheed) odd server port settings; dumb mandatory "wizard"; decided to spend ages (downloading?) all 43 thousand of my messages, but seemed to forget about that after I killed and restarted; uses GTK; slow if you accidentally click out of "Inbox" and back again
+Mahogany: horrible ass-uming Configure script; failed to compile (x86-64?)
+Gnu mail (gnumail)
+
+= Software package description
+
+== Source packages
+linux
+linux-omap
+bitbake
+quilt
+gquilt
+udev
+python
+
+== Source versions
+2.6.n
+2.6.n.m
+2.6.n-rcX
+2.6.38-rcX+gabcd
++full-path
+
+== Target packages
+linux
+linux 2.6
+linux 2.6.x. . .
+linux-omap. . .
+bitbake 1.10
+quilt
+quilt+debian
+gquilt
+udev
+udev+full-path
+python 2
+python 2.6
+python 2.7
+python 3
+arch-base
+aegle-image
+tuomov-b
+
+== Ideas
+One package P+variation, P-variation or P' may "provide" another package P's functionality, meaning anything requiring package P should work just as well with P+variation et al. However a package requiring P' won't necessarily work with P alone.
+
+Package name has default provision
+
+Source package generates many target packages
+
+Different target "spaces": file system, kernel images (incl memtest etc); initramfs
+
+Some packages and versions may be installed side-by-side (eg python2 and python3); some may conflict
+
+Architectures and platforms; a bit like another version; if you can run arch x86_64 you may install x64_32 packages as well (but not kernel modules?); x86_64 would be prioritised though. Also windows packages may work via Wine; other architectures might work through an emulator like Qemu.
+
+Various installation targets: file system; bootloader; random file (eg misc kernel image); tarball; staged file system, bootloader, etc. Not all targets would be valid for all packages.
+
+Bringing common themes together: configure options; make options; the make install DESTDIR syntax. There should be a way to configure the default make -jN option; whether to enable or disable this by default would be contraversial.
+
+report approx cpu usage (perhaps weighed against some bogomips-like standard), peak memory usage, peak disk usage, size of disk output
+
+set disassembly-flavor intel
+disp/i $eip
+disas $eip,+0x100
+
+git defaults:
+git status -uno
+--color=auto?
+whitespace "errors"
+
+= Python nits
+
+Anonymous function, class, etc definitions: something like
+
+increment = function(i):
+    return i + 1
+increment = def(i):
+    return i + 1
+increment = lambda i:
+    return i + 1
+sequence = generator(i):
+    yield ...
+ClassName = class(Base):
+    ...
+
+Surely anonymous definitions can be done better, and in such a way that special decorator syntax is no longer desirable. Also it would be nice to have the documentation string less inside the body and more associated with the decorated form and name. Might be tied up a little with the requirement for indentation.
+
+super: the name is misleading, maybe worse. I'm not sure how okay it is to just ignore it.
+
+"with" context manager stuff is better than nothing, but rather inflexible. What if you want to conditionally create the context object, but still execute the code block inside? How to properly make your own context objects, eg a file object wrapping open, making it immune to exceptions.
+
+Inconsistencies with assignment operations to immutable objects
+
+ctn = []; print(ctn)
+tup = (ctn,); print(tup)
+ctn.extend(["ctn.extend"]); print(ctn, tup)
+ctn += ["ctn +="]; print(ctn, tup)
+tup[0].extend(["tup[0].extend"]); print(ctn, tup)
+tup[0] += ["tup[0] +="] # TypeError: 'tuple' object does not support item assignment
+print("Container was modified before assignment attempt:", ctn, tup)
+
+Also it's odd that list += x leaves (assigns) the same object identity, but int (or tuple) += x changes the identity.
+
+Assigning to a variable name with a typo might not obviously be detected if the variable with the real name already exists.
+
+= How to use command line
+
+--help -h etc
+getopt and gnu stuff
+--
+-v => verbose
+
+= [re-import] Python reload module
+
+import module
+...
+from imp import reload
+reload(module)
+
+= "Yield" leaks exception being handled as garbage
+
+Python doesn't appear to delete the exception variable if an exception is thrown back into it (via "throw", "close" or by deleting it). The exception variable _is_ deleted if the generator is called normally (via "next" or "send"). The exception variable of an exception handler is usually deleted [reference] as soon as the handler is exited (via "return", "break", "continue", "raise", fall through, double exception). The result is a reference cycle that needs garbage collecting. The leak even happens when the exception variable is anonymous.
+
+I'm guessing this issue is specific to Python 3 because it exists for me in Python 3.2, 3.2.1 (both on Arch Linux) and 3.1.2 (Ubuntu) but not Python 2.7.1, 2.7.2 (Arch) nor 2.6.5 (Ubuntu).
+
+Issue 1463867 may be related? Hard to tell.
+
+def throw_leaks(g):
+    try:
+        g.throw(Exception())
+    except Exception:
+        pass
+
+def close_leaks(g):
+    g.close()
+
+def del_leaks(g):
+    pass
+
+def next_okay(g):
+    try:
+        next(g)
+    except StopIteration:
+        pass
+
+def send_okay(g):
+    try:
+        g.send(None)
+    except StopIteration:
+        pass
+
+def leaky_generator():
+    try:
+        raise Exception()
+    except:  # Exception handler with anonymous exception variable
+        yield  # Yield from exception handler
+
+from gc import set_debug, DEBUG_LEAK, collect
+collect()
+set_debug(DEBUG_LEAK)
+for test in (throw_leaks, close_leaks, del_leaks, next_okay, send_okay):
+    print("Testing", test.__name__)
+    g = leaky_generator()
+    next(g)
+    # Generator is now at the "yield" line
+    print(g.gi_frame, "line", g.gi_frame.f_lineno)
+    test(g)
+    del g
+    print("Leak count:", collect())
+
+= Similarly, how to use
+
+gui
+editor with vim keys
+
+= os.path.realpath: undetected link loop
+
+The fix for issue 930024 handles some cases but not the loop created by the following:
+
+deep => deep/inside
+
+Issue 11397 documents false directory backlink normalisation
+
+Proposed solution in issue11397_py32_2.patch does not account for paths with multiple independent references to the same link. Example:
+
+here => .
+
+readlink("here/here")
+
+import realpath.py
+
+= LEDs
+
+from math import (pi, cos)
+
+def deg_rad(deg):
+    return deg / 180 * pi
+
+def deg_sr(deg):
+    return 2 * pi * (1 - cos(deg_rad(deg) / 2))
+
+def mcd_lm(mcd, deg):
+    return mcd * 10 ** -3 * deg_sr(deg)
+
+def chrom_cct_mccamy(chrom):
+    e = [0.3320, 0.1858]
+    n = (chrom[0] - e[0]) / (chrom[1] - e[1])
+    return -449 * n ** 3 + 3525 * n ** 2 - 6823.3 * n + 5520.33
+
+def chrom_cct_mccamy(chrom):
+    e = [0.3320, 0.1858]
+    n = (chrom[0] - e[0]) / (chrom[1] - e[1])
+    return -449 * n ** 3 + 3525 * n ** 2 - 6823.3 * n + 5520.33
+
+from math import exp
+
+def chrom_cct_jha_low(chrom):
+    e = [0.3320, 0.1858]
+    A_0 = -949.86315
+    A = [6253.80338, 28.70599, 0.00004]
+    t = [0.92159, 0.20039, 0.07125]
+    
+    n = (chrom[0] - e[0]) / (chrom[1] - e[1])
+    return A_0 + sum(A[i] * exp(-n * t[i]) for i in range(3))
+
+def ct_chrom_kim(T):
+    x = (
+        -0.2661239e9 / T ** 3 - 0.2343580e6 / T ** 2 + 0.8776956e3 / T + 0.179910 if 1667 <= T < 4000 else
+        -3.0258469e9 / T ** 3 + 2.1070379e6 / T ** 2 + 0.2226347e3 / T + 0.240390 if 4000 <= T <= 25000
+    )
+    y = (
+        
+AL-103W2C-004 10 mm 30 mA 80 mW 2.8–3.6 V 3500–6500 mcd 30° 0.75–1.39 lm chrom. (0.25,0.26) 17000 K 1000 h
+
+= WEP cracking
+
+sudo airmon-ng start wifi 11
+sudo airodump-ng --write <name> --showack wifi --channel 11 --ivs --bssid AA:BB:CC:DD:EE:FF
+-x msec?
+sudo aireplay-ng wifi -3 -b AA:BB:CC:DD:EE:FF -e <string>
+                         KEY FOUND! [ xx:xx:xx:xx:xx ] 
+
+= Arch installation
+
+FS=/home/os/arch-i686
+
+sudo rm -r "$FS/m/sik/boot/arch-i686"
+sudo umount "$FS/home" "$FS/m/sik"
+sudo rm -r "$FS"
+
+sudo mkdir -p "$FS"
+
+sudo mkdir "$FS/media"
+sudo ln -s media "$FS/m"
+
+sudo mkdir "$FS/m/sik" "$FS/home"
+sudo mount /dev/sda1 "$FS/m/sik"
+sudo mount /dev/disk/by-label/HOME "$FS/home" -t ext2
+
+sudo mkdir "$FS/m/sik/boot/arch-i686"
+sudo ln -s m/sik/boot/arch-i686 "$FS/boot"
+sudo chmod go+w "$FS/boot"  # Temporarily, to reduce the need for "sudo"
+
+./pkgbundle fs "$FS" fs-sudo \
+    repo 'http://mirrors.kernel.org/archlinux/core/os/$arch/core.db' \
+    install base build mkinitcpio-dir \
+    offline
+
+sudo ${EDITOR-vi} "$FS/etc/mkinitcpio.conf"  # Add HOOKS="$HOOKS dir"
+
+./mkinitcpio-cross "$FS" linux -v  # Previously kernel26
+
+
+./mkinitcpio-cross "$FS" "$FS/etc/mkinitcpio.d/kernel26.preset" -v
+(
+    WD="$(pwd)" && cd "$FS/lib/initcpio" &&
+    ALL_kver="$WD/mkinitcpio" -v \
+        -p "etc/mkinitcpio.d/kernel26.preset" -b "$FS"
+)
+#-c "$FS/etc/mkinitcpio.conf" 
+
+= Nits
+
+X "clipboard" contents disappear when the program it was copied from is gone
+How hard it is to _cross_-compile most programs, or compile and configure them independently of where they will be installed (/usr, /usr/local, $HOME, etc)
+Gnu Autocrap
+Most Linux GUI programs seem to be designed for only using the keyboard with text fields, not for navigating, menu commands, etc
+Arch Linux not supporting "pacman -Sy"
+
+# Traceback from first parameter apparently ignored
+generator.throw(type(exc), exc, exc.__traceback__)
+
+=== Window focus problems caused by "gitk"
+mouse cursor is positioned over exposed gitk window in background
+switched (alt-tab) from a third window (text editor) to firefox which focuses firefox's address bar
+start typing in address bar
+after the first character, firefox pops up its drop down uber know-it-all menu thing
+menu is immediately closed and focus switches to third window again although firefox window stays in z-order foreground
+
+== Windows Postscript printer driver
+local printer, FILE port
+Generic/MS Publisher Imagesetter
 
 === Package names
 
