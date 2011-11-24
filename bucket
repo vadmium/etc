@@ -39,6 +39,7 @@ regedit k-meleon-user.reg
 
 regedit content-types-mach.reg
 
+# -s bypasses "are you sure" whinge dialog
 regedit -s putty.reg
 
 ==== updating
@@ -1393,6 +1394,11 @@ def ct_chrom_kim(T):
         
 AL-103W2C-004 10 mm 30 mA 80 mW 2.8–3.6 V 3500–6500 mcd 30° 0.75–1.39 lm chrom. (0.25,0.26) 17000 K 1000 h
 
+= Wifi monitoring
+
+sudo airodump-ng wifi --channel 11
+sudo iwconfig wifi mode managed
+
 = WEP cracking
 
 sudo airmon-ng start wifi 11
@@ -1552,3 +1558,13 @@ sudo "qemu-$ARCH_TARGET" "$ARCH/lib/ld-linux-x86-64.so.2" \
 # References
 # http://wiki.archlinux.org/index.php/Arch64_Install_bundled_32bit_system
 # http://wiki.archlinux.org/index.php/Install_from_Existing_Linux
+
+= Video scraper, downloader, aggregator
+
+try for rss programs
+http://www.abc.net.au/mediawatch/vodcast/mediawatch_mp4.xml
+http://www.abc.net.au/tv/watchnow
+radio also
+live vs recordings
+http://www.abc.net.au/iview/#/view/856987
+https://www.infradead.org/get_iplayer/html/get_iplayer.html
