@@ -863,10 +863,11 @@ Shows first 7 digits of hashes instead of all 40 digits
 
 #Creates .git structure in CWD
 git init &&
-# Empty root commit
-git commit --author="none <>" --date="" -m "Empty root commit" -n --allow-empty
+git commit --author="none <>" -m "Null root commit" -n --allow-empty
 
 ==== Root commit insertion
+
+# TODO: Use "git checkout --orphan"
 
 # Latch onto an existing initial commit
 git checkout <an initial commit> (for example, HEAD~1)
@@ -895,9 +896,27 @@ git rebase --onto <equivalent branch point> <previous branch point> <branch>
 # Update tags
 git tag <equivalent commit> <tag> -f
 
+==== Clone from tag
+
+# https://stackoverflow.com/questions/1778088/how-to-clone-a-single-branch-in-git/4146786#4146786
+REPO=pacman ORIGIN="git://projects.archlinux.org/$REPO.git" TAG=v4.0.1 &&
+mkdir "$REPO" &&
+cd "$REPO" &&
+git init &&
+git remote add origin "$ORIGIN" &&
+git fetch origin --no-tags tag "$TAG" &&
+git checkout "$TAG" -b master
+
 ==== Cardinal commit number
 
 echo "$(git rev-list --count HEAD)-g$(git rev-parse --short HEAD)"
+
+TAG=v0.48
+BRANCH=HEAD
+echo "$TAG+$BRANCH$(git rev-list --count "$TAG..$BRANCH")-g$(git rev-parse --short "$BRANCH")"
+
+# Similar to
+git describe --tags --match "$TAG" "$BRANCH"
 
 ==== Manual merge
 
