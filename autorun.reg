@@ -1,0 +1,7 @@
+REGEDIT4
+
+# or HKEY_CURRENT_USER, which is overridden by local machine
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer]
+# Bit map for different "drive types"
+# Only takes affect during user log on
+"NoDriveTypeAutoRun"=dword:000000FF
