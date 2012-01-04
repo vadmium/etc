@@ -768,6 +768,20 @@ git tag git-svn &&
 git branch -d master &&
 git checkout -b master
 
+git config --get-regexp svn-remote
+
+git branch -rd git-svn
+rm -r .git/svn/refs/remotes/git-svn
+git config --remove-section svn-remote.svn
+
+=== Git meta-branch
+
+git init Meta
+cd Meta
+# . . .
+git add -A
+git commit
+
 === Searchable history
 
 git log --reverse --patch --find-copies > log.diff
@@ -865,7 +879,10 @@ Shows first 7 digits of hashes instead of all 40 digits
 #Creates .git structure in CWD
 git init &&
 # Empty root commit
-git commit --author="none <>" --date="" -m "Empty root commit" -n --allow-empty
+git commit --author="none <>" -m "Null root commit" -n --allow-empty
+
+# TODO: repeatable parameters so that all root commits are the same and any
+# root commit may be fast-forwarded to another commit
 
 ==== Root commit insertion
 
