@@ -12,23 +12,27 @@ dt {font-weight: bolder}
 .mediawiki #column-one {padding: 0 2em !important}
 .mediawiki .portlet#p-cactions {left: 0.14em !important}
 .mediawiki #left-navigation {left: 0 !important}
-.mediawiki .portlet#p-navigation, .mediawiki .portlet#p-search,
-.mediawiki .portlet#p-tb, .mediawiki .portlet#p-lang,
+.mediawiki .portlet#p-navigation, .mediawiki .portlet#p-Navigation,
+.mediawiki .portlet#p-search, .mediawiki .portlet#p-tb,
+.mediawiki .portlet#p-lang,
 .mediawiki #mw-panel {
     width: auto !important;
     position: static !important;
     padding-top: 0 !important;
 }
 .mediawiki .portlet .pBody, .mediawiki #mw-panel .body,
-.mediawiki .portlet#p-navigation h5, .mediawiki .portlet#p-search h5,
-.mediawiki .portlet#p-tb h5, .mediawiki .portlet#p-lang h5,
+.mediawiki .portlet#p-navigation h5, .mediawiki .portlet#p-Navigation h5,
+.mediawiki .portlet#p-search h5, .mediawiki .portlet#p-tb h5,
+.mediawiki .portlet#p-lang h5,
 .mediawiki #mw-panel h5,
-.mediawiki .portlet#p-navigation ul, .mediawiki .portlet#p-search ul,
-.mediawiki .portlet#p-tb ul, .mediawiki .portlet#p-lang ul,
+.mediawiki .portlet#p-navigation ul, .mediawiki .portlet#p-Navigation ul,
+.mediawiki .portlet#p-search ul, .mediawiki .portlet#p-tb ul,
+.mediawiki .portlet#p-lang ul,
 .mediawiki #mw-panel ul,
 .mediawiki .portlet #searchform,
-.mediawiki .portlet#p-navigation li, .mediawiki .portlet#p-search li,
-.mediawiki .portlet#p-tb li, .mediawiki .portlet#p-lang li,
+.mediawiki .portlet#p-navigation li, .mediawiki .portlet#p-Navigation li,
+.mediawiki .portlet#p-search li, .mediawiki .portlet#p-tb li,
+.mediawiki .portlet#p-lang li,
 .mediawiki #mw-panel li {
     background: transparent !important;
     color: inherit !important;
@@ -44,6 +48,7 @@ dt {font-weight: bolder}
     margin-right: 0 !important;
 }
 .mediawiki .portlet#p-navigation li:before,
+.mediawiki .portlet#p-Navigation li:before,
 .mediawiki .portlet#p-search li:before, .mediawiki .portlet#p-tb li:before,
 .mediawiki .portlet#p-lang li:before,
 .mediawiki .portlet #searchform:before,
