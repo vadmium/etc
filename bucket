@@ -878,10 +878,16 @@ Shows first 7 digits of hashes instead of all 40 digits
 
 #Creates .git structure in CWD
 git init &&
-git commit --author="none <>" -m "Null root commit" -n --allow-empty
 
-# TODO: repeatable parameters so that all root commits are the same and any
-# root commit may be fast-forwarded to another commit
+# Creates badbad41d447a824b7f5de341420d9952d6462c0
+# Simpler: badbad
+git fast-import --quiet << GIT-IMPORT
+commit refs/heads/root
+committer none <> 1325916715 +0000
+data <<MESSAGE
+Null root commit
+MESSAGE
+GIT-IMPORT
 
 ==== Root commit insertion
 
