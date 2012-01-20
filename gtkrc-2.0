@@ -2,6 +2,11 @@ gtk-font-name="Sans 7.5"
 gtk-toolbar-style=GTK_TOOLBAR_ICONS
 gtk-toolbar-icon-size=GTK_ICON_SIZE_SMALL_TOOLBAR
 gtk-button-images=0
-gtk-alternative-button-order=1
+
+# Would be nice, but not much (not event GTK’s own dialogs) seems to take
+# notice of this; some Firefox dialogs do, but others do not, which is even
+# worse
+#gtk-alternative-button-order=1
+
 gtk-enable-animations=0
 gtk-icon-sizes="gtk-small-toolbar=16,16 : gtk-button=16,16 : gtk-dnd=24,24 : gtk-dialog=32,32"
