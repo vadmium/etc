@@ -73,7 +73,10 @@ body.mediawiki #globalWrapper, body.mediawiki #mw_main
     body, td {font-family: inherit !important}
     
     /* Display left-hand margin across the top */
-    body > table + table > tbody > tr > td {display: block; width: auto}
+    body > table + table > tbody > tr > td {
+        display: block;
+        width: auto !important;
+    }
     .m > tbody > tr {display: inline}
     .l br {display: none}
 }
