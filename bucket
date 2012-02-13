@@ -1643,3 +1643,22 @@ radio also
 live vs recordings
 http://www.abc.net.au/iview/#/view/856987
 https://www.infradead.org/get_iplayer/html/get_iplayer.html
+
+= Autotools
+
+== Autoconf: Forcing result of library detection
+
+File "configure.ac" has the following:
+
+    AC_CHECK_LIB([ftdi], [ftdi_usb_get_strings], [have_libftdi=yes], [], [-lusb])
+
+Run script "configure" as:
+
+    configure ac_cv_lib_ftdi_ftdi_usb_get_strings=no
+
+== Automake: Generate HTML from ".texi" file
+
+    make -C doc
+
+This seems to try and build everything first; and the command fails
+eventually anyway, but there is HTML files generated.
