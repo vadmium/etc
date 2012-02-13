@@ -747,6 +747,11 @@ svnadmin load <path> < <dump>
 
 === [git-svn] Migration from Subversion to Git
 
+# http://maururu.net/2009/svn-to-git-take-2
+
+Cannot set multiple trunk (-T) options; the final one silently overrides the
+previous.
+
 # List Subversion authors:
 svn log -qg file:///srv/svn/etc |
 sed -n 's/^r[0-9]\+ | \(.*\) |[^|]*$/\1/p' |
@@ -781,6 +786,34 @@ cd Meta
 # . . .
 git add -A
 git commit
+
+==== Reverse init
+
+git config --remove-section svn-remote.svn
+
+
+-R | --svn-remote gives it a name, default is "svn"
+First revision passed to fetch seems to be important; you probably cannot start before it. May be able to reverse this by removing the appropriate directory in .git/svn/refs/remotes
+Tries to merge fetched stuff (like pull) unless you use --no-checkout
+Git svn init doesn't really work for multiple svn remotes so just use the config manually
+the unhandled.log files seem to list each revision that is unique to a branch, and any "unhandled" aspects of that revision
+Creates new ref/branch names whenever there is a copy in the history. Example: remotes/trunk@13 was created because in revision 13 trunk was in a different place, in fact trunk@13 in Subversion may be illegal or refer to a directory with no related history because trunk only existed under that name in revision 14. Similarly trunk@12 was created because the older location was also moved in revision 12 from an even earlier location. The git-svn-id tags do show the location and use the correct Subversion peg "@" notation. However this can only be detected if the url emcompasses all previous locations.
+If the branch directory was deleted and re-created, the history does not seem to notice and starts importing the deleted history.
+If you fetch up to a revision (-r0:N) that precedes when a branch is deleted, and then fetch beyond that, it creates a merge of the history before it was deleted and the alternative history if it was recreated by copying from somewhere else.
+
+for BRANCH in \
+    pyqt@{122176,106740,1} python-qt@{107070,105724} python2-qt@105711
+do
+    REMOTE="packages/$BRANCH"
+    
+    SECTION=svn-remote."$REMOTE"
+    git config --add "$SECTION".url svn://svn.archlinux.org/packages
+    
+    SVN_BRANCH="${BRANCH%@*}/trunk"
+    git config --add "$SECTION".fetch "$SVN_BRANCH":refs/remotes/"$REMOTE"
+done
+
+git config --get-regexp svn-remote.packages/
 
 === Searchable history
 
@@ -891,16 +924,7 @@ GIT-IMPORT
 
 ==== Root commit insertion
 
-# TODO: Use "git checkout --orphan"
-
-# Latch onto an existing initial commit
-git checkout <an initial commit> (for example, HEAD~1)
-
-(Find root commits with git log --max-parents=0)
-
-# Create the empty commit
-git rm --cached . -r
-git commit --author="" --date="" -m "Empty root commit" -n --allow-empty --amend
+# Create root commit with fast-import as above
 
 git tag root
 
@@ -930,6 +954,15 @@ git init &&
 git remote add origin "$ORIGIN" &&
 git fetch origin --no-tags tag "$TAG" &&
 git checkout "$TAG" -b master
+
+==== Fetch specific remote branch
+
+git fetch thee master:remotes/thee/master
+
+==== Associate default remote with branch
+
+# No UI for this unless fetch has already been run
+git config branch.cycles.remote thee
 
 ==== Cardinal commit number
 
