@@ -1485,10 +1485,12 @@ sudo aireplay-ng wifi -3 -b AA:BB:CC:DD:EE:FF -e <string>
 = Arch installation
 
 FS=/home/os/arch-i686
+FS=/m/disk/os/arch-i686
 
 sudo rm -r "$FS/m/sik/boot/arch-i686"
 sudo umount "$FS/home" "$FS/m/sik"
 sudo rm -r "$FS"
+sudo rm -r "$FS"/*
 
 sudo mkdir -p "$FS"
 
@@ -1504,22 +1506,20 @@ sudo ln -s m/sik/boot/arch-i686 "$FS/boot"
 sudo chmod go+w "$FS/boot"  # Temporarily, to reduce the need for "sudo"
 
 ./pkgbundle fs "$FS" fs-sudo \
+    arch i686 enable core \
     repo 'http://mirrors.kernel.org/archlinux/core/os/$arch/core.db' \
-    install base build mkinitcpio-dir \
+    install base \
+    build mkinitcpio-dir \
+    build ~/abs/mkinitcpio-dir \
     offline
 
 sudo ${EDITOR-vi} "$FS/etc/mkinitcpio.conf"  # Add HOOKS="$HOOKS dir"
 
-./mkinitcpio-cross "$FS" linux -v  # Previously kernel26
-
-
-./mkinitcpio-cross "$FS" "$FS/etc/mkinitcpio.d/kernel26.preset" -v
-(
-    WD="$(pwd)" && cd "$FS/lib/initcpio" &&
-    ALL_kver="$WD/mkinitcpio" -v \
-        -p "etc/mkinitcpio.d/kernel26.preset" -b "$FS"
-)
-#-c "$FS/etc/mkinitcpio.conf" 
+PRESET=linux
+PRESET=kernel26   # Previously
+sudo sed 's:^source /etc/mkinitcpio\.d:source "$(dirname "$BASH_SOURCE")":' \
+    -i "$FS/etc/mkinitcpio.d/$PRESET.preset"
+./mkinitcpio-cross "$FS" "$PRESET" -v
 
 = Nits
 
