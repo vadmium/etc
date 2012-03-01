@@ -145,28 +145,19 @@ def main():
         shutil.rmtree(tmp)
 
 def play_rars(rars, tmp, vobsubs=None):
-    if vobsubs is None:
-        subopts = []
-    else:
-        unrar = subprocess.check_output(("which", "unrar")).rstrip(b"\n")
-        subopts = ["-unrarexec", unrar]
-    
     mnt_count = 0
     mnt_format = "mnt{}"
     try:
         files = list()
-        for i in range(len(rars)):
+        for (i, rar) in enumerate(rars):
             mnt = os.path.join(tmp, mnt_format.format(i))
             os.mkdir(mnt)
-            subprocess.check_call(("rarfs", rars[i], mnt))
+            subprocess.check_call(("rarfs", rar, mnt))
             mnt_count += 1
             
-            files.extend(os.path.join(mnt, i) for i in os.listdir(mnt))
-            if vobsubs is not None:
-                files.extend(("-vobsub", vobsubs[i]))
+            files.extend(os.path.join(mnt, file) for file in os.listdir(mnt))
         
-        subprocess.check_call(["mplayer"] + subopts + ["-fixed-vo", "-fs"] +
-            files)
+        mplayer(files, vobsubs)
     finally:
         while mnt_count > 0:
             mnt_count -= 1
@@ -181,6 +172,24 @@ def find_rar(dir):
     raise SystemExit("{}: No file found".format(dir))
 
 RAR_SUFFIX = ".rar"
+
+def mplayer(files, vobsubs=None):
+    args = ["mplayer"]
+    
+    if vobsubs is not None:
+        unrar = subprocess.check_output(("which", "unrar")).rstrip(b"\n")
+        args.extend(("-unrarexec", unrar))
+    
+    args.extend(("-fixed-vo", "-fs"))
+    
+    if vobsubs is None:
+        args.extend(files)
+    else:
+        for (i, file) in enumerate(files):
+            args.append(file)
+            args.extend(("-vobsub", vobsubs[i]))
+    
+    subprocess.check_call(args)
 
 def filename_ending(dir, suffix):
     for name in os.listdir(dir):
