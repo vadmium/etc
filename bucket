@@ -1422,30 +1422,43 @@ sudo aireplay-ng wifi -3 -b AA:BB:CC:DD:EE:FF -e <string>
 
 = Arch installation
 
+# Directory where target root file system is built and hosted
 FS=/home/os/arch-i686
 
-sudo rm -r "$FS/m/sik/boot/arch-i686"
+# Cleanup
+sudo rm -r "$FS/m/sik/boot/arch-i686"/*
 sudo umount "$FS/home" "$FS/m/sik"
-sudo rm -r "$FS"
+sudo rm -r "$FS"/{bin,dev,etc,lib,mnt,opt,proc,root,run,sbin,srv,sys,tmp,usr,var}
 
+# Create the root FS if necessary
 sudo mkdir -p "$FS"
 
+# Custom FS entries for mount points. I like to have an /m alias for /media.
 sudo mkdir "$FS/media"
 sudo ln -s media "$FS/m"
 
+# Create mount points
 sudo mkdir "$FS/m/sik" "$FS/home"
+
+# Mount target file systems, needed for the build, in the hosted root FS
 sudo mount /dev/sda1 "$FS/m/sik"
+
+# Another target file system, not needed for the build
 sudo mount /dev/disk/by-label/HOME "$FS/home" -t ext2
 
+# More custom FS entries in new mounts
 sudo mkdir "$FS/m/sik/boot/arch-i686"
 sudo ln -s m/sik/boot/arch-i686 "$FS/boot"
 sudo chmod go+w "$FS/boot"  # Temporarily, to reduce the need for "sudo"
 
 ./pkgbundle fs "$FS" fs-sudo \
     repo 'http://mirrors.kernel.org/archlinux/core/os/$arch/core.db' \
-    install base build mkinitcpio-dir \
-    offline
+    install base \
+    build local-pkgs/mkinitcpio-dir \
+    offline \
+#
 
+# Customise configuration for mkinitcpio
 sudo ${EDITOR-vi} "$FS/etc/mkinitcpio.conf"  # Add HOOKS="$HOOKS dir"
 
 ./mkinitcpio-cross "$FS" linux -v  # Previously kernel26
