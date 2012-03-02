@@ -1594,3 +1594,32 @@ radio also
 live vs recordings
 http://www.abc.net.au/iview/#/view/856987
 https://www.infradead.org/get_iplayer/html/get_iplayer.html
+
+= socat
+
+socat -dd 'READLINE:crnl,history,noecho,FD,READLINE,TERMIOS!!CREATE:out.http:OPEN,GOPEN' TCP
+socat -dd 'STDIN:readbytes,FD!!CREATE:out.http:OPEN,GOPEN' TCP:www.example.com:80:FD,SOCKET,IP4,IP6,TCP,RETRY,crnl,
+socat -d -d READLINE,history="$HOME/history" TCP:www.example.com.au:80,crnl
+
+= VFAT label
+
+mkdosfs -n
+dosfslabel
+
+sdc loses 7000 KiB starts at 63 sect
+size: 15694336 KiB
+6863.5 KiB lost from geometry 1953 * 255 * 63
+part starts at sect 63, end after sect 31374944
+31.5 KiB lost from partitioning
+(total lost: 6895 KiB)
+
+sdf loses 4000 KiB starts at 8192 sect
+size 31276032 KiB
+pt geom 30543 * 64 * 32 (no space lost) [assumes * 175 * 57]
+part start 8192, end after 62552063
+4096 KiB lost from partitioning
+fdisk says 175 * 57 * 6270, but pt extends past this
+
+cfdisk: defaults to waste 1 track, 0x83 type, maximise option starts at sect #2
+fdisk: default waste 1 track with dos compat on, 0x83; dos compat off: waste 1 cyl instead!?
+sfdisk: hard to semi-automatically allocate all space but flexibly allows any sector numbering you like
