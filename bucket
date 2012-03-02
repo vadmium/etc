@@ -839,41 +839,6 @@ pdf_decrypt() (
     mv "$1.tmp" "$1"
 )
 
-=== Git
-
-sudo apt-get install git-core
-
-git clone git://git.openezx.org/gnufiish.git
-cd gnufiish
-
-==== Operations
-
-git show
-Gives hash and log of last commit.
-
-git checkout <hash>|master
-Change working copy to that particular revision.
-
-git status
-git head
-git tag -l
-git rev-parse [--show-cdup]
-git describe [--tags]
-git log
-git diff
-git reset
-git show-branch
-git annotate <file>
-
-==== General options
-
---pretty=oneline
-
---abbrev-commit
-Shows first 7 digits of hashes instead of all 40 digits
-
---no-pager
-
 ==== Create repository
 
 #Creates .git structure in CWD
@@ -888,6 +853,12 @@ data <<MESSAGE
 Null root commit
 MESSAGE
 GIT-IMPORT
+
+=== Git user
+
+git config --global user.name "" &&
+git config --global user.email ""
+git config -l --global
 
 ==== Root commit insertion
 
