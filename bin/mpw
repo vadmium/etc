@@ -21,7 +21,11 @@ def main():
     tmp = tempfile.mkdtemp(prefix="mpw")
     try:
         if not os.path.isdir(target):
-            rars = [target]
+            if any(target.endswith(suffix) for suffix in RAR_SUFFIXES):
+                rars = (target,)
+            else:
+                rars = ()
+                media = (target,)
             vobsubs = None
         else:
             # Seen the following rarset schemes:
@@ -34,12 +38,16 @@ def main():
             # . . .
             # CD*/*
             discs = list(i for i in os.listdir(target) if i.startswith("CD"))
-            if 0 == len(discs):
-                rars = [find_rar(target)]
+            if not discs:
+                (rars, media) = find_media(target)
             else:
                 discs.sort()
-                rars = list(find_rar(os.path.join(target, disc))
-                    for disc in discs)
+                rars = list()
+                media = list()
+                for disc in discs:
+                    (r, m) = find_media(os.path.join(target, disc))
+                    rars.extend(r)
+                    media.extend(m)
 
             # Seen the following vobsub schemes:
             # Subs
@@ -140,7 +148,10 @@ def main():
             if not vobsubs:
                 vobsubs = None
         
-        play_rars(rars, tmp, vobsubs)
+        if rars:
+            play_rars(rars, tmp, vobsubs)
+        else:
+            mplayer(media, vobsubs)
     finally:
         shutil.rmtree(tmp)
 
@@ -164,14 +175,26 @@ def play_rars(rars, tmp, vobsubs=None):
             subprocess.check_call(("fusermount", "-u",
                 os.path.join(tmp, mnt_format.format(mnt_count))))
 
-def find_rar(dir):
-    for suffix in (".part01" + RAR_SUFFIX, RAR_SUFFIX, ".001"):
-        rar = filename_ending(dir, suffix)
-        if rar is not None:
-            return rar
-    raise SystemExit("{}: No file found".format(dir))
+def find_media(dir):
+    rar = ()
+    media = list()
+    for name in os.listdir(dir):
+        for (prio, suffix) in enumerate(RAR_SUFFIXES):
+            if name.endswith(suffix):
+                if not rar or prio < rar_prio:
+                    rar = (os.path.join(dir, name),)
+                    rar_prio = prio
+                break
+        
+        for suffix in (".avi",):
+            if name.endswith(suffix):
+                media.append(os.path.join(dir, name))
+    
+    media.sort()
+    return (rar, media)
 
 RAR_SUFFIX = ".rar"
+RAR_SUFFIXES = (".part01" + RAR_SUFFIX, RAR_SUFFIX, ".001")
 
 def mplayer(files, vobsubs=None):
     args = ["mplayer"]
@@ -190,10 +213,5 @@ def mplayer(files, vobsubs=None):
             args.extend(("-vobsub", vobsubs[i]))
     
     subprocess.check_call(args)
-
-def filename_ending(dir, suffix):
-    for name in os.listdir(dir):
-        if name.endswith(suffix):
-            return os.path.join(dir, name)
 
 if "__main__" == __name__: main()
