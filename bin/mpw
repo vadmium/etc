@@ -21,7 +21,11 @@ def main():
     tmp = tempfile.mkdtemp(prefix="mpw")
     try:
         if not os.path.isdir(target):
-            rars = [target]
+            if any(target.endswith(suffix) for suffix in RAR_SUFFIXES):
+                rars = (target,)
+            else:
+                rars = ()
+                media = (target,)
             vobsubs = None
         else:
             # Seen the following rarset schemes:
@@ -34,12 +38,16 @@ def main():
             # . . .
             # CD*/*
             discs = list(i for i in os.listdir(target) if i.startswith("CD"))
-            if 0 == len(discs):
-                rars = [find_rar(target)]
+            if not discs:
+                (rars, media) = find_media(target)
             else:
                 discs.sort()
-                rars = list(find_rar(os.path.join(target, disc))
-                    for disc in discs)
+                rars = list()
+                media = list()
+                for disc in discs:
+                    (r, m) = find_media(os.path.join(target, disc))
+                    rars.extend(r)
+                    media.extend(m)
 
             # Seen the following vobsub schemes:
             # Subs
@@ -143,51 +151,70 @@ def main():
             if not vobsubs:
                 vobsubs = None
         
-        play_rars(rars, tmp, vobsubs)
+        if rars:
+            play_rars(rars, tmp, vobsubs)
+        else:
+            mplayer(media, vobsubs)
     finally:
         shutil.rmtree(tmp)
 
 def play_rars(rars, tmp, vobsubs=None):
-    if vobsubs is None:
-        subopts = []
-    else:
-        unrar = subprocess.check_output(("which", "unrar")).rstrip(b"\n")
-        subopts = ["-unrarexec", unrar]
-    
     mnt_count = 0
     mnt_format = "mnt{}"
     try:
         files = list()
-        for i in range(len(rars)):
+        for (i, rar) in enumerate(rars):
             mnt = os.path.join(tmp, mnt_format.format(i))
             os.mkdir(mnt)
-            subprocess.check_call(("rarfs", rars[i], mnt))
+            subprocess.check_call(("rarfs", rar, mnt))
             mnt_count += 1
             
-            files.extend(os.path.join(mnt, i) for i in os.listdir(mnt))
-            if vobsubs is not None:
-                files.extend(("-vobsub", vobsubs[i]))
+            files.extend(os.path.join(mnt, file) for file in os.listdir(mnt))
         
-        subprocess.check_call(["mplayer"] + subopts + ["-fixed-vo", "-fs"] +
-            files)
+        mplayer(files, vobsubs)
     finally:
         while mnt_count > 0:
             mnt_count -= 1
             subprocess.check_call(("fusermount", "-u",
                 os.path.join(tmp, mnt_format.format(mnt_count))))
 
-def find_rar(dir):
-    for suffix in (".part01" + RAR_SUFFIX, RAR_SUFFIX, ".001"):
-        rar = filename_ending(dir, suffix)
-        if rar is not None:
-            return rar
-    raise SystemExit("{}: No file found".format(dir))
+def find_media(dir):
+    rar = ()
+    media = list()
+    for name in os.listdir(dir):
+        for (prio, suffix) in enumerate(RAR_SUFFIXES):
+            if name.endswith(suffix):
+                if not rar or prio < rar_prio:
+                    rar = (os.path.join(dir, name),)
+                    rar_prio = prio
+                break
+        
+        for suffix in (".avi",):
+            if name.endswith(suffix):
+                media.append(os.path.join(dir, name))
+    
+    media.sort()
+    return (rar, media)
 
 RAR_SUFFIX = ".rar"
+RAR_SUFFIXES = (".part01" + RAR_SUFFIX, RAR_SUFFIX, ".001")
 
-def filename_ending(dir, suffix):
-    for name in os.listdir(dir):
-        if name.endswith(suffix):
-            return os.path.join(dir, name)
+def mplayer(files, vobsubs=None):
+    args = ["mplayer"]
+    
+    if vobsubs is not None:
+        unrar = subprocess.check_output(("which", "unrar")).rstrip(b"\n")
+        args.extend(("-unrarexec", unrar))
+    
+    args.extend(("-fixed-vo", "-fs"))
+    
+    if vobsubs is None:
+        args.extend(files)
+    else:
+        for (i, file) in enumerate(files):
+            args.append(file)
+            args.extend(("-vobsub", vobsubs[i]))
+    
+    subprocess.check_call(args)
 
 if "__main__" == __name__: main()

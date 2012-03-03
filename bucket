@@ -872,41 +872,6 @@ pdf_decrypt() (
     mv "$1.tmp" "$1"
 )
 
-=== Git
-
-sudo apt-get install git-core
-
-git clone git://git.openezx.org/gnufiish.git
-cd gnufiish
-
-==== Operations
-
-git show
-Gives hash and log of last commit.
-
-git checkout <hash>|master
-Change working copy to that particular revision.
-
-git status
-git head
-git tag -l
-git rev-parse [--show-cdup]
-git describe [--tags]
-git log
-git diff
-git reset
-git show-branch
-git annotate <file>
-
-==== General options
-
---pretty=oneline
-
---abbrev-commit
-Shows first 7 digits of hashes instead of all 40 digits
-
---no-pager
-
 ==== Create repository
 
 #Creates .git structure in CWD
@@ -921,6 +886,12 @@ data <<MESSAGE
 Null root commit
 MESSAGE
 GIT-IMPORT
+
+=== Git user
+
+git config --global user.name "" &&
+git config --global user.email ""
+git config -l --global
 
 ==== Root commit insertion
 
@@ -1484,23 +1455,33 @@ sudo aireplay-ng wifi -3 -b AA:BB:CC:DD:EE:FF -e <string>
 
 = Arch installation
 
+# Directory where target root file system is built and hosted
 FS=/home/os/arch-i686
 FS=/m/disk/os/arch-i686
 
-sudo rm -r "$FS/m/sik/boot/arch-i686"
+# Cleanup
+sudo rm -r "$FS/m/sik/boot/arch-i686"/*
 sudo umount "$FS/home" "$FS/m/sik"
-sudo rm -r "$FS"
+sudo rm -r "$FS"/{bin,dev,etc,lib,mnt,opt,proc,root,run,sbin,srv,sys,tmp,usr,var}
 sudo rm -r "$FS"/*
 
+# Create the root FS if necessary
 sudo mkdir -p "$FS"
 
+# Custom FS entries for mount points. I like to have an /m alias for /media.
 sudo mkdir "$FS/media"
 sudo ln -s media "$FS/m"
 
+# Create mount points
 sudo mkdir "$FS/m/sik" "$FS/home"
+
+# Mount target file systems, needed for the build, in the hosted root FS
 sudo mount /dev/sda1 "$FS/m/sik"
+
+# Another target file system, not needed for the build
 sudo mount /dev/disk/by-label/HOME "$FS/home" -t ext2
 
+# More custom FS entries in new mounts
 sudo mkdir "$FS/m/sik/boot/arch-i686"
 sudo ln -s m/sik/boot/arch-i686 "$FS/boot"
 sudo chmod go+w "$FS/boot"  # Temporarily, to reduce the need for "sudo"
@@ -1509,10 +1490,12 @@ sudo chmod go+w "$FS/boot"  # Temporarily, to reduce the need for "sudo"
     arch i686 enable core \
     repo 'http://mirrors.kernel.org/archlinux/core/os/$arch/core.db' \
     install base \
-    build mkinitcpio-dir \
+    build local-pkgs/mkinitcpio-dir \
     build ~/abs/mkinitcpio-dir \
-    offline
+    offline \
+#
 
+# Customise configuration for mkinitcpio
 sudo ${EDITOR-vi} "$FS/etc/mkinitcpio.conf"  # Add HOOKS="$HOOKS dir"
 
 PRESET=linux
@@ -1643,6 +1626,35 @@ radio also
 live vs recordings
 http://www.abc.net.au/iview/#/view/856987
 https://www.infradead.org/get_iplayer/html/get_iplayer.html
+
+= socat
+
+socat -dd 'READLINE:crnl,history,noecho,FD,READLINE,TERMIOS!!CREATE:out.http:OPEN,GOPEN' TCP
+socat -dd 'STDIN:readbytes,FD!!CREATE:out.http:OPEN,GOPEN' TCP:www.example.com:80:FD,SOCKET,IP4,IP6,TCP,RETRY,crnl,
+socat -d -d READLINE,history="$HOME/history" TCP:www.example.com.au:80,crnl
+
+= VFAT label
+
+mkdosfs -n
+dosfslabel
+
+sdc loses 7000 KiB starts at 63 sect
+size: 15694336 KiB
+6863.5 KiB lost from geometry 1953 * 255 * 63
+part starts at sect 63, end after sect 31374944
+31.5 KiB lost from partitioning
+(total lost: 6895 KiB)
+
+sdf loses 4000 KiB starts at 8192 sect
+size 31276032 KiB
+pt geom 30543 * 64 * 32 (no space lost) [assumes * 175 * 57]
+part start 8192, end after 62552063
+4096 KiB lost from partitioning
+fdisk says 175 * 57 * 6270, but pt extends past this
+
+cfdisk: defaults to waste 1 track, 0x83 type, maximise option starts at sect #2
+fdisk: default waste 1 track with dos compat on, 0x83; dos compat off: waste 1 cyl instead!?
+sfdisk: hard to semi-automatically allocate all space but flexibly allows any sector numbering you like
 
 = Autotools
 
