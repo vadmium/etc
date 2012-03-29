@@ -28,8 +28,6 @@ user_pref("browser.link.open_newwindow.restriction", 0);
 
 user_pref("kmeleon.plugins.gestures.up", "macros(Go_Up)");
 
-user_pref("browser.startup.page", 0);
-
 /* ==== Potential annoyances */
 
 /* Disable blinking text */
