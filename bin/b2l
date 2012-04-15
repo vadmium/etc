@@ -1,0 +1,57 @@
+#! /usr/bin/env python3
+
+"""Pipe addresses output by the GNU C library's backtrace_symbols() functions
+through the "addr2line" command"""
+
+from sys import (stdin, stdout)
+from subprocess import (Popen, check_output)
+import subprocess
+from os import devnull
+
+null = open(devnull, "w")
+
+for addr in stdin.buffer:
+    try:
+        (obj, addr) = addr.rsplit(b"(")
+    except ValueError:
+        stdout.buffer.write(addr)
+    else:
+        (addr, _) = addr.split(b")")
+        (sym, offset) = addr.rsplit(b"+", 1)
+        addr = int(offset, 0)
+        size = b""
+        
+        try:
+            if sym:
+                # GNU defaults to hexadecimal but POSIX defaults to decimal
+                nm = Popen(("nm", "-Ptd", obj), bufsize=-1,
+                    stdout=subprocess.PIPE, stderr=null)
+                try:
+                    for line in nm.stdout:
+                        (nm_sym, _, base, nm_size) = line.split(b" ", 4)[:4]
+                        if nm_sym == sym:
+                            break
+                    else:
+                        raise LookupError("Symbol not found: {}".format(
+                            sym.decode()))
+                    
+                    addr += int(base)
+                    size = ("/" + hex(int(nm_size))).encode()
+                
+                finally:
+                    nm.stdout.close()
+                    nm.wait()
+            
+            line = check_output(("addr2line", "-Cfie", obj, hex(addr)),
+                bufsize=-1)
+            (a2l_sym, line) = line.split(b"\n", 2)[:2]
+            if (a2l_sym, line) == (b"??", b"??:0"):
+                raise LookupError("addr2line")
+        
+        except LookupError:
+            line = (obj, b"(", sym, b"+", offset, size, b")")
+        else:
+            line = (a2l_sym, b" at ", line)
+        stdout.buffer.write(b"".join(line + (b"\n",)))
+    
+    stdout.buffer.flush()
