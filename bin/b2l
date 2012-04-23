@@ -12,12 +12,21 @@ null = open(devnull, "w")
 
 for addr in stdin.buffer:
     try:
-        (obj, addr) = addr.rsplit(b"(")
+        try:
+            (obj, addr) = addr.rsplit(b"(")
+            abs = False
+        except ValueError:
+            (obj, offset) = addr.rsplit(b"[")
+            abs = True
     except ValueError:
         stdout.buffer.write(addr)
     else:
-        (addr, _) = addr.split(b")")
-        (sym, offset) = addr.rsplit(b"+", 1)
+        if abs:
+            sym = b""
+            (offset, _) = offset.split(b"]")
+        else:
+            (addr, _) = addr.split(b")")
+            (sym, offset) = addr.rsplit(b"+", 1)
         addr = int(offset, 0)
         size = b""
         
