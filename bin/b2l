@@ -4,7 +4,7 @@
 through the "addr2line" command"""
 
 from sys import (stdin, stdout)
-from subprocess import (Popen, check_output)
+from subprocess import Popen
 import subprocess
 from os import devnull
 
@@ -46,16 +46,21 @@ for addr in stdin.buffer:
                     addr += int(base)
                     size = ("/" + hex(int(nm_size))).encode()
             
-            line = check_output(("addr2line", "-Cfie", obj, hex(addr)),
-                bufsize=-1)
-            (a2l_sym, line) = line.split(b"\n", 2)[:2]
-            if (a2l_sym, line) == (b"??", b"??:0"):
-                raise LookupError("addr2line")
+            with Popen(("addr2line", "-Cfie", obj, hex(addr)), bufsize=-1,
+            stdout=subprocess.PIPE) as a2l:
+                inlined = False
+                for a2l_sym in a2l.stdout:
+                    line = next(a2l.stdout)
+                    if not inlined and (a2l_sym, line) == (b"??", b"??:0"):
+                        raise LookupError("addr2line")
+                    line = (a2l_sym[:-1], b" at ", line)
+                    if inlined:
+                        line = (b" (inlined by) ",) + line
+                    stdout.buffer.write(b"".join(line))
+                    inlined = True
         
         except LookupError:
-            line = (obj, b"(", sym, b"+", offset, size, b")")
-        else:
-            line = (a2l_sym, b" at ", line)
-        stdout.buffer.write(b"".join(line + (b"\n",)))
+            stdout.buffer.write(b"".join(
+                (obj, b"(", sym, b"+", offset, size, b")", b"\n",)))
     
     stdout.buffer.flush()
