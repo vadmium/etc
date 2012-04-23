@@ -33,9 +33,8 @@ for addr in stdin.buffer:
         try:
             if sym:
                 # GNU defaults to hexadecimal but POSIX defaults to decimal
-                nm = Popen(("nm", "-Ptd", obj), bufsize=-1,
-                    stdout=subprocess.PIPE, stderr=null)
-                try:
+                with Popen(("nm", "-Ptd", obj), bufsize=-1,
+                stdout=subprocess.PIPE, stderr=null) as nm:
                     for line in nm.stdout:
                         (nm_sym, _, base, nm_size) = line.split(b" ", 4)[:4]
                         if nm_sym == sym:
@@ -46,10 +45,6 @@ for addr in stdin.buffer:
                     
                     addr += int(base)
                     size = ("/" + hex(int(nm_size))).encode()
-                
-                finally:
-                    nm.stdout.close()
-                    nm.wait()
             
             line = check_output(("addr2line", "-Cfie", obj, hex(addr)),
                 bufsize=-1)
