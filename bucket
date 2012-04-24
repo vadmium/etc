@@ -1678,3 +1678,7 @@ Run script "configure" as:
 
 This seems to try and build everything first; and the command fails
 eventually anyway, but there is HTML files generated.
+
+= UI
+
+Mouse scrolling should be sent to the window under the mouse pointer, and the window should gain focus
