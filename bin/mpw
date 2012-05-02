@@ -146,6 +146,9 @@ def main():
                         idxs.sort()
                         vobsubs.extend(os.path.join(tmpsubs, idx)
                             for idx in idxs)
+                        
+                        # To fix vobsub colours:
+# custom colors: ON, tridx: 0000, colors: aa5500, 000000, ffffff, 55aaff
             
             if not vobsubs:
                 vobsubs = None

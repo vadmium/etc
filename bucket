@@ -747,6 +747,11 @@ svnadmin load <path> < <dump>
 
 === [git-svn] Migration from Subversion to Git
 
+# http://maururu.net/2009/svn-to-git-take-2
+
+Cannot set multiple trunk (-T) options; the final one silently overrides the
+previous.
+
 # List Subversion authors:
 svn log -qg file:///srv/svn/etc |
 sed -n 's/^r[0-9]\+ | \(.*\) |[^|]*$/\1/p' |
@@ -781,6 +786,34 @@ cd Meta
 # . . .
 git add -A
 git commit
+
+==== Reverse init
+
+git config --remove-section svn-remote.svn
+
+
+-R | --svn-remote gives it a name, default is "svn"
+First revision passed to fetch seems to be important; you probably cannot start before it. May be able to reverse this by removing the appropriate directory in .git/svn/refs/remotes
+Tries to merge fetched stuff (like pull) unless you use --no-checkout
+Git svn init doesn't really work for multiple svn remotes so just use the config manually
+the unhandled.log files seem to list each revision that is unique to a branch, and any "unhandled" aspects of that revision
+Creates new ref/branch names whenever there is a copy in the history. Example: remotes/trunk@13 was created because in revision 13 trunk was in a different place, in fact trunk@13 in Subversion may be illegal or refer to a directory with no related history because trunk only existed under that name in revision 14. Similarly trunk@12 was created because the older location was also moved in revision 12 from an even earlier location. The git-svn-id tags do show the location and use the correct Subversion peg "@" notation. However this can only be detected if the url emcompasses all previous locations.
+If the branch directory was deleted and re-created, the history does not seem to notice and starts importing the deleted history.
+If you fetch up to a revision (-r0:N) that precedes when a branch is deleted, and then fetch beyond that, it creates a merge of the history before it was deleted and the alternative history if it was recreated by copying from somewhere else.
+
+for BRANCH in \
+    pyqt@{122176,106740,1} python-qt@{107070,105724} python2-qt@105711
+do
+    REMOTE="packages/$BRANCH"
+    
+    SECTION=svn-remote."$REMOTE"
+    git config --add "$SECTION".url svn://svn.archlinux.org/packages
+    
+    SVN_BRANCH="${BRANCH%@*}/trunk"
+    git config --add "$SECTION".fetch "$SVN_BRANCH":refs/remotes/"$REMOTE"
+done
+
+git config --get-regexp svn-remote.packages/
 
 === Searchable history
 
@@ -862,16 +895,7 @@ git config -l --global
 
 ==== Root commit insertion
 
-# TODO: Use "git checkout --orphan"
-
-# Latch onto an existing initial commit
-git checkout <an initial commit> (for example, HEAD~1)
-
-(Find root commits with git log --max-parents=0)
-
-# Create the empty commit
-git rm --cached . -r
-git commit --author="" --date="" -m "Empty root commit" -n --allow-empty --amend
+# Create root commit with fast-import as above
 
 git tag root
 
@@ -901,6 +925,15 @@ git init &&
 git remote add origin "$ORIGIN" &&
 git fetch origin --no-tags tag "$TAG" &&
 git checkout "$TAG" -b master
+
+==== Fetch specific remote branch
+
+git fetch thee master:remotes/thee/master
+
+==== Associate default remote with branch
+
+# No UI for this unless fetch has already been run
+git config branch.cycles.remote thee
 
 ==== Cardinal commit number
 
@@ -1420,58 +1453,6 @@ sudo airodump-ng --write <name> --showack wifi --channel 11 --ivs --bssid AA:BB:
 sudo aireplay-ng wifi -3 -b AA:BB:CC:DD:EE:FF -e <string>
                          KEY FOUND! [ xx:xx:xx:xx:xx ] 
 
-= Arch installation
-
-# Directory where target root file system is built and hosted
-FS=/home/os/arch-i686
-
-# Cleanup
-sudo rm -r "$FS/m/sik/boot/arch-i686"/*
-sudo umount "$FS/home" "$FS/m/sik"
-sudo rm -r "$FS"/{bin,dev,etc,lib,mnt,opt,proc,root,run,sbin,srv,sys,tmp,usr,var}
-
-# Create the root FS if necessary
-sudo mkdir -p "$FS"
-
-# Custom FS entries for mount points. I like to have an /m alias for /media.
-sudo mkdir "$FS/media"
-sudo ln -s media "$FS/m"
-
-# Create mount points
-sudo mkdir "$FS/m/sik" "$FS/home"
-
-# Mount target file systems, needed for the build, in the hosted root FS
-sudo mount /dev/sda1 "$FS/m/sik"
-
-# Another target file system, not needed for the build
-sudo mount /dev/disk/by-label/HOME "$FS/home" -t ext2
-
-# More custom FS entries in new mounts
-sudo mkdir "$FS/m/sik/boot/arch-i686"
-sudo ln -s m/sik/boot/arch-i686 "$FS/boot"
-sudo chmod go+w "$FS/boot"  # Temporarily, to reduce the need for "sudo"
-
-./pkgbundle fs "$FS" fs-sudo \
-    repo 'http://mirrors.kernel.org/archlinux/core/os/$arch/core.db' \
-    install base \
-    build local-pkgs/mkinitcpio-dir \
-    offline \
-#
-
-# Customise configuration for mkinitcpio
-sudo ${EDITOR-vi} "$FS/etc/mkinitcpio.conf"  # Add HOOKS="$HOOKS dir"
-
-./mkinitcpio-cross "$FS" linux -v  # Previously kernel26
-
-
-./mkinitcpio-cross "$FS" "$FS/etc/mkinitcpio.d/kernel26.preset" -v
-(
-    WD="$(pwd)" && cd "$FS/lib/initcpio" &&
-    ALL_kver="$WD/mkinitcpio" -v \
-        -p "etc/mkinitcpio.d/kernel26.preset" -b "$FS"
-)
-#-c "$FS/etc/mkinitcpio.conf" 
-
 = Nits
 
 X "clipboard" contents disappear when the program it was copied from is gone
@@ -1534,7 +1515,9 @@ mke2fs -t ext3 -j -b 4096 -i 50000 -j -L cross -m 1 "$part"
 
 noatime
 
-=== Arch Linux
+= Arch Linux
+
+== Install using QEMU
 
 sudo apt-get install qemu
 qemu-system-x86_64 -hda archlinux-2010.05-netinstall-x86_64.iso -hdb /dev/sda
@@ -1585,6 +1568,59 @@ sudo "qemu-$ARCH_TARGET" "$ARCH/lib/ld-linux-x86-64.so.2" \
 # http://wiki.archlinux.org/index.php/Arch64_Install_bundled_32bit_system
 # http://wiki.archlinux.org/index.php/Install_from_Existing_Linux
 
+== Cross installation
+
+# Directory where target root file system is built and hosted
+FS=/home/os/arch-i686
+FS=/m/disk/os/arch-i686
+
+# Cleanup
+sudo rm -r "$FS/m/sik/boot/arch-i686"/*
+sudo umount "$FS/home" "$FS/m/sik"
+sudo rm -r "$FS"/{bin,dev,etc,lib,mnt,opt,proc,root,run,sbin,srv,sys,tmp,usr,var}
+sudo rm -r "$FS"/*
+
+# Create the root FS if necessary
+sudo mkdir -p "$FS"
+
+# Custom FS entries for mount points. I like to have an /m alias for /media.
+sudo mkdir "$FS/media"
+sudo ln -s media "$FS/m"
+
+# Create mount points
+sudo mkdir "$FS/m/sik" "$FS/home"
+
+# Mount target file systems, needed for the build, in the hosted root FS
+sudo mount /dev/sda1 "$FS/m/sik"
+
+# Another target file system, not needed for the build
+sudo mount /dev/disk/by-label/HOME "$FS/home" -t ext2
+
+# More custom FS entries in new mounts
+sudo mkdir "$FS/m/sik/boot/arch-i686"
+sudo ln -s m/sik/boot/arch-i686 "$FS/boot"
+sudo chmod go+w "$FS/boot"  # Temporarily, to reduce the need for "sudo"
+
+./pkgbundle fs "$FS" fs-sudo \
+    arch i686 enable core \
+    repo 'http://mirrors.kernel.org/archlinux/core/os/$arch/core.db' \
+    install base \
+    build local-pkgs/mkinitcpio-dir \
+    build ~/abs/mkinitcpio-dir \
+    offline \
+#
+
+# Customise configuration for mkinitcpio
+sudo ${EDITOR-vi} "$FS/etc/mkinitcpio.conf"  # Add HOOKS="$HOOKS dir"
+
+PRESET=linux
+PRESET=kernel26   # Previously
+sudo sed 's:^source /etc/mkinitcpio\.d:source "$(dirname "$BASH_SOURCE")":' \
+    -i "$FS/etc/mkinitcpio.d/$PRESET.preset"
+./mkinitcpio-cross "$FS" "$PRESET" -v
+
+== Produce package list
+
 = Video scraper, downloader, aggregator
 
 try for rss programs
@@ -1623,3 +1659,22 @@ fdisk says 175 * 57 * 6270, but pt extends past this
 cfdisk: defaults to waste 1 track, 0x83 type, maximise option starts at sect #2
 fdisk: default waste 1 track with dos compat on, 0x83; dos compat off: waste 1 cyl instead!?
 sfdisk: hard to semi-automatically allocate all space but flexibly allows any sector numbering you like
+
+= Autotools
+
+== Autoconf: Forcing result of library detection
+
+File "configure.ac" has the following:
+
+    AC_CHECK_LIB([ftdi], [ftdi_usb_get_strings], [have_libftdi=yes], [], [-lusb])
+
+Run script "configure" as:
+
+    configure ac_cv_lib_ftdi_ftdi_usb_get_strings=no
+
+== Automake: Generate HTML from ".texi" file
+
+    make -C doc
+
+This seems to try and build everything first; and the command fails
+eventually anyway, but there is HTML files generated.
