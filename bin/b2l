@@ -51,7 +51,8 @@ for addr in stdin.buffer:
                 inlined = False
                 for a2l_sym in a2l.stdout:
                     line = next(a2l.stdout)
-                    if not inlined and (a2l_sym, line) == (b"??", b"??:0"):
+                    if (not inlined and
+                    (a2l_sym, line) == (b"??\n", b"??:0\n")):
                         raise LookupError("addr2line")
                     line = (a2l_sym[:-1], b" at ", line)
                     if inlined:
