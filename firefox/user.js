@@ -35,9 +35,6 @@ user_pref("browser.startup.page", 0);
 /* Disable blinking text */
 // user_pref("browser.blink_allowed", false);
 
-/* Image animation mode: normal, once, none. */
-// user_pref("image.animation_mode", "once");
-
 /* Show pref UI to block images that don't come from the current server */
 // user_pref("imageblocker.enable", true);
 
@@ -197,7 +194,10 @@ user_pref("app.update.enabled", false);
 user_pref("app.update.auto", false);
 user_pref("browser.fullscreen.autohide", true);
 user_pref("browser.fullscreen.animateUp", 0);
+
+/* Image animation mode: normal, once, none. */
 user_pref("image.animation_mode", "none");
+
 user_pref("view_source.wrap_long_lines", true);
 user_pref("keyword.enabled", false);
 user_pref("browser.startup.homepage_override.mstone", "ignore");
@@ -220,7 +220,7 @@ user_pref("intl.locale.matchOS", true);
 user_pref("javascript.options.relimit", true);
 user_pref("layout.frames.force_resizability", true);
 user_pref("network.dns.disablePrefetch", true);
-user_pref("network.dns.disablePrefetchFromHTTPS", false);
+user_pref("network.dns.disablePrefetchFromHTTPS", false); // assume only applicable when prefetch enabled generally
 user_pref("network.http.phishy-userpass-length", 30);
 user_pref("nglayout.enable_drag_images", false);
 user_pref("network.http.pipelining", true);
