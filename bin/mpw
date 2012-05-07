@@ -6,6 +6,8 @@ import subprocess
 import tempfile
 import shutil
 from subprocess import CalledProcessError
+from subprocess import Popen
+from os import devnull
 
 def main():
     try:
@@ -211,10 +213,39 @@ def mplayer(files, vobsubs=None):
     if vobsubs is None:
         args.extend(files)
     else:
+        delay = 0
         for (i, file) in enumerate(files):
             args.append(file)
-            args.extend(("-vobsub", vobsubs[i]))
+            try:
+                vobsub = vobsubs[i]
+            except LookupError:
+                args.extend(("-vobsub", vobsub))
+                id = Popen(
+                    "mplayer -identify -frames 0".split() + [files[i - 1]],
+                    bufsize=-1, stdout=subprocess.PIPE, stderr=null)
+                try:
+                    for line in id.stdout:
+                        test = b"ID_LENGTH="
+                        if line.startswith(test):
+                            delay += float(line[len(test):])
+                            break
+                    else:
+                        raise ValueError(
+                            "{}: ID_LENGTH not given".format(files[i - 1]))
+                finally:
+                    # Drain stdout before closing, otherwise M Player crashes
+                    # and leaves a daemon running
+                    while id.stdout.read(0x10000):
+                        pass
+                    
+                    id.stdout.close()
+                    id.wait()
+                args.extend(("-subdelay", str(delay)))
+            else:
+                args.extend(("-vobsub", vobsub))
     
     subprocess.check_call(args)
+
+null = open(devnull, "w")
 
 if "__main__" == __name__: main()

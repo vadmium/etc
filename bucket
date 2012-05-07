@@ -1576,6 +1576,7 @@ FS=/m/disk/os/arch-i686
 
 # Cleanup
 sudo rm -r "$FS/m/sik/boot/arch-i686"/*
+sudo rm -rf /boot/arch-i686/*
 sudo umount "$FS/home" "$FS/m/sik"
 sudo rm -r "$FS"/{bin,dev,etc,lib,mnt,opt,proc,root,run,sbin,srv,sys,tmp,usr,var}
 sudo rm -r "$FS"/*
@@ -1585,7 +1586,7 @@ sudo mkdir -p "$FS"
 
 # Custom FS entries for mount points. I like to have an /m alias for /media.
 sudo mkdir "$FS/media"
-sudo ln -s media "$FS/m"
+sudo ln -s media --no-dereference "$FS/m"
 
 # Create mount points
 sudo mkdir "$FS/m/sik" "$FS/home"
@@ -1598,15 +1599,19 @@ sudo mount /dev/disk/by-label/HOME "$FS/home" -t ext2
 
 # More custom FS entries in new mounts
 sudo mkdir "$FS/m/sik/boot/arch-i686"
-sudo ln -s m/sik/boot/arch-i686 "$FS/boot"
+sudo ln -s m/sik/boot/arch-i686 --no-dereference "$FS/boot"
 sudo chmod go+w "$FS/boot"  # Temporarily, to reduce the need for "sudo"
 
 ./pkgbundle fs "$FS" fs-sudo \
     arch i686 enable core \
     repo 'http://mirrors.kernel.org/archlinux/core/os/$arch/core.db' \
     install base \
+    install "$(cut -f 1 list/{groups,pkgs})" \
     build local-pkgs/mkinitcpio-dir \
     build ~/abs/mkinitcpio-dir \
+    build "$(cut -f 1 list/build | while read -r name; do
+        echo "local-pkgs/$name"
+    done)" \
     offline \
 #
 
@@ -1679,6 +1684,12 @@ Run script "configure" as:
 This seems to try and build everything first; and the command fails
 eventually anyway, but there is HTML files generated.
 
-= UI
+= Ideas
+
+== Browser
+
+visible cookies, interface with os (copy and paste etc)
+
+== UI
 
 Mouse scrolling should be sent to the window under the mouse pointer, and the window should gain focus
