@@ -69,6 +69,11 @@ body.mediawiki, body.mediawiki #wikiContent {
 body.mediawiki #globalWrapper, body.mediawiki #mw_main
     {font-size: 100% !important}
 
+@-moz-document url-prefix(https://wiki.archlinux.org/index.php) {
+    /* "Red links" not distinguished except perhaps with the default skin */
+    .mediawiki a.new {color: green}
+}
+
 @-moz-document url-prefix(https://mail.google.com/mail/h) {
     body, td {font-family: inherit !important}
     
