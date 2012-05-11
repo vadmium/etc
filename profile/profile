@@ -54,15 +54,17 @@ export GREP_OPTIONS
 
 prepend_list ~/lib : LD_LIBRARY_PATH
 
-# Would have thought "keychain" was appropriate for this, but the inherit any
+# Would have thought "keychain" was appropriate for this, but the inherit-any
 # option isn't doing what I would like. See
 # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=502468
 if test -z "${SSH_AUTH_SOCK+set}"; then
     SSA="/tmp/sshagent-$(id -u).sh"
-    if test ! -e "$SSA"; then
-        ssh-agent -s > "$SSA"
+    if test -e "$SSA" ||
+    ssh-agent -s > "$SSA"; then
+        . "$SSA"
+    else
+        rm "$SSA"
     fi
-    . "$SSA"
 fi
 
 export DU_BLOCK_SIZE=si DF_BLOCK_SIZE=si
