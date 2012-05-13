@@ -13,5 +13,17 @@ HISTSIZE=2000
 HISTFILESIZE="$HISTSIZE"
 HISTCONTROL=erasedups
 
+# Manually remove duplicates in saved history because Bash only removes them
+# from memory for each new entry added, and saved entries are not removed
+# when appending the history file
+if test -e ~/.bash_history; then
+    if ! {
+        awk '! x[$0]++' ~/.bash_history > ~/.bash_history.new &&
+        mv ~/.bash_history.new ~/.bash_history
+    }; then
+        rm ~/.bash_history.new
+    fi
+fi
+
 CSI="'\e['" TEXT='"(exit $?)"'; trap "printf $CSI'1;41;37m'$TEXT$CSI'0m\n'" ERR
 trap exit TERM  # Apparently ignored by default so that "kill 0" applies to process group except shell
