@@ -17,11 +17,12 @@ HISTCONTROL=erasedups
 # from memory for each new entry added, and saved entries are not removed
 # when appending the history file
 if test -e ~/.bash_history; then
+    NEW=~/".bash_history.new.$$"
     if ! {
-        awk '! x[$0]++' ~/.bash_history > ~/.bash_history.new &&
-        mv ~/.bash_history.new ~/.bash_history
+        awk '! x[$0]++' ~/.bash_history > "$NEW" &&
+        mv "$NEW" ~/.bash_history
     }; then
-        rm ~/.bash_history.new
+        rm "$NEW"
     fi
 fi
 
