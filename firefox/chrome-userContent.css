@@ -69,7 +69,7 @@ body.mediawiki, body.mediawiki #wikiContent {
 body.mediawiki #globalWrapper, body.mediawiki #mw_main
     {font-size: 100% !important}
 
-@-moz-document url-prefix(https://wiki.archlinux.org/index.php) {
+@-moz-document url-prefix(https://wiki.archlinux.org/) {
     /* "Red links" not distinguished except perhaps with the default skin */
     .mediawiki a.new {color: green}
 }
