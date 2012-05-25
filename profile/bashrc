@@ -19,6 +19,7 @@ HISTCONTROL=erasedups
 if test -e ~/.bash_history; then
     NEW=~/".bash_history~$$"
     if ! {
+        cp --attributes-only --preserve=all ~/.bash_history "$NEW" &&
         awk '
             {line[NR] = $0; last[$0] = NR}
             END {for(i = 1; i <= NR; ++i)
