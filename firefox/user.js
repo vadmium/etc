@@ -225,3 +225,4 @@ user_pref("network.http.pipelining", true);
 user_pref("plugins.hide_infobar_for_missing_plugin", true);
 user_pref("browser.shell.checkDefaultBrowser", false);
 user_pref("accessibility.warn_on_browsewithcaret", false);
+user_pref("general.smoothScroll", false);
