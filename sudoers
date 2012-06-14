@@ -1,4 +1,4 @@
 Defaults shell_noargs
-Defaults:%sudo !env_reset
+Defaults:%sudo !env_reset, !secure_path
 
 %sudo ALL=NOPASSWD: ALL
