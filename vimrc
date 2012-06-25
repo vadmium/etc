@@ -2,7 +2,8 @@
 :syntax enable
 :set shiftwidth=4
 
-"http://vim.1045645.n5.nabble.com/Keeping-tab-indentation-of-blank-lines-tp1154263p1154269.html
+"“vim” mailing list “Keeping tab indentation of blank lines”
+"http://marc.info/?l=vim&m=115791432605990
 :inoremap <Enter> <Enter><space><bs>
 :nnoremap o o<space><bs>
 
