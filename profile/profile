@@ -76,6 +76,10 @@ export LESS="-R"
 export MAKEFLAGS="--no-print-directory"
 export PYTHONSTARTUP="$HOME/pythonstartup.py"
 
+# Parent directory escape hack because the Gnu C Library ignores any slashes
+# which should specify a file name
+export LC_TIME=../../../../.."$HOME/locale"
+
 export ENV=~/.bashrc
 if test -e "$ENV" -a -n "${BASH_VERSION+set}"; then
     . "$ENV"

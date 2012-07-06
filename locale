@@ -1,0 +1,69 @@
+# Compile with
+#     localedef -i locale ~/locale
+# then use
+#     LC_TIME=root"$HOME/locale" locale -ck d_t_fmt
+# where "root" is a string of "../" components to get to the root directory
+# from the Gnu C Library's locale directory, or a symbolic link that does the
+# same thing. The "root" thing is a workaround because the Gnu C Library
+# seems to ignore the presence of slashes in the locale environment variable,
+# which is meant to indicate a file or directory name according to Posix.
+
+LC_CTYPE
+copy "POSIX"
+END LC_CTYPE
+
+LC_COLLATE
+copy "POSIX"
+END LC_COLLATE
+
+# Gnu "localedef" does not accept "int_curr_symbol" from its own "POSIX"
+# locale definition?!
+LC_MONETARY
+copy "en_AU"
+END LC_MONETARY
+
+LC_NUMERIC
+copy "POSIX"
+END LC_NUMERIC
+
+LC_TIME
+abday "Sun"; "Mon"; "Tue"; "Wed"; "Thu"; "Fri"; "Sat"
+day "Sunday"; "Monday"; "Tuesday"; "Wednesday"; "Thursday"; "Friday"; \
+    "Saturday"
+abmon "Jan"; "Feb"; "Mar"; "Apr"; "May"; "Jun"; "Jul"; "Aug"; "Sep"; "Oct"; \
+    "Nov"; "Dec"
+mon "January"; "February"; "March"; "April"; "May"; "June"; "July"; \
+    "August"; "September"; "October"; "November"; "December"
+d_t_fmt "%x %X"
+d_fmt "%e %b %Y"
+t_fmt "%T %z"
+am_pm "a.m."; "p.m."
+t_fmt_ampm "%l:%M:%S %p"
+END LC_TIME
+
+LC_MESSAGES
+copy "POSIX"
+END LC_MESSAGES
+
+LC_IDENTIFICATION
+END LC_IDENTIFICATION
+
+LC_PAPER
+copy "en_AU"
+END LC_PAPER
+
+LC_TELEPHONE
+copy "en_AU"
+END LC_TELEPHONE
+
+LC_MEASUREMENT
+copy "en_AU"
+END LC_MEASUREMENT
+
+LC_NAME
+copy "en_AU"
+END LC_NAME
+
+LC_ADDRESS
+copy "en_AU"
+END LC_ADDRESS
