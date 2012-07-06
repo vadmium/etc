@@ -227,6 +227,8 @@ user_pref("browser.shell.checkDefaultBrowser", false);
 user_pref("accessibility.warn_on_browsewithcaret", false);
 user_pref("general.smoothScroll", false);
 user_pref("browser.autofocus", false);
+user_pref("capability.policy.default.HTMLInputElement.focus", "noAccess");
+user_pref("toolkit.storage.synchronous", 0);
 
 user_pref("dom.event.contextmenu.enabled", false);
 user_pref("browser.fixup.alternate.enabled", false);
