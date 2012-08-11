@@ -50,14 +50,18 @@ if test "${TERM-}" = msys; then
 else
     GREP_OPTIONS="--color"
 fi
-export GREP_OPTIONS
+if echo | GREP_OPTIONS="$GREP_OPTIONS" grep "" 2> /dev/null; then
+    export GREP_OPTIONS
+else
+    unset GREP_OPTIONS
+fi
 
 prepend_list ~/lib : LD_LIBRARY_PATH
 
 # Would have thought "keychain" was appropriate for this, but the inherit-any
 # option isn't doing what I would like. See
 # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=502468
-if test -z "${SSH_AUTH_SOCK+set}"; then
+if test -n "$(type -t ssh-agent)" -a -z "${SSH_AUTH_SOCK+set}"; then
     SSA="/tmp/sshagent-$(id -u).sh"
     if test -e "$SSA" ||
     ssh-agent -s > "$SSA"; then
