@@ -41,7 +41,7 @@ if test -e ~/.bash_history; then
 fi
 
 CSI='\e[' FORMAT="'${CSI}1;41;37m(exit %s)${CSI}0m\n'"
-if trap -p ERR 2> /dev/null; then
+if trap -p ERR > /dev/null 2>&1; then
     trap 'printf '"$FORMAT"' "$?"' ERR
 else
     PS1="$PS1"'$(

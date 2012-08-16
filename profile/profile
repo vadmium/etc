@@ -50,7 +50,10 @@ if test "${TERM-}" = msys; then
 else
     GREP_OPTIONS="--color"
 fi
-if echo | GREP_OPTIONS="$GREP_OPTIONS" grep "" 2> /dev/null; then
+if GREP_OPTIONS="$GREP_OPTIONS" grep "" > /dev/null 2>&1 << LINE
+
+LINE
+then
     export GREP_OPTIONS
 else
     unset GREP_OPTIONS
