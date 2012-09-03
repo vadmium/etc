@@ -3,6 +3,12 @@ def pythonstartup():
     import readline
     import atexit
     from functools import partial
+    import sys
+    
+    try:
+        import builtins
+    except ImportError:
+        import __builtin__ as builtins
     
     HISTFILE = expanduser("~/python.history")
     try:
@@ -16,6 +22,18 @@ def pythonstartup():
     
     import rlcompleter 
     readline.parse_and_bind("tab: complete")
+    
+    # Monkey-patch SystemExit() so that it does not exit the interpreter
+    class SystemExit(BaseException):
+        def __init__(self, code=None):
+            self.code = code
+            BaseException.__init__(self, code)
+    builtins.SystemExit = SystemExit
+    
+    def exit(code=None):
+        global SystemExit
+        raise SystemExit(code)
+    sys.exit = exit
 
 if __name__ == "__main__":
     pythonstartup()
