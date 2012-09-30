@@ -7,8 +7,11 @@ from os import fsdecode
 from sys import stdout
 
 @fields(param_types=dict(limit=int))
-def main(limit, dir):
-    du = ("du", "--block-size=1", dir)
+def main(limit, dir, *, all=False):
+    du = "du --block-size=1".split()
+    if all:
+        du.append("--all")
+    du.append(dir)
     with Popen(du, bufsize=-1, stdout=subprocess.PIPE) as du:
         for line in du.stdout:
             if not line[:1].isdigit():
