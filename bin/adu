@@ -1,25 +1,32 @@
-#! /usr/bin/python2
+#! /usr/bin/python3
 
-import sys
-import os
-import re
+from subprocess import Popen
+import subprocess
+from shorthand import fields
+from os import fsdecode
+from sys import stdout
 
-limit = int(sys.argv[1])
-dir = sys.argv[2]
-
-put, get = os.popen4("du --block-size=1 " + dir)
-
-while 1:
-    line = get.readline()
-    if not line: break
-    if re.match(r'^\d', line):
-        split = line.index('\t')
-        size = int(line[:split])
-        if size >= limit:
-            pref = ''
-            #~ print size
-            for p in 'kMGTPEZY':
-                if size < 10000: break
-                size = size / 1000
+@fields(param_types=dict(limit=int))
+def main(limit, dir):
+    du = ("du", "--block-size=1", dir)
+    with Popen(du, bufsize=-1, stdout=subprocess.PIPE) as du:
+        for line in du.stdout:
+            if not line[:1].isdigit():
+                continue
+            
+            (size, file) = line.split(b"\t", 1)
+            size = int(size)
+            if size < limit:
+                continue
+            
+            pref = ""
+            for p in "kMGTPEZY":
+                if size < 10000:
+                    break
+                size //= 1000
                 pref = p
-            print size, pref + 'B' + line[split:],
+            stdout.write("{} {}B\t{}".format(size, pref, fsdecode(file)))
+
+if __name__ == "__main__":
+    from funcparams import command
+    command()
