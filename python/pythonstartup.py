@@ -1,8 +1,4 @@
 def pythonstartup():
-    from os.path import expanduser
-    import readline
-    import atexit
-    from functools import partial
     import sys
     
     try:
@@ -10,18 +6,26 @@ def pythonstartup():
     except ImportError:
         import __builtin__ as builtins
     
-    HISTFILE = expanduser("~/python.history")
     try:
-        readline.read_history_file(HISTFILE)
-    except EnvironmentError:
-        pass
-    
-    global history_write
-    history_write = partial(readline.write_history_file, HISTFILE)
-    atexit.register(history_write)
-    
-    import rlcompleter 
-    readline.parse_and_bind("tab: complete")
+        from os.path import expanduser
+        import readline
+        import atexit
+        from functools import partial
+    except ImportError:
+        pass  # readline not normally available on Windows
+    else:
+        HISTFILE = expanduser("~/python.history")
+        try:
+            readline.read_history_file(HISTFILE)
+        except EnvironmentError:
+            pass
+        
+        global history_write
+        history_write = partial(readline.write_history_file, HISTFILE)
+        atexit.register(history_write)
+        
+        import rlcompleter 
+        readline.parse_and_bind("tab: complete")
     
     # Monkey-patch SystemExit() so that it does not exit the interpreter
     class SystemExit(BaseException):
