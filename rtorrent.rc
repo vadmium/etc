@@ -1,9 +1,10 @@
 # KiB/s?
 #upload_rate =
 
+directory = ~/proj/dl/dump
 session = ~/rtorrent.session
-#schedule = low_diskspace,5,60,close_low_diskspace=100M
-#ip =
+schedule = low_diskspace,5,60,close_low_diskspace=30M
+#ip = localhost
 #port_range = <single>-<same>
 dht = auto
 #dht_port = <same>
