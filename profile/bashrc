@@ -12,6 +12,10 @@ alias patch='patch --binary'
 HISTSIZE=2000
 HISTFILESIZE="$HISTSIZE"
 HISTCONTROL=erasedups
+shopt -s globstar
+shopt -s histreedit
+shopt -s histverify
+shopt -s no_empty_cmd_completion
 
 # Manually remove duplicates in saved history because Bash only removes them
 # from memory for each new entry added, and saved entries are not removed
@@ -33,7 +37,7 @@ if test -e ~/.bash_history; then
             {line[NR] = $0; last[$0] = NR}
             END {for(i = 1; i <= NR; ++i)
                 if(last[line[i]] == i) print line[i]}
-        ' ~/.bash_history > "$NEW" &&
+        ' ~/.bash_history >| "$NEW" &&
         mv "$NEW" ~/.bash_history
     }; then
         rm "$NEW"
