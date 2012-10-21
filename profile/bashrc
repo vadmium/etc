@@ -4,14 +4,66 @@
 # Generic shell ENV initialisation, named after Bash because of its special
 # behaviour. Typically this can be appended to the skeleton ~/.bashrc file.
 
-set -o nounset
-
-alias ls='ls --color=auto'
-alias patch='patch --binary'
-
-HISTSIZE=2000
-HISTFILESIZE="$HISTSIZE"
-HISTCONTROL=erasedups
+main() {
+    set -o nounset
+    
+    alias ls='ls --color=auto'
+    alias patch='patch --binary'
+    
+    HISTSIZE=2000
+    HISTFILESIZE="$HISTSIZE"
+    HISTCONTROL=erasedups
+    
+    shopt -s globstar
+    shopt -s histreedit
+    shopt -s histverify
+    shopt -s no_empty_cmd_completion
+    opt - noclobber
+    opt + hashall
+    
+    # Manually remove duplicates in saved history because Bash only removes them
+    # from memory for each new entry added, and saved entries are not removed
+    # when appending the history file
+    if test -e ~/.bash_history; then
+        local NEW CP_ATTR
+        NEW=~/".bash_history~$$"
+        
+        if test "$(cp --version | sed -n '1 s/^.* \([0-9]\+\).*$/\1/p')" -gt 4
+        then
+            # Works in version 8.13, but not in 4.1
+            CP_ATTR="cp --attributes-only --preserve=all"
+        else
+            CP_ATTR="cp --preserve"
+        fi
+        
+        if ! {
+            $CP_ATTR ~/.bash_history "$NEW" &&
+            awk '
+                {line[NR] = $0; last[$0] = NR}
+                END {for(i = 1; i <= NR; ++i)
+                    if(last[line[i]] == i) print line[i]}
+            ' ~/.bash_history >| "$NEW" &&
+            mv "$NEW" ~/.bash_history
+        }; then
+            rm "$NEW"
+        fi
+    fi
+    
+    local CSI='\033['
+    local FORMAT="'${CSI}1;41;37m[Exit %s]${CSI}0m\n'"
+    if ! trap 'printf '"$FORMAT"' "$?"' ERR 2> /dev/null; then
+        PS1="$PS1"'$(
+            EXIT="$?"
+            if test "$EXIT" -ne 0; then
+                # Direct to stderr because trailing newlines are not substituted
+                printf '"$FORMAT"' "$EXIT" >&2
+            fi
+        )'
+    fi
+    opt - errtrace
+    
+    trap exit TERM  # Apparently ignored by default so that "kill 0" applies to process group except shell
+}
 
 # Avoid Dash aborting the whole script for unimplemented options
 opt() {
@@ -20,50 +72,5 @@ opt() {
     fi
 }
 
-shopt -s globstar
-shopt -s histreedit
-shopt -s histverify
-shopt -s no_empty_cmd_completion
-opt - noclobber
-opt + hashall
-
-# Manually remove duplicates in saved history because Bash only removes them
-# from memory for each new entry added, and saved entries are not removed
-# when appending the history file
-if test -e ~/.bash_history; then
-    NEW=~/".bash_history~$$"
-    
-    if test "$(cp --version | sed -n '1 s/^.* \([0-9]\+\).*$/\1/p')" -gt 4
-    then
-        # Works in version 8.13, but not in 4.1
-        CP_ATTR="cp --attributes-only --preserve=all"
-    else
-        CP_ATTR="cp --preserve"
-    fi
-    
-    if ! {
-        $CP_ATTR ~/.bash_history "$NEW" &&
-        awk '
-            {line[NR] = $0; last[$0] = NR}
-            END {for(i = 1; i <= NR; ++i)
-                if(last[line[i]] == i) print line[i]}
-        ' ~/.bash_history >| "$NEW" &&
-        mv "$NEW" ~/.bash_history
-    }; then
-        rm "$NEW"
-    fi
-fi
-
-CSI='\033[' FORMAT="'${CSI}1;41;37m[Exit %s]${CSI}0m\n'"
-if ! trap 'printf '"$FORMAT"' "$?"' ERR 2> /dev/null; then
-    PS1="$PS1"'$(
-        EXIT="$?"
-        if test "$EXIT" -ne 0; then
-            # Direct to stderr because trailing newlines are not substituted
-            printf '"$FORMAT"' "$EXIT" >&2
-        fi
-    )'
-fi
-opt - errtrace
-
-trap exit TERM  # Apparently ignored by default so that "kill 0" applies to process group except shell
+main
+unset -f main opt
