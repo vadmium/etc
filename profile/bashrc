@@ -12,10 +12,20 @@ alias patch='patch --binary'
 HISTSIZE=2000
 HISTFILESIZE="$HISTSIZE"
 HISTCONTROL=erasedups
+
+# Avoid Dash aborting the whole script for unimplemented options
+opt() {
+    if set -o | grep -q "$2"; then
+        set "$1"o "$2"
+    fi
+}
+
 shopt -s globstar
 shopt -s histreedit
 shopt -s histverify
 shopt -s no_empty_cmd_completion
+opt - noclobber
+opt + hashall
 
 # Manually remove duplicates in saved history because Bash only removes them
 # from memory for each new entry added, and saved entries are not removed
@@ -44,16 +54,16 @@ if test -e ~/.bash_history; then
     fi
 fi
 
-CSI='\e[' FORMAT="'${CSI}1;41;37m(exit %s)${CSI}0m\n'"
-if trap -p ERR > /dev/null 2>&1; then
-    trap 'printf '"$FORMAT"' "$?"' ERR
-else
+CSI='\033[' FORMAT="'${CSI}1;41;37m[Exit %s]${CSI}0m\n'"
+if ! trap 'printf '"$FORMAT"' "$?"' ERR 2> /dev/null; then
     PS1="$PS1"'$(
         EXIT="$?"
         if test "$EXIT" -ne 0; then
+            # Direct to stderr because trailing newlines are not substituted
             printf '"$FORMAT"' "$EXIT" >&2
         fi
     )'
 fi
+opt - errtrace
 
 trap exit TERM  # Apparently ignored by default so that "kill 0" applies to process group except shell

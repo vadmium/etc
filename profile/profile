@@ -87,7 +87,8 @@ export PYTHONSTARTUP="$HOME/pythonstartup.py"
 # which should specify a file name
 export LC_TIME=../../../../.."$HOME/locale"
 
-export ENV=~/.bashrc
+ENV=~/.bashrc
+export ENV
 if test -e "$ENV" -a -n "${BASH_VERSION+set}"; then
     . "$ENV"
 fi
