@@ -51,16 +51,18 @@ main() {
     
     local CSI='\033['
     local FORMAT="'${CSI}1;41;37m[Exit %s]${CSI}0m\n'"
-    if ! trap 'printf '"$FORMAT"' "$?"' ERR 2> /dev/null; then
+    if trap 'printf '"$FORMAT"' "$?" >&2' ERR 2> /dev/null; then
+        opt - errtrace
+    else
         PS1="$PS1"'$(
             EXIT="$?"
             if test "$EXIT" -ne 0; then
-                # Direct to stderr because trailing newlines are not substituted
+                # Direct to stderr because the trailing newline would be
+                # stripped as it is substituted into the prompt string
                 printf '"$FORMAT"' "$EXIT" >&2
             fi
         )'
     fi
-    opt - errtrace
     
     trap exit TERM  # Apparently ignored by default so that "kill 0" applies to process group except shell
 }
