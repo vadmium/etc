@@ -69,7 +69,8 @@ main() {
 
 # Avoid Dash aborting the whole script for unimplemented options
 opt() {
-    if set -o | grep -q "$2"; then
+    # Ignore the occasional "Broken pipe" message from the "set" command
+    if set -o 2> /dev/null | grep -q "$2"; then
         set "$1"o "$2"
     fi
 }
