@@ -39,7 +39,9 @@ def main():
             # *.part02.rar
             # . . .
             # CD*/*
-            discs = list(i for i in os.listdir(target) if i.startswith("CD"))
+            # Cd*/*
+            discs = list(
+                i for i in os.listdir(target) if i.upper().startswith("CD"))
             if not discs:
                 (rars, media) = find_media(target)
             else:
