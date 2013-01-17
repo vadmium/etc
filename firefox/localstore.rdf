@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<RDF:RDF xmlns:NC="http://home.netscape.com/NC-rdf#"
+         xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+
+<RDF:Description RDF:about="chrome://browser/content/browser.xul">
+    <NC:persist RDF:resource="chrome://browser/content/browser.xul#toolbar-menubar" />
+    <NC:persist RDF:resource="chrome://browser/content/browser.xul#nav-bar" />
+</RDF:Description>
+<RDF:Description RDF:about="chrome://browser/content/browser.xul#toolbar-menubar"
+    currentset="menubar-items,search-container,unified-back-forward-button,reload-button,stop-button,throbber-box" />
+<RDF:Description RDF:about="chrome://browser/content/browser.xul#nav-bar"
+    currentset="urlbar-container,bookmarks-menu-button-container" />
+
+<RDF:Description RDF:about="place:sort=4&amp;type=3" NC:open="true" />
+<RDF:Description RDF:about="place:folder=5222&amp;excludeItems=1&amp;expandQueries=0" NC:open="true" />
+<RDF:Description RDF:about="place:folder=UNFILED_BOOKMARKS&amp;excludeItems=1&amp;expandQueries=0" NC:open="true" />
+
+<RDF:Description RDF:about="chrome://browser/content/places/places.xul">
+    <NC:persist RDF:resource="chrome://browser/content/places/places.xul#placesContentTags" />
+    <NC:persist RDF:resource="chrome://browser/content/places/places.xul#placesContentDate" />
+    <NC:persist RDF:resource="chrome://browser/content/places/places.xul#placesContentVisitCount" />
+</RDF:Description>
+<RDF:Description RDF:about="chrome://browser/content/places/places.xul#placesContentTags"
+    hidden="true" />
+<RDF:Description RDF:about="chrome://browser/content/places/places.xul#placesContentDate"
+    hidden="false" ordinal="10" sortDirection="descending" />
+<RDF:Description RDF:about="chrome://browser/content/places/places.xul#placesContentVisitCount"
+    hidden="false" width="16" />
+
+</RDF:RDF>
