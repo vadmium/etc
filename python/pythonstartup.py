@@ -1,19 +1,20 @@
 def pythonstartup():
     import sys
     
-    try:
+    try:  # Python 3
         import builtins
-    except ImportError:
+    except ImportError:  # Python < 3
         import __builtin__ as builtins
     
     try:
-        from os.path import expanduser
         import readline
-        import atexit
-        from functools import partial
     except ImportError:
         pass  # readline not normally available on Windows
     else:
+        from os.path import expanduser
+        import atexit
+        from functools import partial
+        
         HISTFILE = expanduser("~/python.history")
         try:
             readline.read_history_file(HISTFILE)
@@ -24,7 +25,7 @@ def pythonstartup():
         history_write = partial(readline.write_history_file, HISTFILE)
         atexit.register(history_write)
         
-        import rlcompleter 
+        import rlcompleter
         readline.parse_and_bind("tab: complete")
     
     # Monkey-patch SystemExit() so that it does not exit the interpreter
