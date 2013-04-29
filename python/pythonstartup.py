@@ -27,6 +27,16 @@ def pythonstartup():
         
         import rlcompleter
         readline.parse_and_bind("tab: complete")
+        
+        class Completer(rlcompleter.Completer):
+            def _callable_postfix(self, val, word):
+                if readline.get_completion_type() == ord("\t"):
+                    return word
+                else:
+                    return rlcompleter.Completer._callable_postfix(
+                        self, val, word)
+        
+        readline.set_completer(Completer().complete)
     
     # Monkey-patch SystemExit() so that it does not exit the interpreter
     class SystemExit(BaseException):
