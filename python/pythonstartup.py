@@ -12,21 +12,14 @@ def pythonstartup():
         pass  # readline not normally available on Windows
     else:
         from os.path import expanduser
-        import atexit
         from functools import partial
         
         HISTFILE = expanduser("~/python.history")
-        try:
-            readline.read_history_file(HISTFILE)
-        except EnvironmentError:
-            pass
         
         global history_write
         history_write = partial(readline.write_history_file, HISTFILE)
-        atexit.register(history_write)
         
         import rlcompleter
-        readline.parse_and_bind("tab: complete")
         import tokenize
         
         def excepthook(func):
@@ -211,6 +204,15 @@ def pythonstartup():
                 return argspec.args + getattr(argspec, "kwonlyargs", list())
         
         readline.set_completer(Completer().complete)
+        
+        if __name__ == "__main__":
+            try:
+                readline.read_history_file(HISTFILE)
+            except EnvironmentError:
+                pass
+            import atexit
+            atexit.register(history_write)
+            readline.parse_and_bind("tab: complete")
     
     # Monkey-patch SystemExit() so that it does not exit the interpreter
     class SystemExit(BaseException):
@@ -223,7 +225,8 @@ def pythonstartup():
         global SystemExit
         raise SystemExit(code)
     sys.exit = exit
-
-if __name__ == "__main__":
-    pythonstartup()
-    del pythonstartup
+    
+    if __name__ != "__main__":
+        globals().update(locals())
+pythonstartup()
+del pythonstartup
