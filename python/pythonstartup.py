@@ -62,13 +62,13 @@ def pythonstartup():
             bracket_funcs = list()
             
             while True:
-                type, string = next(gen)[:2]
+                type, string = self.skip_linecont(gen)
                 if type == tokenize.ENDMARKER:
                     break
                 if string == "import":
                     packages = list()
                     while True:
-                        type, string = next(gen)[:2]
+                        type, string = self.skip_linecont(gen)
                         if type == tokenize.ENDMARKER:
                             matches = list()
                             for match in self.import_list(packages, prefix):
@@ -78,7 +78,7 @@ def pythonstartup():
                         if type != tokenize.NAME:
                             break
                         packages.append(string)
-                        _, string = next(gen)[:2]
+                        _, string = self.skip_linecont(gen)
                         if string != ".":
                             break
                 else:
@@ -113,6 +113,22 @@ def pythonstartup():
             
             return matches
         
+        def skip_linecont(self, gen):
+            """Get the next token, but skip non-terminating newlines"""
+            while True:
+                (type, string) = self.skip_comment(gen)
+                if type != tokenize.NL:
+                    return (type, string)
+        
+        def skip_comment(self, gen):
+            """Get the next token, but skip comments before the end marker"""
+            (type, string) = next(gen)
+            while type == tokenize.COMMENT:
+                (type, string) = next(gen)
+                if type == tokenize.ENDMARKER:
+                    return (tokenize.COMMENT, str())
+            return (type, string)
+        
         def tokenize(self, code):
             # Want Python 3's tokenize(), or generate_tokens() from before
             # Python 3. Functions of both names may exist in both versions,
@@ -126,12 +142,13 @@ def pythonstartup():
             
             while True:
                 try:
-                    token = next(gen, (tokenize.ENDMARKER, None))
+                    token = next(gen, (tokenize.ENDMARKER, str()))
                 except Exception:
                     continue
                 (type, string) = token[:2]
+                if (type != tokenize.DEDENT and
                 # Skip trailing whitespace at EOF error
-                if type != tokenize.ERRORTOKEN or not string.isspace():
+                (type != tokenize.ERRORTOKEN or not string.isspace())):
                     yield (type, string)
         
         def edit_keywords(self, matches):
