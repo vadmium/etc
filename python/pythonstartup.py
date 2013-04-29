@@ -29,6 +29,18 @@ def pythonstartup():
         readline.parse_and_bind("tab: complete")
         import tokenize
         
+        def excepthook(func):
+            from functools import wraps
+            import sys
+            @wraps(func)
+            def wrapper(*pos, **kw):
+                try:
+                    return func(*pos, **kw)
+                except:
+                    sys.excepthook(*sys.exc_info())
+                    raise
+            return wrapper
+        
         class Completer(rlcompleter.Completer):
             def _callable_postfix(self, val, word):
                 if readline.get_completion_type() == ord("\t"):
@@ -43,6 +55,7 @@ def pythonstartup():
             def attr_matches(self, text):
                 return self.get_matches(text,
                     rlcompleter.Completer.attr_matches)
+            @excepthook
             def get_matches(self, text, default):
                 # Chop off any unfinished token at the cursor
                 line = readline.get_line_buffer()
