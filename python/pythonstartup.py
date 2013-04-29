@@ -67,46 +67,87 @@ def pythonstartup():
                     i -= 1
                 prefix = line[readline.get_begidx():i]
                 
+                gen = self.tokenize(line[:i])
+                func = None  # Current function name in expression
+                
+                # Stack of function names being called for each bracket, or
+                # None for other bracket instances
+                bracket_funcs = list()
+                
+                while True:
+                    type, string = next(gen)[:2]
+                    if type == tokenize.ENDMARKER:
+                        break
+                    if string == "import":
+                        packages = list()
+                        while True:
+                            type, string = next(gen)[:2]
+                            if type == tokenize.ENDMARKER:
+                                matches = list()
+                                for match in self.import_list(packages,
+                                prefix):
+                                    if match.startswith(text):
+                                        matches.append(match)
+                                return matches
+                            if type != tokenize.NAME:
+                                break
+                            packages.append(string)
+                            _, string = next(gen)[:2]
+                            if string != ".":
+                                break
+                    else:
+                        if string == "(":
+                            bracket_funcs.append(func)
+                        if string in set("[{"):
+                            bracket_funcs.append(None)
+                        if string in set(")]}"):
+                            del bracket_funcs[-1:]  # Pop if not empty
+                        
+                        if type == tokenize.NAME:
+                            func = string
+                        else:
+                            func = None
+                        
+                        # Could next token be a function parameter?
+                        param = string in set("(,")
+                
+                matches = default(self, text)
+                self.edit_keywords(matches)
+                
+                if bracket_funcs:
+                    func = bracket_funcs[-1]
+                    if func and param:
+                        if func in self.namespace:
+                            func = self.namespace[func]
+                        else:
+                            func = getattr(builtins, func, None)
+                        for arg in self.arg_list(func):
+                            if arg.startswith(text):
+                                matches.append(arg + "=")
+                
+                return matches
+            
+            def tokenize(self, code):
                 # Want Python 3's tokenize(), or generate_tokens() from
                 # before Python 3. Functions of both names may exist in both
                 # versions, which makes it hard to detect the appropriate
                 # version.
                 if hasattr(tokenize, "ENCODING"):  # Python 3
                     from io import BytesIO
-                    io = BytesIO(line[:i].encode())
-                    gen = tokenize.tokenize(io.readline)
+                    gen = tokenize.tokenize(BytesIO(code.encode()).readline)
                 else:  # Python < 3
                     from cStringIO import StringIO
-                    io = StringIO(line[:i])
-                    gen = tokenize.generate_tokens(io.readline)
-                while True:
-                    type, string = next(gen)[:2]
-                    if type == tokenize.ENDMARKER:
-                        break
-                    if string != "import":
-                        continue
-                    
-                    packages = list()
-                    while True:
-                        type, string = next(gen)[:2]
-                        if type == tokenize.ENDMARKER:
-                            matches = list()
-                            for match in self.import_list(packages, prefix):
-                                if match.startswith(text):
-                                    matches.append(match)
-                            return matches
-                        if string.isspace():
-                            continue  # Skip trailing whitespace at EOF error
-                        if type != tokenize.NAME:
-                            break
-                        packages.append(string)
-                        _, string = next(gen)[:2]
-                        if string != ".":
-                            break
+                    gen = tokenize.generate_tokens(StringIO(code).readline)
                 
-                matches = default(self, text)
-                self.edit_keywords(matches)
-                return matches
+                while True:
+                    try:
+                        token = next(gen, (tokenize.ENDMARKER, None))
+                    except Exception:
+                        continue
+                    (type, string) = token[:2]
+                    # Skip trailing whitespace at EOF error
+                    if type != tokenize.ERRORTOKEN or not string.isspace():
+                        yield (type, string)
             
             def edit_keywords(self, matches):
                 if readline.get_completion_type() == ord("?"):
@@ -157,6 +198,17 @@ def pythonstartup():
                     if indicator and ispkg:
                         name += "."
                     yield name
+            
+            def arg_list(self, func):
+                try:  # Python 3
+                    from inspect import getfullargspec as getargspec
+                except ImportError:  # Python < 3
+                    from inspect import getargspec
+                try:
+                    argspec = getargspec(func)
+                except TypeError:
+                    return ()
+                return argspec.args + getattr(argspec, "kwonlyargs", list())
         
         readline.set_completer(Completer().complete)
     
