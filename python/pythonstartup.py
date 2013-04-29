@@ -35,6 +35,24 @@ def pythonstartup():
                 else:
                     return rlcompleter.Completer._callable_postfix(
                         self, val, word)
+            
+            def global_matches(self, text):
+                matches = rlcompleter.Completer.global_matches(self, text)
+                if readline.get_completion_type() == ord("?"):
+                    return matches
+                
+                # Add a space to keywords when good style says they would
+                # always have a space
+                from keyword import kwlist
+                spaced = {
+                    "and", "as", "assert", "class", "def", "del", "elif",
+                    "exec", "for", "from", "global", "if", "import", "in",
+                    "is", "nonlocal", "not", "or", "while", "with",
+                }.intersection(kwlist)
+                for (i, match) in enumerate(matches):
+                    if match in spaced:
+                        matches[i] += " "
+                return matches
         
         readline.set_completer(Completer().complete)
     
