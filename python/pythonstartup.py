@@ -61,14 +61,15 @@ def pythonstartup():
             # for other bracket instances
             bracket_funcs = list()
             
+            stmt = True  # Ready to start a new statement?
             while True:
-                type, string = self.skip_linecont(gen)
+                (type, string) = self.skip_linecont(gen)
                 if type == tokenize.ENDMARKER:
                     break
-                if string == "import":
+                if stmt and string in ("import", "from"):
                     packages = list()
                     while True:
-                        type, string = self.skip_linecont(gen)
+                        (type, string) = self.skip_linecont(gen)
                         if type == tokenize.ENDMARKER:
                             matches = list()
                             for match in self.import_list(packages, prefix):
@@ -78,24 +79,46 @@ def pythonstartup():
                         if type != tokenize.NAME:
                             break
                         packages.append(string)
-                        _, string = self.skip_linecont(gen)
+                        (_, string) = self.skip_linecont(gen)
                         if string != ".":
                             break
+                    
+                    if string == "import":
+                        while True:
+                            (type, string) = self.skip_linecont(gen)
+                            if type == tokenize.ENDMARKER:
+                                matches = list()
+                                for match in self.from_list(packages):
+                                    if match.startswith(text):
+                                        matches.append(match)
+                                return matches
+                            if type == tokenize.NAME:
+                                while True:
+                                    (type, string) = self.skip_linecont(gen)
+                                    if string != ")":
+                                        break
+                                if string != ",":
+                                    break
+                            elif string != "(":
+                                break
+                
+                if string == "(":
+                    bracket_funcs.append(func)
+                if string in set("[{"):
+                    bracket_funcs.append(None)
+                if string in set(")]}"):
+                    del bracket_funcs[-1:]  # Pop if not empty
+                
+                if type == tokenize.NAME:
+                    func = string
                 else:
-                    if string == "(":
-                        bracket_funcs.append(func)
-                    if string in set("[{"):
-                        bracket_funcs.append(None)
-                    if string in set(")]}"):
-                        del bracket_funcs[-1:]  # Pop if not empty
-                    
-                    if type == tokenize.NAME:
-                        func = string
-                    else:
-                        func = None
-                    
-                    # Could next token be a function parameter?
-                    param = string in set("(,")
+                    func = None
+                
+                # Could next token be a function parameter?
+                param = string in set("(,")
+                
+                stmt = not bracket_funcs and (
+                    type == tokenize.NEWLINE or string in set(":;"))
             
             matches = default(self, text)
             self.edit_keywords(matches)
@@ -133,7 +156,8 @@ def pythonstartup():
             # Want Python 3's tokenize(), or generate_tokens() from before
             # Python 3. Functions of both names may exist in both versions,
             # which makes it hard to detect the appropriate version.
-            if hasattr(tokenize, "ENCODING"):  # Python 3
+            ENCODING = getattr(tokenize, "ENCODING", None)
+            if ENCODING is not None:  # Python 3
                 from io import BytesIO
                 gen = tokenize.tokenize(BytesIO(code.encode()).readline)
             else:  # Python < 3
@@ -146,7 +170,8 @@ def pythonstartup():
                 except Exception:
                     continue
                 (type, string) = token[:2]
-                if (type != tokenize.DEDENT and
+                if (type not in
+                (ENCODING, tokenize.INDENT, tokenize.DEDENT) and
                 # Skip trailing whitespace at EOF error
                 (type != tokenize.ERRORTOKEN or not string.isspace())):
                     yield (type, string)
@@ -200,6 +225,17 @@ def pythonstartup():
                 if indicator and ispkg:
                     name += "."
                 yield name
+        
+        def from_list(self, path):
+            import importlib
+            module = importlib.import_module(".".join(path))
+            for name in dir(module):
+                yield name
+            path = getattr(module, "__path__", None)
+            if path:
+                import pkgutil
+                for (_, name, _) in pkgutil.iter_modules(path):
+                    yield name
         
         def arg_list(self, func):
             try:  # Python 3
