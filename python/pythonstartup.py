@@ -228,7 +228,15 @@ def pythonstartup():
         
         def from_list(self, path):
             import importlib
-            module = importlib.import_module(".".join(path))
+            
+            cache = dict(sys.path_importer_cache)
+            try:
+                module = importlib.import_module(".".join(path))
+            finally:
+                # Workaround for "importlib" screwing with the cache, which
+                # then breaks pkgutil.iter_modules()
+                sys.path_importer_cache = cache
+            
             for name in dir(module):
                 yield name
             path = getattr(module, "__path__", None)
