@@ -195,6 +195,11 @@ def pythonstartup():
         def import_list(self, packages, prefix):
             import pkgutil
             
+            for name in sys.builtin_module_names:
+                path = name.split(".")
+                if path[:-1] == packages:
+                    yield prefix + path[-1]
+            
             # Confirm each element is a package before importing it
             name = ""
             for package in packages:
