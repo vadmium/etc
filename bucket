@@ -854,6 +854,7 @@ ls -go --time-style +"%Y-%m-%d %H:%M:%S"
 # Replace --size-only with --ignore-times to not skip over same-sized files
 # Or use a single -i to hide the skipped-over files
 rsync --no-whole-file --inplace --times --size-only --recursive -Pii src/ dest/
+rsync --no-whole-file --append --times --size-only --recursive -Pii src/ dest/
 
 === [pdf_decrypt] Decrypt PDFs
 
