@@ -64,10 +64,15 @@ dt {font-weight: bolder}
 /* Another version shrinks everything and then makes it larger again */
 body.mediawiki, body.mediawiki #wikiContent {
     font-size: medium !important;
-    font-family: serif !important;
+    
+    /* "Inherit" does not work because MW also sets the font on the <html>
+    element! */
+    font-family: initial !important;
 }
 body.mediawiki #globalWrapper, body.mediawiki #mw_main
     {font-size: 100% !important}
+
+.mediawiki a {text-decoration: underline !important}
 
 @-moz-document url-prefix(https://wiki.archlinux.org/) {
     /* "Red links" not distinguished except perhaps with the default skin */
@@ -94,3 +99,7 @@ body.mediawiki #globalWrapper, body.mediawiki #mw_main
 .pun .postleft .postavatar:after {content: normal}
 .pun .postleft .usertitle {display: inline !important}
 .pun .postright {border-left: 0 !important}
+
+/* Sphinx */
+body div.document div.documentwrapper div.bodywrapper div.body
+    {font-family: initial}
