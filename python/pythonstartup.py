@@ -201,10 +201,9 @@ def pythonstartup():
         def import_list(self, packages, prefix):
             import pkgutil
             
-            for name in sys.builtin_module_names:
-                path = name.split(".")
-                if path[:-1] == packages:
-                    yield prefix + path[-1]
+            if not packages:
+                for name in IterableBuiltinImporter.iter_modules(prefix):
+                    yield name
             
             # Confirm each element is a package before importing it
             name = ""
@@ -266,6 +265,16 @@ def pythonstartup():
             except TypeError:
                 return ()
             return argspec.args + getattr(argspec, "kwonlyargs", list())
+    
+    try:  # Python 3
+        from importlib.machinery import BuiltinImporter
+    except ImportError:  # Python < 3
+        BuiltinImporter = object
+    class IterableBuiltinImporter(BuiltinImporter):
+        @classmethod
+        def iter_modules(self, prefix=""):
+            for name in sys.builtin_module_names:
+                yield prefix + name
     
     # Monkey-patch SystemExit() so that it does not exit the interpreter
     class SystemExit(BaseException):
