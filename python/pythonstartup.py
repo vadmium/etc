@@ -10,7 +10,7 @@ def pythonstartup():
     except ImportError:  # Python < 3
         import __builtin__ as builtins
     
-    HISTFILE = expanduser("~/python.history")
+    HISTFILE = expanduser("~/.python_history")
     def history_read():
         try:
             readline.read_history_file(HISTFILE)
