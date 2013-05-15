@@ -47,6 +47,12 @@ def pythonstartup():
             # Chop off any unfinished token at the cursor
             line = readline.get_line_buffer()
             i = readline.get_endidx()
+            
+            # Just insert tab characters at the beginning of lines
+            linestart = line.rfind("\n", 0, i) + 1  # 0 if no newline
+            if linestart == i or line[linestart:i].isspace():
+                return (text + "\t",)
+            
             while i > 0:
                 c = line[i - 1]
                 if not c.isalnum() and c != "_" and ord(c) < 128:
