@@ -246,16 +246,7 @@ def pythonstartup():
                 yield name
         
         def from_list(self, path):
-            import importlib
-            
-            cache = dict(sys.path_importer_cache)
-            try:
-                module = importlib.import_module(".".join(path))
-            finally:
-                # Workaround for "importlib" screwing with the cache, which
-                # then breaks pkgutil.iter_modules()
-                sys.path_importer_cache = cache
-            
+            module = import_module(".".join(path))
             for name in dir(module):
                 yield name
             path = getattr(module, "__path__", None)
@@ -284,6 +275,25 @@ def pythonstartup():
         def iter_modules(self, prefix=""):
             for name in sys.builtin_module_names:
                 yield prefix + name
+    
+    def import_module(name):
+        import importlib
+        
+        try:
+            return importlib.import_module(name)
+        finally:
+            # Workaround for pre-3.3 Python's "importlib" adding its own
+            # implicit finder implementation (not from "sys.path_hooks") to
+            # the cache. This breaks pkgutil.iter_modules(), which expects
+            # the implicit finder to be represented by None.
+            try:  # Python < 3.3
+                from importlib._bootstrap import _FileFinder
+            except ImportError:
+                pass
+            else:
+                for (key, finder) in tuple(sys.path_importer_cache.items()):
+                    if isinstance(finder, _FileFinder):
+                        del sys.path_importer_cache[key]
     
     # Monkey-patch SystemExit() so that it does not exit the interpreter
     class SystemExit(BaseException):
