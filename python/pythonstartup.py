@@ -224,6 +224,15 @@ def pythonstartup():
             
             if not packages:
                 path = None
+                
+                if "" in sys.path:
+                    # Workaround for "pkgutil" skipping over empty paths,
+                    # instead of recognising them as the current directory
+                    path = list(sys.path)
+                    for (i, entry) in enumerate(path):
+                        if not entry:
+                            path[i] = "."
+            
             else:
                 if not module:
                     package = name[:-1]  # Avoid trailing dot
