@@ -1694,3 +1694,29 @@ visible cookies, interface with os (copy and paste etc)
 == UI
 
 Mouse scrolling should be sent to the window under the mouse pointer, and the window should gain focus
+
+= Python 3 porting
+
+Convert old exception handling syntax
+* New “except . . . as <var>” syntax introduced in Python 2.6
+* and 3.0
+    except.*,.*: -> except . . . as . . .:
+Save caught exception into "err" variable
+    sys.exc_info()[1] -> err
+
+Remove backwards compatibility workarounds
+    ver
+    vers
+    Python.*[23]
+    sys.hexversion
+
+Notice about forward compatibility
+    pep
+
+run 2to3
+print
+* fix quoting style for end=' '
+    /print /
+bytes for ctypes python 2 byte strings
+no need for str("") on struct formats
+__future__
