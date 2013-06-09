@@ -1,0 +1,8 @@
+[extensions]
+hgk =
+record =
+pager =
+color =
+mq =
+rebase =
+graphlog =
