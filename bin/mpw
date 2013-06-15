@@ -9,12 +9,7 @@ from subprocess import CalledProcessError
 from subprocess import Popen
 from os import devnull
 
-def main():
-    try:
-        target = sys.argv[1]
-    except IndexError:
-        target = "."
-
+def main(target=".", *, verbose=False):
     # Workaround for not being able to fusermount from a fusermount directory
     # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=584541
     target = os.path.abspath(target)
@@ -156,13 +151,13 @@ def main():
                 vobsubs = None
         
         if rars:
-            play_rars(rars, tmp, vobsubs)
+            play_rars(rars, tmp, vobsubs, verbose=verbose)
         else:
-            mplayer(media, vobsubs)
+            mplayer(media, vobsubs, verbose=verbose)
     finally:
         shutil.rmtree(tmp)
 
-def play_rars(rars, tmp, vobsubs=None):
+def play_rars(rars, tmp, vobsubs=None, *, verbose):
     mnt_count = 0
     mnt_format = "mnt{}"
     try:
@@ -175,7 +170,7 @@ def play_rars(rars, tmp, vobsubs=None):
             
             files.extend(os.path.join(mnt, file) for file in os.listdir(mnt))
         
-        mplayer(files, vobsubs)
+        mplayer(files, vobsubs, verbose=verbose)
     finally:
         while mnt_count > 0:
             mnt_count -= 1
@@ -203,7 +198,7 @@ def find_media(dir):
 RAR_SUFFIX = ".rar"
 RAR_SUFFIXES = (".part01" + RAR_SUFFIX, RAR_SUFFIX, ".001")
 
-def mplayer(files, vobsubs=None):
+def mplayer(files, vobsubs=None, *, verbose):
     args = ["mplayer"]
     
     if vobsubs is not None:
@@ -246,8 +241,12 @@ def mplayer(files, vobsubs=None):
             else:
                 args.extend(("-vobsub", vobsub))
     
+    if verbose:
+        print("+", *args, file=sys.stderr)
     subprocess.check_call(args)
 
 null = open(devnull, "w")
 
-if "__main__" == __name__: main()
+if "__main__" == __name__:
+    from funcparams import command
+    command()
