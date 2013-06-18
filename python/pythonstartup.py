@@ -246,7 +246,10 @@ def pythonstartup():
                 yield name
         
         def from_list(self, path):
-            module = import_module(".".join(path))
+            try:
+                module = import_module(".".join(path))
+            except Exception:
+                return
             for name in dir(module):
                 yield name
             path = getattr(module, "__path__", None)
