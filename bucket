@@ -1639,9 +1639,11 @@ https://www.infradead.org/get_iplayer/html/get_iplayer.html
 
 = socat
 
-socat -dd 'READLINE:crnl,history,noecho,FD,READLINE,TERMIOS!!CREATE:out.http:OPEN,GOPEN' TCP
-socat -dd 'STDIN:readbytes,FD!!CREATE:out.http:OPEN,GOPEN' TCP:www.example.com:80:FD,SOCKET,IP4,IP6,TCP,RETRY,crnl,
-socat -d -d READLINE,history="$HOME/history" TCP:www.example.com.au:80,crnl
+socat -d -d 'READLINE:crnl,history,noecho!!CREATE:out.http' TCP
+socat -d -d 'STDIN:readbytes!!CREATE:out.http' TCP:www.example.com:80:crnl
+socat -d -d READLINE,history="$HOME/history" TCP:www.example.com.au:www,crnl
+
+while sudo socat -d -d TCP-LISTEN:www,reuseaddr,crnl READLINE,history="$HOME/history"; do :; done
 
 = VFAT label
 
