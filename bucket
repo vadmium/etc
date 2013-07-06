@@ -975,6 +975,16 @@ git checkout --detach  # Only newer
 # Buggered if I can find where this is documented. Not in "git diff" nor "gitdiffcore" man pages.
 git diff -3  # Or --theirs. Diff against the "foreign" merge parent (MERGE_HEAD)
 
+==== Four-way merge with git rebase --preserve-merges
+
+git checkout rebase-merge/stopped-sha .
+
+# May ignore "git apply" failure if the diff is empty
+git diff rebase-merge/stopped-sha^ HEAD | git apply
+git diff rebase-merge/stopped-sha^2 MERGE_HEAD | git apply
+
+git diff rebase-merge/stopped-sha
+
 === Linux
 
 # make O=out ARCH=arm CROSS_COMPILE=arm-angstrom-linux-gnueabi- silentoldconfig
