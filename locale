@@ -35,7 +35,7 @@ abmon "Jan"; "Feb"; "Mar"; "Apr"; "May"; "Jun"; "Jul"; "Aug"; "Sep"; "Oct"; \
 mon "January"; "February"; "March"; "April"; "May"; "June"; "July"; \
     "August"; "September"; "October"; "November"; "December"
 d_t_fmt "%x %X %z"
-d_fmt "%e %b %Y"
+d_fmt "%-d %b %Y"
 t_fmt "%T"
 am_pm "a.m."; "p.m."
 t_fmt_ampm "%l:%M:%S %p"
