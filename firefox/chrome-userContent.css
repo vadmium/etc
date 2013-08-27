@@ -1,6 +1,8 @@
 /* Improve scroll performance */
 * {background-attachment: scroll !important}
 
+body {min-width: 0 !important}
+
 h1, h2, h3, h4, h5, h6 {font-family: sans-serif}
 dt {font-weight: bolder}
 tbody {vertical-align: baseline}
@@ -104,3 +106,8 @@ body.mediawiki #globalWrapper, body.mediawiki #mw_main
 /* Sphinx */
 body div.document div.documentwrapper div.bodywrapper div.body
     {font-family: initial}
+
+/* ABC Threaded Message Board (TMB) */
+@-moz-document domain(abc.net.au) {
+    #pageWrapper, #tmb {width: auto !important}
+}
