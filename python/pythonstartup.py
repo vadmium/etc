@@ -259,15 +259,29 @@ def pythonstartup():
                     yield name
         
         def arg_list(self, func):
-            try:  # Python 3
-                from inspect import getfullargspec as getargspec
-            except ImportError:  # Python < 3
-                from inspect import getargspec
-            try:
-                argspec = getargspec(func)
-            except TypeError:
-                return ()
-            return argspec.args + getattr(argspec, "kwonlyargs", list())
+            try:  # Python 3.3
+                from inspect import signature, Parameter
+            
+            except ImportError:
+                try:  # Python 3, < 3.3
+                    from inspect import getfullargspec as getargspec
+                except ImportError:  # Python < 3
+                    from inspect import getargspec
+                try:
+                    argspec = getargspec(func)
+                except TypeError:
+                    return ()
+                return argspec.args + getattr(argspec, "kwonlyargs", list())
+            
+            else:
+                try:
+                    params = signature(func).parameters.values()
+                except (TypeError, ValueError):
+                    return ()
+                keywords = {
+                    Parameter.POSITIONAL_OR_KEYWORD, Parameter.KEYWORD_ONLY}
+                return (param.name for
+                    param in params if param.kind in keywords)
     
     try:  # Python 3
         from importlib.machinery import BuiltinImporter
