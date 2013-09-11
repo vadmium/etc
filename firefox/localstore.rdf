@@ -7,7 +7,7 @@
     <NC:persist RDF:resource="chrome://browser/content/browser.xul#nav-bar" />
 </RDF:Description>
 <RDF:Description RDF:about="chrome://browser/content/browser.xul#toolbar-menubar"
-    currentset="menubar-items,search-container,unified-back-forward-button,reload-button,stop-button,throbber-box" />
+    currentset="menubar-items,unified-back-forward-button,reload-button,stop-button,search-container,throbber-box" />
 <RDF:Description RDF:about="chrome://browser/content/browser.xul#nav-bar"
     currentset="urlbar-container,bookmarks-menu-button-container" />
 
