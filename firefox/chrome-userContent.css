@@ -2,6 +2,7 @@
 * {background-attachment: scroll !important}
 
 body {min-width: 0 !important}
+html, body {font-family: inherit !important}
 
 h1, h2, h3, h4, h5, h6 {font-family: sans-serif}
 dt {font-weight: bolder}
@@ -65,13 +66,7 @@ tbody {vertical-align: baseline}
 .mediawiki #bodyContent {font-size: 1em !important}
 
 /* Another version shrinks everything and then makes it larger again */
-body.mediawiki, body.mediawiki #wikiContent {
-    font-size: medium !important;
-    
-    /* "Inherit" does not work because MW also sets the font on the <html>
-    element! */
-    font-family: initial !important;
-}
+body.mediawiki, body.mediawiki #wikiContent {font-size: medium !important}
 body.mediawiki #globalWrapper, body.mediawiki #mw_main
     {font-size: 100% !important}
 
@@ -83,7 +78,7 @@ body.mediawiki #globalWrapper, body.mediawiki #mw_main
 }
 
 @-moz-document url-prefix(https://mail.google.com/mail/h) {
-    body, td {font-family: inherit !important}
+    td {font-family: inherit !important}
     
     /* Display left-hand margin across the top */
     body > table + table > tbody > tr > td {
@@ -102,10 +97,6 @@ body.mediawiki #globalWrapper, body.mediawiki #mw_main
 .pun .postleft .postavatar:after {content: normal}
 .pun .postleft .usertitle {display: inline !important}
 .pun .postright {border-left: 0 !important}
-
-/* Sphinx */
-body div.document div.documentwrapper div.bodywrapper div.body
-    {font-family: initial}
 
 /* ABC Threaded Message Board (TMB) */
 @-moz-document domain(abc.net.au) {
