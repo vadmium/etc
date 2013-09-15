@@ -102,3 +102,24 @@ body.mediawiki #globalWrapper, body.mediawiki #mw_main
 @-moz-document domain(abc.net.au) {
     #pageWrapper, #tmb {width: auto !important}
 }
+
+@-moz-document url-prefix(https://github.com) {
+    .container, .discussion-timeline, .sidebar-button
+        {width: auto !important}
+    .repository-content, .profilecols .last, .repository-sidebar {
+        float: none !important;
+        width: auto !important;
+    }
+    ul.repo-menu, div.repo-menu-separator, .repo-menu a,
+    .repository-sidebar .clone-url h3, .repository-sidebar .clone-url-box,
+    .repository-sidebar .clone-url.open, .repository-sidebar p.clone-options
+        {display: inline !important}
+    .repo-menu li {
+        display: inline !important;
+        white-space: nowrap !important;
+    }
+    .repository-sidebar input.clone {
+        display: inline !important;
+        width: auto !important;
+    }
+}
