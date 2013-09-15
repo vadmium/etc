@@ -118,7 +118,7 @@ body.mediawiki #globalWrapper, body.mediawiki #mw_main
         display: inline !important;
         white-space: nowrap !important;
     }
-    .repository-sidebar input.clone {
+    .repository-sidebar input.clone, .repository-sidebar .url-box-clippy {
         display: inline !important;
         width: auto !important;
     }
