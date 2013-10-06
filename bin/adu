@@ -2,12 +2,18 @@
 
 from subprocess import Popen
 import subprocess
-from shorthand import fields
+from functions import attributes
 from os import fsdecode
 from sys import stdout
 
-@fields(param_types=dict(limit=int))
+@attributes(param_types=dict(limit=int))
 def main(limit, dir, *, all=False):
+    """Searches file system for objects exceeding a given disk space
+    
+    all: Passed to the underlying "du" call to consider files as well as
+        directories
+    """
+    
     du = "du --block-size=1".split()
     if all:
         du.append("--all")
