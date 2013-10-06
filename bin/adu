@@ -5,6 +5,7 @@ import subprocess
 from functions import attributes
 from os import fsencode
 from sys import stdout
+from misc import relpath
 import os.path
 from sys import getfilesystemencoding
 
@@ -14,6 +15,9 @@ def main(limit, dir=os.path.curdir):
     
     encoding = getfilesystemencoding()
     dir = fsencode(dir)
+    
+    path = tuple()
+    totals = list()
     
     du = "du --block-size=1 --all --one-file-system".split()
     du.append(dir)
@@ -26,16 +30,21 @@ def main(limit, dir=os.path.curdir):
             (size, file) = line.split(b"\t", 1)
             
             size = int(size)
+            newpath = (dir,) + relpath(file, dir)
+            pathlen = len(newpath)
+            if path[:pathlen] == newpath:
+                size -= totals[pathlen - 1]
             if size < limit:
                 continue
             
             pref = ""
+            reduced = size
             for p in "kMGTPEZY":
-                if size < 10000:
+                if reduced < 10000:
                     break
-                size //= 1000
+                reduced //= 1000
                 pref = p
-            line = "{} {}B\t".format(size, pref)
+            line = "{} {}B\t".format(reduced, pref)
             
             try:
                 med = line + file.decode(encoding) + "\n"
@@ -48,6 +57,16 @@ def main(limit, dir=os.path.curdir):
                 stdout.buffer.write(line)
             if stdout.line_buffering:
                 stdout.buffer.flush()
+            
+            newpath = newpath[:-1]
+            i = 0
+            for (old, new) in zip(path, newpath):
+                if old != new:
+                    break
+                totals[i] += size
+                i += 1
+            totals[i:] = (size,) * (len(newpath) - i)
+            path = newpath
     
     if du.returncode:
         raise SystemExit(du.returncode)
