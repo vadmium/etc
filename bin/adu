@@ -3,13 +3,17 @@
 from subprocess import Popen
 import subprocess
 from functions import attributes
-from os import fsdecode
+from os import fsencode
 from sys import stdout
 import os.path
+from sys import getfilesystemencoding
 
 @attributes(param_types=dict(limit=int))
 def main(limit, dir=os.path.curdir):
     """Searches file system for objects exceeding a given disk space"""
+    
+    encoding = getfilesystemencoding()
+    dir = fsencode(dir)
     
     du = "du --block-size=1 --all --one-file-system".split()
     du.append(dir)
@@ -18,7 +22,9 @@ def main(limit, dir=os.path.curdir):
             if not line[:1].isdigit():
                 continue
             
+            (line,) = line.splitlines()
             (size, file) = line.split(b"\t", 1)
+            
             size = int(size)
             if size < limit:
                 continue
@@ -29,8 +35,26 @@ def main(limit, dir=os.path.curdir):
                     break
                 size //= 1000
                 pref = p
-            stdout.write("{} {}B\t{}".format(size, pref, fsdecode(file)))
+            line = "{} {}B\t".format(size, pref)
+            
+            try:
+                med = line + file.decode(encoding) + "\n"
+                line = med.encode(stdout.encoding)
+            except UnicodeError:
+                stdout.buffer.write(line.encode(stdout.encoding))
+                stdout.buffer.write(file)
+                stdout.buffer.write("\n".encode(stdout.encoding))
+            else:
+                stdout.buffer.write(line)
+            if stdout.line_buffering:
+                stdout.buffer.flush()
+    
+    if du.returncode:
+        raise SystemExit(du.returncode)
 
 if __name__ == "__main__":
     from funcparams import command
-    command()
+    try:
+        command()
+    except KeyboardInterrupt:
+        raise SystemExit("")
