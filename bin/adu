@@ -2,19 +2,29 @@
 
 from subprocess import Popen
 import subprocess
-from functions import attributes
 from os import fsencode
 from sys import stdout
 from misc import relpath
 import os.path
 from sys import getfilesystemencoding
 
-@attributes(param_types=dict(limit=int))
 def main(limit, dir=os.path.curdir):
     """Searches file system for objects exceeding a given disk space"""
     
     encoding = getfilesystemencoding()
     dir = fsencode(dir)
+    
+    pos = len(limit)
+    if limit[pos - 1:pos].upper() == "B":
+        pos -= 1
+    mult = 0
+    while pos:
+        pref = PREFIXES.upper().find(limit[pos - 1:pos].upper())
+        if pref < 0:
+            break
+        pos -= 1
+        mult += 1 + pref
+    limit = float(limit[:pos]) * 1000**mult
     
     path = tuple()
     totals = list()
@@ -39,7 +49,7 @@ def main(limit, dir=os.path.curdir):
             
             pref = ""
             reduced = size
-            for p in "kMGTPEZY":
+            for p in PREFIXES:
                 if reduced < 10000:
                     break
                 reduced //= 1000
@@ -70,6 +80,8 @@ def main(limit, dir=os.path.curdir):
     
     if du.returncode:
         raise SystemExit(du.returncode)
+
+PREFIXES = "kMGTPEZY"
 
 if __name__ == "__main__":
     from funcparams import command
