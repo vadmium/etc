@@ -62,6 +62,8 @@ def pythonstartup():
             
             gen = self.tokenize(line[:i])
             func = None  # Current function name in expression
+            constructor = None  # Constructor name just called
+            attrcon = None  # Constructor name in attribute access
             
             # Stack of function names being called for each bracket, or None
             # for other bracket instances
@@ -112,8 +114,16 @@ def pythonstartup():
                     bracket_funcs.append(func)
                 if string in set("[{"):
                     bracket_funcs.append(None)
-                if string in set(")]}"):
-                    del bracket_funcs[-1:]  # Pop if not empty
+                
+                if string == ".":
+                    attrcon = constructor
+                else:
+                    attrcon = None
+                
+                if string in set(")]}") and bracket_funcs:
+                    constructor = bracket_funcs.pop()
+                else:
+                    constructor = None
                 
                 if type == tokenize.NAME:
                     func = string
@@ -139,6 +149,17 @@ def pythonstartup():
                     for arg in self.arg_list(func):
                         if arg.startswith(text):
                             matches.append(arg + "=")
+            if attrcon:
+                if attrcon in self.namespace:
+                    attrs = dir(self.namespace[attrcon])
+                elif hasattr(builtins, attrcon):
+                    attrs = dir(getattr(builtins, attrcon))
+                else:
+                    attrs = ()
+                for attr in attrs:
+                    attr = prefix + attr
+                    if attr.startswith(text):
+                        matches.append(attr)
             
             return matches
         
