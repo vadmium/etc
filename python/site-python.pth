@@ -1,0 +1,2 @@
+# Debian has removed “/usr/lib/site-python”, so add it back
+import site, os.path; site.addsitedir(os.path.join(sitedir, "../../site-python"))
