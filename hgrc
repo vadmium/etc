@@ -1,3 +1,6 @@
+[ui]
+merge = internal:merge
+
 [extensions]
 hgk =
 record =
