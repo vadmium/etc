@@ -64,6 +64,8 @@ main() {
         )'"$PS1"
     fi
     
+    PROMPT_COMMAND=newline
+    
     trap exit TERM  # Apparently ignored by default so that "kill 0" applies to process group except shell
 }
 
@@ -72,6 +74,19 @@ opt() {
     # Ignore the occasional "Broken pipe" message from the "set" command
     if set -o 2> /dev/null | grep -q "$2"; then
         set "$1"o "$2"
+    fi
+}
+
+newline() {
+    local CSI='\033[' &&
+    printf "${CSI}6n" &&
+    local REPLY &&
+    read -r -s -dR -t0.1 &&
+    if test "$(
+        printf '%s' "$REPLY" |
+        sed -n 's/^'"$(printf "$CSI")"'[0-9]\+;\([0-9]\+\)$/\1/p'
+    )" -ne 1; then
+        printf "${CSI}1;37;46m"'$'"${CSI}0m"'\n'
     fi
 }
 
