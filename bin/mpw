@@ -199,7 +199,7 @@ RAR_SUFFIX = ".rar"
 RAR_SUFFIXES = (".part01" + RAR_SUFFIX, RAR_SUFFIX, ".001")
 
 def mplayer(files, vobsubs=None, *, verbose):
-    args = ["mplayer"]
+    args = ["mpv"]
     
     if vobsubs is not None:
         unrar = subprocess.check_output(("which", "unrar")).rstrip(b"\n")

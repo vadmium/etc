@@ -1,0 +1,4 @@
+player-no-close
+verbose-player
+player=mpv
+player-passthrough=rtmp
