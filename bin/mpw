@@ -7,7 +7,6 @@ import tempfile
 import shutil
 from subprocess import CalledProcessError
 from subprocess import Popen
-from os import devnull
 
 def main(target=".", *, verbose=False):
     # Workaround for not being able to fusermount from a fusermount directory
@@ -85,11 +84,10 @@ def main(target=".", *, verbose=False):
                     subs = os.path.join(subsdir, subs)
                     
                     # TODO: Use Python rarfile module for this
-                    proc = subprocess.Popen(("unrar", "vb", "--", subs,
-                        "*.sub"), stdout=subprocess.PIPE)
-                    sub_count = proc.stdout.read().count(b"\n")
-                    proc.stdout.close()
-                    proc.wait()
+                    cmd = ("unrar", "vb", "--", subs, "*.sub")
+                    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+                    with proc:
+                        sub_count = proc.stdout.read().count(b"\n")
                     
                     # M Player can play a *.sub file inside a Rar file, but
                     # not if there are more than one *.sub file.
@@ -217,9 +215,9 @@ def mplayer(files, vobsubs=None, *, verbose):
                 vobsub = vobsubs[i]
             except LookupError:
                 args.extend(("-vobsub", vobsub))
-                id = Popen(
-                    "mplayer -identify -frames 0".split() + [files[i - 1]],
-                    bufsize=-1, stdout=subprocess.PIPE, stderr=null)
+                cmd = ("mplayer", "-identify", "-frames", "0", files[i - 1])
+                id = Popen(cmd,
+                    stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
                 try:
                     for line in id.stdout:
                         test = b"ID_LENGTH="
@@ -244,8 +242,6 @@ def mplayer(files, vobsubs=None, *, verbose):
     if verbose:
         print("+", *args, file=sys.stderr)
     subprocess.check_call(args)
-
-null = open(devnull, "w")
 
 if "__main__" == __name__:
     from funcparams import command
