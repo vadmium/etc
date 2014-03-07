@@ -64,6 +64,8 @@ main() {
         )'"$PS1"
     fi
     
+    PROMPT_COMMAND=newline
+    
     trap exit TERM  # Apparently ignored by default so that "kill 0" applies to process group except shell
 }
 
@@ -73,6 +75,20 @@ opt() {
     if set -o 2> /dev/null | grep -q "$2"; then
         set "$1"o "$2"
     fi
+}
+
+newline() {
+    stty sane &&
+    local CSI='\033[' &&
+    printf "${CSI}1;37;46m"'$'"${CSI}0m"  # EOL marker
+    printf '\b\b\b''\b''\b\b\b\b\b\b\b\b\b' &&  # Restore column position
+    
+    # Translate CR -> LF, but inhibit if at left margin
+    stty onocr ocrnl &&
+    printf '\r' &&
+    stty -onocr -ocrnl &&
+    
+    printf '\r'
 }
 
 main
