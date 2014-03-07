@@ -78,16 +78,17 @@ opt() {
 }
 
 newline() {
+    stty sane &&
     local CSI='\033[' &&
-    printf "${CSI}6n" &&
-    local REPLY &&
-    read -r -s -dR -t0.1 &&
-    if test "$(
-        printf '%s' "$REPLY" |
-        sed -n 's/^'"$(printf "$CSI")"'[0-9]\+;\([0-9]\+\)$/\1/p'
-    )" -ne 1; then
-        printf "${CSI}1;37;46m"'$'"${CSI}0m"'\n'
-    fi
+    printf "${CSI}1;37;46m"'$'"${CSI}0m"  # EOL marker
+    printf '\b\b\b''\b''\b\b\b\b\b\b\b\b\b' &&  # Restore column position
+    
+    # Translate CR -> LF, but inhibit if at left margin
+    stty onocr ocrnl &&
+    printf '\r' &&
+    stty -onocr -ocrnl &&
+    
+    printf '\r'
 }
 
 main
