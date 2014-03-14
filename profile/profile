@@ -27,7 +27,7 @@ prepend_list ~/bin : PATH
 
 if test "${OS-}" = Windows_NT; then
     EDITOR=winvi32
-else
+elif command 2> /dev/null -v > /dev/null vim; then
     EDITOR=vim
 fi
 export EDITOR
