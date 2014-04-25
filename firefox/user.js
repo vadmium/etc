@@ -30,8 +30,7 @@ user_pref("kmeleon.plugins.gestures.up", "macros(Go_Up)");
 
 /* ==== Potential annoyances */
 
-/* Disable blinking text */
-// user_pref("browser.blink_allowed", false);
+user_pref("browser.blink_allowed", false);
 
 /* Show pref UI to block images that don't come from the current server */
 // user_pref("imageblocker.enable", true);
@@ -41,8 +40,9 @@ user_pref("kmeleon.plugins.gestures.up", "macros(Go_Up)");
 // user_pref("browser.urlbar.showPopup", false);
 // user_pref("browser.urlbar.showSearch", false);
 
-/* Turn off the download manager (0=download manager, 1=simple dialog?) */
+/* Turn off oldskool download manager (0=download manager, 1=simple dialog?) */
 user_pref("browser.downloadmanager.behavior", 1);
+user_pref("browser.download.useDownloadDir", false);  // Dialog to save
 
 /* Enable the marquee tag (disabled by default) */
 user_pref("browser.display.enable_marquee", true);
