@@ -244,5 +244,5 @@ def mplayer(files, vobsubs=None, *, verbose):
     subprocess.check_call(args)
 
 if "__main__" == __name__:
-    from funcparams import command
-    command()
+    import clifunc
+    clifunc.run()
