@@ -84,8 +84,8 @@ def main(limit, dir=os.path.curdir):
 PREFIXES = "kMGTPEZY"
 
 if __name__ == "__main__":
-    from funcparams import command
+    import clifunc
     try:
-        command()
+        clifunc.run()
     except KeyboardInterrupt:
         raise SystemExit("")
