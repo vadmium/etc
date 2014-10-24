@@ -1308,20 +1308,6 @@ super: the name is misleading, maybe worse. I'm not sure how okay it is to just 
 
 "with" context manager stuff is better than nothing, but rather inflexible. What if you want to conditionally create the context object, but still execute the code block inside? How to properly make your own context objects, eg a file object wrapping open, making it immune to exceptions.
 
-Inconsistencies with assignment operations to immutable objects
-
-ctn = []; print(ctn)
-tup = (ctn,); print(tup)
-ctn.extend(["ctn.extend"]); print(ctn, tup)
-ctn += ["ctn +="]; print(ctn, tup)
-tup[0].extend(["tup[0].extend"]); print(ctn, tup)
-tup[0] += ["tup[0] +="] # TypeError: 'tuple' object does not support item assignment
-print("Container was modified before assignment attempt:", ctn, tup)
-
-Also it's odd that list += x leaves (assigns) the same object identity, but int (or tuple) += x changes the identity.
-
-Assigning to a variable name with a typo might not obviously be detected if the variable with the real name already exists.
-
 = How to use command line
 
 --help -h etc
