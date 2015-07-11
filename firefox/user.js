@@ -230,3 +230,6 @@ user_pref("browser.autofocus", false);
 
 user_pref("dom.event.contextmenu.enabled", false);
 user_pref("browser.fixup.alternate.enabled", false);
+
+/* Disable preferences inside a browser tab */
+user_pref("browser.preferences.inContent", false);
