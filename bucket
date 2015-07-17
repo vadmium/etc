@@ -979,9 +979,10 @@ git diff -3  # Or --theirs. Diff against the "foreign" merge parent (MERGE_HEAD)
 
 git rm -rf . && git checkout rebase-merge/stopped-sha .
 
-# Use "--index" if "--3way" unsupported, or "patch -p1" if Git is too strict
-git diff rebase-merge/stopped-sha^ HEAD --quiet || git diff rebase-merge/stopped-sha^ HEAD | git apply --3way
-git diff rebase-merge/stopped-sha^2 MERGE_HEAD --quiet || git diff rebase-merge/stopped-sha^2 MERGE_HEAD | git apply --3way
+git diff rebase-merge/stopped-sha^ HEAD --quiet ||
+    git diff rebase-merge/stopped-sha^ HEAD | git apply --3way
+git diff rebase-merge/stopped-sha^2 MERGE_HEAD --quiet ||
+    git diff rebase-merge/stopped-sha^2 MERGE_HEAD | git apply --3way
 
 git diff rebase-merge/stopped-sha
 
