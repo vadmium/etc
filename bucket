@@ -977,7 +977,7 @@ git diff -3  # Or --theirs. Diff against the "foreign" merge parent (MERGE_HEAD)
 
 ==== Four-way merge with git rebase --preserve-merges
 
-git rm -rf . && git checkout rebase-merge/stopped-sha .
+git rm -rf :/ && git checkout rebase-merge/stopped-sha :/
 
 # Use "--index" if "--3way" unsupported, or "patch -p1" if Git is too strict
 git diff rebase-merge/stopped-sha^ HEAD --quiet || git diff rebase-merge/stopped-sha^ HEAD | git apply --3way
