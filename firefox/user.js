@@ -195,6 +195,7 @@ user_pref("browser.fullscreen.animateUp", 0);
 
 /* Image animation mode: normal, once, none. */
 user_pref("image.animation_mode", "none");
+user_pref("media.autoplay.enabled", "false");
 
 user_pref("view_source.wrap_long_lines", true);
 user_pref("keyword.enabled", false);
