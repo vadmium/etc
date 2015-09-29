@@ -58,7 +58,7 @@ tbody img, tbody *[height] {vertical-align: middle}
 .mediawiki .portlet#p-search li:before, .mediawiki .portlet#p-tb li:before,
 .mediawiki .portlet#p-lang li:before,
 .mediawiki .portlet #searchform:before,
-.mediawiki #mw-panel li:before {content: "\2003"}
+.mediawiki #mw-panel li:before {content: "\2003 "}
 .mediawiki #p-logo {
     position: static !important;
     float: right !important;
@@ -89,13 +89,15 @@ body.mediawiki #globalWrapper, body.mediawiki #mw_main
     }
     .m > tbody > tr {display: inline}
     .l br {display: none}
-    .lb a:not(.ml):before {content: "\2003"}
+    .lb a:not(.ml):before {content: "\2003 "}
 }
 
 /* Pun BB */
 .pun .postleft {float: none !important; width: auto !important}
 .pun .postleft dl > dt, .pun .postleft dl > dd {display: inline}
-.pun .postleft dl > dt:after, .pun .postleft dl > dd:after {content: "\2003"}
+.pun .postleft dl > dt:after, .pun .postleft dl > dd:after {
+    content: "\2003 ";
+}
 .pun .postleft .postavatar {float: right}
 .pun .postleft .postavatar:after {content: normal}
 .pun .postleft .usertitle {display: inline !important}
