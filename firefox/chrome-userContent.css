@@ -89,6 +89,7 @@ body.mediawiki #globalWrapper, body.mediawiki #mw_main
     }
     .m > tbody > tr {display: inline}
     .l br {display: none}
+    .lb a:not(.ml):before {content: "\2003"}
 }
 
 /* Pun BB */
