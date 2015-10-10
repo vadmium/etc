@@ -199,7 +199,7 @@ def pythonstartup():
                 (type, string) = token[:2]
                 if (type not in
                 (ENCODING, tokenize.INDENT, tokenize.DEDENT) and
-                # Skip trailing whitespace at EOF error
+                # Skip trailing whitespace at EOF error (Python Issue 16152)
                 (type != tokenize.ERRORTOKEN or not string.isspace())):
                     yield (type, string)
         
