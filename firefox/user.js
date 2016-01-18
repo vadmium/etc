@@ -195,6 +195,7 @@ user_pref("browser.fullscreen.animateUp", 0);
 
 /* Image animation mode: normal, once, none. */
 user_pref("image.animation_mode", "none");
+user_pref("media.autoplay.enabled", "false");
 
 user_pref("view_source.wrap_long_lines", true);
 user_pref("keyword.enabled", false);
@@ -232,3 +233,6 @@ user_pref("toolkit.storage.synchronous", 0);
 
 user_pref("dom.event.contextmenu.enabled", false);
 user_pref("browser.fixup.alternate.enabled", false);
+
+/* Disable preferences inside a browser tab */
+user_pref("browser.preferences.inContent", false);

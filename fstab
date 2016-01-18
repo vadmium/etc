@@ -1,0 +1,6 @@
+# LABEL=. . .	srv/mnt	type	options	[dump	pass]
+# noatime
+#	auto,noatime
+#	defaults,noatime
+# vfat: how to avoid screwing up case
+# vfat: shortname=winnt
