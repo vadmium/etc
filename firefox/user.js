@@ -236,3 +236,7 @@ user_pref("browser.fixup.alternate.enabled", false);
 
 /* Disable preferences inside a browser tab */
 user_pref("browser.preferences.inContent", false);
+
+user_pref("browser.urlbar.userMadeSearchSuggestionsChoice", true);
+user_pref("ui.key.menuAccessKeyFocuses", false);
+user_pref("browser.fullscreen.animate", false);
