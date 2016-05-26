@@ -87,6 +87,7 @@ export DU_BLOCK_SIZE=si DF_BLOCK_SIZE=si
 export LESS="-R"
 export MAKEFLAGS="--no-print-directory"
 export PYTHONSTARTUP="$HOME/pythonstartup.py"
+prepend_list ~/proj/python/lib : PYTHONPATH
 
 # Parent directory escape hack because the Gnu C Library ignores any slashes
 # which should specify a file name
