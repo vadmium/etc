@@ -20,6 +20,7 @@ main() {
     shopt -s no_empty_cmd_completion
     opt - noclobber
     opt + hashall
+    opt + histexpand
     
     # Manually remove duplicates in saved history because Bash only removes them
     # from memory for each new entry added, and saved entries are not removed
