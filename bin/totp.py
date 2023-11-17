@@ -36,7 +36,7 @@ for line in stdin:
             else:
                 assert found == issuer
     else:
-        secret = line
+        secret = line.replace(' ', '').upper()
         account = None
     
     secret = b32decode(secret)
@@ -46,7 +46,7 @@ for line in stdin:
     secret = int.from_bytes(secret[o : o + 4], 'big') & ~(~0 << 31)
     print(end=format(secret % 10**6, '06'))
     if account is not None:
-        print(end=' ')
+        print(end='  ')
         if issuer is not None:
             print(end=f'{issuer}: ')
         print(end=account)
