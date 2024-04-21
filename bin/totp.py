@@ -36,10 +36,10 @@ for line in stdin:
             else:
                 assert found == issuer
     else:
-        secret = line.replace(' ', '').upper()
+        secret = line.replace(' ', '')
         account = None
     
-    secret = b32decode(secret)
+    secret = b32decode(secret.upper())
     c = (datetime.utcnow() - datetime(1970, 1, 1)) // timedelta(seconds=30)
     secret = hmac.digest(secret, c.to_bytes(8, 'big'), 'sha1')
     o = secret[19] & ~(~0 << 4)
