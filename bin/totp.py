@@ -39,12 +39,14 @@ for line in stdin:
         secret = line.replace(' ', '')
         account = None
     
+    x = timedelta(seconds=30)
     secret = b32decode(secret.upper())
-    c = (datetime.utcnow() - datetime(1970, 1, 1)) // timedelta(seconds=30)
+    c = (datetime.now() - datetime(1970, 1, 1)) // x
     secret = hmac.digest(secret, c.to_bytes(8, 'big'), 'sha1')
     o = secret[19] & ~(~0 << 4)
     secret = int.from_bytes(secret[o : o + 4], 'big') & ~(~0 << 31)
     print(end=format(secret % 10**6, '06'))
+    print('  ', end=(datetime(1970, 1, 1) + c*x).time().isoformat('seconds'))
     if account is not None:
         print(end='  ')
         if issuer is not None:
