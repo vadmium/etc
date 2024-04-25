@@ -25,9 +25,9 @@ main() {
     # Manually remove duplicates in saved history because Bash only removes them
     # from memory for each new entry added, and saved entries are not removed
     # when appending the history file
-    if test -e ~/.bash_history; then
+    if test -n "${HISTFILE+set}" && test -e "$HISTFILE"; then
         local NEW CP_ATTR
-        NEW=~/".bash_history~$$"
+        NEW="$HISTFILE~$$"
         
         if test "$(cp --version | sed -n '1 s/^.* \([0-9]\+\).*$/\1/p')" -gt 4
         then
@@ -38,13 +38,13 @@ main() {
         fi
         
         if ! {
-            $CP_ATTR ~/.bash_history "$NEW" &&
+            $CP_ATTR "$HISTFILE" "$NEW" &&
             awk '
                 {line[NR] = $0; last[$0] = NR}
                 END {for(i = 1; i <= NR; ++i)
                     if(last[line[i]] == i) print line[i]}
-            ' ~/.bash_history >| "$NEW" &&
-            mv "$NEW" ~/.bash_history
+            ' "$HISTFILE" >| "$NEW" &&
+            mv "$NEW" "$HISTFILE"
         }; then
             rm "$NEW"
         fi
