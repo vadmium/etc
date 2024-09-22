@@ -28,13 +28,13 @@ for line in stdin:
         if not sep:
             issuer = None
         account = account.lstrip(' ')
-        found = params.get('issuer')
-        if found:
-            [found] = found
+        iparam = params.get('issuer')
+        if iparam:
+            [iparam] = iparam
             if issuer is None:
-                issuer = found
-            else:
-                assert found == issuer
+                issuer = iparam
+            if iparam == issuer:
+                iparam = None
     else:
         secret = line.replace(' ', '')
         account = None
@@ -53,4 +53,6 @@ for line in stdin:
         if issuer is not None:
             print(end=f'{issuer}: ')
         print(end=account)
+        if iparam is not None:
+            print(end=f' ({iparam})')
     print()
