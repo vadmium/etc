@@ -3,7 +3,7 @@
 from sys import stdin
 import urllib.parse
 from base64 import b32decode
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import hmac
 
 for line in stdin:
@@ -28,26 +28,31 @@ for line in stdin:
         if not sep:
             issuer = None
         account = account.lstrip(' ')
-        found = params.get('issuer')
-        if found:
-            [found] = found
+        iparam = params.get('issuer')
+        if iparam:
+            [iparam] = iparam
             if issuer is None:
-                issuer = found
-            else:
-                assert found == issuer
+                issuer = iparam
+            if iparam == issuer:
+                iparam = None
     else:
         secret = line.replace(' ', '')
         account = None
     
+    x = timedelta(seconds=30)
     secret = b32decode(secret.upper())
-    c = (datetime.utcnow() - datetime(1970, 1, 1)) // timedelta(seconds=30)
+    t0 = datetime(1970, 1, 1, tzinfo=timezone.utc)
+    c = (datetime.now(timezone.utc) - t0) // x
     secret = hmac.digest(secret, c.to_bytes(8, 'big'), 'sha1')
     o = secret[19] & ~(~0 << 4)
     secret = int.from_bytes(secret[o : o + 4], 'big') & ~(~0 << 31)
     print(end=format(secret % 10**6, '06'))
+    print('  ', end=(t0 + c*x).astimezone().time().isoformat('seconds'))
     if account is not None:
         print(end='  ')
         if issuer is not None:
             print(end=f'{issuer}: ')
         print(end=account)
+        if iparam is not None:
+            print(end=f' ({iparam})')
     print()
