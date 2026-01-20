@@ -10,7 +10,7 @@ main() {
     alias ls='ls --color=auto'
     alias patch='patch --binary'
     
-    HISTSIZE=2000
+    HISTSIZE=5000
     HISTFILESIZE="$HISTSIZE"
     HISTCONTROL=erasedups
     
