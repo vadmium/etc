@@ -50,8 +50,8 @@ main() {
         fi
     fi
     
-    local CSI='\033['
-    local FORMAT="'${CSI}1;41;37m[Exit %s]${CSI}0m\n'"
+    local 'CSI=\033['
+    local "FORMAT='${CSI}1;41;37m[Exit %s]${CSI}0m\n'"
     if trap 'printf '"$FORMAT"' "$?" >&2' ERR 2> /dev/null; then
         opt - errtrace
     else
@@ -80,7 +80,7 @@ opt() {
 
 newline() {
     stty sane &&
-    local CSI='\033[' &&
+    local 'CSI=\033[' &&
     printf "${CSI}1;37;46m"'$'"${CSI}0m"  # EOL marker
     printf '\b\b\b''\b''\b\b\b\b\b\b\b\b\b' &&  # Restore column position
     
