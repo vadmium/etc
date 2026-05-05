@@ -40,7 +40,7 @@ for line in stdin:
         account = None
     
     x = timedelta(seconds=30)
-    secret = b32decode(secret.upper())
+    secret = b32decode(secret + '=' * (-len(secret) % 8), casefold=True)
     t0 = datetime(1970, 1, 1, tzinfo=timezone.utc)
     c = (datetime.now(timezone.utc) - t0) // x
     secret = hmac.digest(secret, c.to_bytes(8, 'big'), 'sha1')
