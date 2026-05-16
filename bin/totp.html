@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta name=viewport content="width=device-width">
+    <meta name=color-scheme content="light dark">
+</head>
+<body>
+
+<input id=secret type=password placeholder="otpauth: URI"
+style="width: 100%" autocomplete="current-password" required>
+<p id=acc></p>
+<p>Secret bits: <span id=bits></span></p>
+<div id=codes></div>
+
+<script>
+var g_refresh;
+document.getElementById('secret').addEventListener('input', function () {
+    clearTimeout(g_refresh);
+    /* TODO: abort any pending OTP generation chain first */
+    document.getElementById('bits').textContent = '';
+    document.getElementById('codes').textContent = '';
+    document.getElementById('acc').textContent = '';
+    
+    var secret = document.getElementById('secret').value;
+    if (secret.indexOf('?') >= 0) {
+        secret = /^otpauth:\/\/totp\/([^?#]*)\?([^#]*)/i.exec(secret);
+        if (!secret) {
+            throw new Error('Only otpauth://totp/ supported');
+        }
+        
+        var params = g_query_parse(secret[2], ['secret', 'issuer',
+            'algorithm', 'digits', 'counter', 'period']);
+        if (params.hasOwnProperty('algorithm') && params.algorithm != 'SHA1'
+            || params.hasOwnProperty('digits') && params.digits != '6'
+            || params.hasOwnProperty('counter')
+            || params.hasOwnProperty('period') && params.period != '30')
+        {
+            throw new Error('Unhandled parameter value');
+        }
+        
+        secret = decodeURIComponent(secret[1]);
+        secret = /^(?:([^:]*): *)?([^:]*)$/.exec(secret);
+        if (!secret) {
+            throw new Error('Colon in account name');
+        }
+        if (secret[1] === undefined) {
+            secret[1] = params.issuer;
+        }
+        if (secret[1] !== undefined) {
+            secret[2] = secret[1] + ': ' + secret[2];
+        }
+        if (params.hasOwnProperty('issuer') && params.issuer !== secret[1]) {
+            secret[2] += ' (' + params.issuer + ')';
+        }
+        document.getElementById('acc').textContent = secret[2];
+    }
+    g_generate();
+});
+
+function g_generate() {
+    var secret = document.getElementById('secret').value;
+    var params = /\?([^#]*)/.exec(secret);
+    if (params) {
+        secret = g_query_parse(params[1], ['secret']).secret;
+    }
+    var secret = g_base32_decode(secret.replace(' ', ''));
+    document.getElementById('bits').textContent = secret.length * 8;
+    var extractable = false;
+    secret = crypto.subtle.importKey('raw', secret,
+        {name: 'HMAC', hash: 'SHA-1'}, extractable, ['sign'])
+    secret.then(g_sign);
+}
+function g_sign(key) {
+    var c = Math.floor(Date.now() * 1e-3 / 30);
+    var buffer = new ArrayBuffer(8);
+    new DataView(buffer) . setUint32(4, c);
+    crypto.subtle.sign('HMAC', key, buffer).then(function (code) {
+        code = new DataView(code);
+        code = code.getUint32(code.getUint8(19) & 0xF) & 0x7FFFFFFF;
+        code = ('00000' + (code % 1e6).toString()).slice(-6);
+        
+        if (document.getElementById('codes').childElementCount > 1) {
+            document.getElementById('codes').firstElementChild.remove();
+        }
+        var line = document.createElement('div');
+        t = new Date(c * 30 / 1e-3) . toLocaleTimeString();
+        line.textContent = code + '\u2003' + t;
+        document.getElementById('codes').appendChild(line);
+        
+        g_refresh = setTimeout(g_generate, (c + 1) * 30 / 1e-3 - Date.now());
+    });
+}
+
+function g_query_parse(query, names) {
+    var result = {};
+    for (var param of query.split('&')) {
+        param = param.split('=', 2);
+        try {
+            var n = decodeURIComponent(param[0]);
+        } catch (e) {
+            continue;
+        }
+        if (names.indexOf(n) < 0) {
+            continue;
+        }
+        if (result.hasOwnProperty(n)) {
+            throw new Error('Duplicate parameter');
+        }
+        result[n] = param[1] && decodeURIComponent(param[1]);
+    }
+    return result;
+}
+
+function g_base32_decode(code) {
+    var digits = code.indexOf('=');
+    if (digits < 0) {
+        digits = code.length;
+    } else {
+        var noneq = /[^=]/g;
+        noneq.lastIndex = digits;
+        if (noneq.test(code)) {
+            throw new Error('Misplaced equals sign');
+        }
+        if (code.length % 8 != 0 || code.length - digits >= 8) {
+            throw new Error('Incorrect padding');
+        }
+    }
+    if (digits * 5 % 8 >= 5) {
+        throw new Error('Extra digit');
+    }
+    
+    var result = new Uint8Array(digits * 5 / 8);
+    var byte = 0;
+    var shift = 8;
+    for (var digit of code) {
+        if (digit == '=') {
+            break;
+        }
+        
+        digit = digit.toUpperCase();
+        if (digit >= 'A' && digit <= 'Z') {
+            digit = digit.charCodeAt() - 'A'.charCodeAt()
+        } else if (digit >= '2' && digit <= '7') {
+            digit = 31 + digit.charCodeAt() - '7'.charCodeAt();
+        } else {
+            throw new Error('Non-Base32 digit');
+        }
+        
+        shift -= 5;
+        if (shift < 0) {
+            result[byte] |= digit >> -shift;
+            ++byte;
+            shift += 8;
+        }
+        digit <<= shift;
+        if (byte < result.length) {
+            result[byte] |= digit;
+        } else if (digit & 0xFF) {
+            throw new Error('Nonzero pad bits');
+        }
+    }
+    return result;
+}
+</script>
+
+</body>
+</html>
